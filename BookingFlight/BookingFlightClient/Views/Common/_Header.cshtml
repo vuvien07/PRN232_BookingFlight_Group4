@@ -1,0 +1,65 @@
+﻿<html lang=en>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Booking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+    <link href="~/css/common/Header.css" rel="stylesheet" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container">
+                <a class="navbar-brand" href="/home">Luxury Flight</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/flight">Chuyến bay</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/news">Tin tức</a>
+                        </li>
+                    </ul>
+
+
+                    <div class="account-info d-flex align-items-center">
+                        <div class="dropdown">
+                            <div class="buttons">
+                                <button class="btn btn-outline-dark btn-sm" onclick="toggleDropdown()">User</button>
+                            </div>
+                            <div id="headerDropdownMenu">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div class="modal fade" id="searchTicketModal" tabindex="-1" aria-labelledby="searchTicketModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="searchTicketModalLabel">Tra cứu vé máy bay</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="searchTicketForm" action="/ticket" method="get">
+                            <div class="mb-3">
+                                <label for="ticketNumber" class="form-label">Mã đặt chỗ</label>
+                                <input type="text" class="form-control" id="ticketNumber" name="ticketNumber" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" form="searchTicketForm" class="btn btn-primary">Tìm kiếm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <script src="~/js/common/Header.js" asp-append-version="true"></script>
+</body>
+</html>

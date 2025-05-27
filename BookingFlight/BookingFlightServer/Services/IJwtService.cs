@@ -1,0 +1,11 @@
+﻿using BookingFlightServer.DTO;
+
+namespace BookingFlightServer.Services
+{
+	public interface IJwtService
+	{
+		string CreateJwtToken(AccountDTO accountDTO);
+		string CreateRefreshToken();
+		double GetTokenExpirationTime();
+	}
+}

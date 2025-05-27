@@ -1,0 +1,99 @@
+﻿<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #4db8ff, #9933ff);
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .login-container {
+            height: 100vh;
+        }
+
+        .login-card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 350px;
+        }
+
+        .icon-container {
+            font-size: 5rem;
+            color: #6c757d;
+        }
+
+        input::placeholder {
+            color: #6c757d;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="alertModalLabel">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Alert
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center align-middle py-4">
+                    <p id="alertMessage" class="fs-5 text-muted"></p>
+                </div>
+                <div class="modal-footer justify-content-center border-0">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-container d-flex justify-content-center align-items-center">
+        <div class="login-card text-center">
+            <div class="icon-container mb-4">
+                <i class="bi bi-person-circle"></i>
+            </div>
+            <div class="mb-3">
+                <label class="form-label visually-hidden">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <label>
+                        <input type="text" class="form-control" name="Username" placeholder="Username" />
+                    </label>
+                    <span class="text-danger" id="Username"></span>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label visually-hidden">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <label>
+                        <input type="password" class="form-control" name="Password" placeholder="Password" />
+                    </label>
+                    <span class="text-danger" id="Password"></span>
+                </div>
+            </div>
+            <input type="hidden" name="IsRememberMe" value="false" />
+            <button type="button" onclick="LoginToSystem(event)" class="btn btn-primary w-100">Sign In</button>
+            <div class="form-check mt-3">
+                <label class="form-check-label" for="rememberMe">
+                    <input class="form-check-input rememberMe" type="checkbox" id="rememberMe">
+                    Remember me
+                </label>
+            </div>
+            <div class="mt-3">
+                <a href="#" class="text-decoration-none">Forgot password?</a>
+            </div>
+            <hr>
+            <p>Not a member? <a href="signup" class="text-decoration-none">Create account</a></p>
+        </div>
+    </div>
+    <script src="~/js/authentication/Login.js" type="text/javascript" asp-append-version="true"></script>
+</body>
+</html>

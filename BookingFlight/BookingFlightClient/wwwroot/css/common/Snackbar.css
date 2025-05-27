@@ -1,0 +1,49 @@
+﻿#snackbar {
+    visibility: hidden;
+    min-width: 350px; /* tăng từ 250px lên 350px */
+    max-width: 90%; /* để không vượt quá màn hình nhỏ */
+    background-color: #333;
+    color: white;
+    text-align: left;
+    border-radius: 8px;
+    padding: 16px 24px;
+    position: fixed;
+    z-index: 9999;
+    left: 50%;
+    top: 30px;
+    transform: translateX(-50%);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #222;
+}
+
+    #snackbar.show {
+        visibility: visible;
+        animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    }
+
+@keyframes fadein {
+    from {
+        top: 0;
+        opacity: 0;
+    }
+
+    to {
+        top: 30px;
+        opacity: 1;
+    }
+}
+
+@keyframes fadeout {
+    from {
+        top: 30px;
+        opacity: 1;
+    }
+
+    to {
+        top: 0;
+        opacity: 0;
+    }
+}

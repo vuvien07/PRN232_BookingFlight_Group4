@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đặt khám AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #chatBox {
+          height: 300px;
+          overflow-y: auto;
+          border: 1px solid #ddd;
+          padding: 10px;
+          background-color: #f9f9f9;
+        }
+        .ai, .user {
+          margin: 5px 0;
+        }
+        .ai { color: blue; }
+        .user { color: green; text-align: right; }
+    </style>
+</head>
+<body class="p-5">
+
+    <h2>Phòng khám XYZ</h2>
+    <p>Bạn cần hỗ trợ đặt khám? Nhấn nút bên dưới để AI trợ lý hỗ trợ qua cuộc gọi mô phỏng.</p>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#callModal">📞 Gọi hỗ trợ đặt khám</button>
+
+    <!-- Modal AI -->
+    <div class="modal fade" id="callModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Trợ lý AI đang hỗ trợ...</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="chatBox">
+                        <div class="ai">👩‍⚕️ Xin chào! Tôi là trợ lý ảo. Bạn muốn đặt khám vào ngày nào?</div>
+                    </div>
+                    <input type="text" id="userInput" class="form-control mt-3" placeholder="Nhập nội dung nói của bạn..." />
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" onclick="sendMessage()">Gửi</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Kết thúc cuộc gọi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* <!-- Scripts --> *@
+    @* <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> *@
+    @* <script> *@
+    @*     function sendMessage() { *@
+    @*       const input = document.getElementById("userInput"); *@
+    @*       const message = input.value.trim(); *@
+    @*       if (message === "") return; *@
+
+    @*       const chatBox = document.getElementById("chatBox"); *@
+    @*       chatBox.innerHTML += `<div class="user">🧑 ${message}</div>`; *@
+
+    @*       // Giả lập phản hồi của AI *@
+    @*       setTimeout(() => { *@
+    @*         let reply = "Cảm ơn bạn. Tôi đã ghi nhận."; *@
+    @*         if (message.toLowerCase().includes("mai")) reply = "Bạn muốn đặt khám vào ngày mai đúng không? Tôi sẽ đặt lịch."; *@
+    @*         if (message.toLowerCase().includes("giờ")) reply = "Bạn có thể chọn giờ: 9h, 10h30 hoặc 14h."; *@
+
+    @*         chatBox.innerHTML += `<div class="ai">👩‍⚕️ ${reply}</div>`; *@
+    @*         chatBox.scrollTop = chatBox.scrollHeight; *@
+    @*       }, 1000); *@
+
+    @*       input.value = ""; *@
+    @*     } *@
+    @* </script> *@
+</body>
+</html>
