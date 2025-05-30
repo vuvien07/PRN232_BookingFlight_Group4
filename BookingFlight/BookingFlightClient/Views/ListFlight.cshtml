@@ -1,0 +1,258 @@
+﻿<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Booking</title>
+    <link href="~/css/common/Footer.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            position: relative;
+            padding-top: 69px;
+        }
+
+        .sidebar {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+            .sidebar h3 {
+                font-size: 18px;
+                margin-bottom: 20px;
+                color: #333;
+            }
+
+            .sidebar ul li a {
+                text-decoration: none;
+                color: #333;
+                font-size: 14px;
+            }
+
+                .sidebar ul li a:hover {
+                    color: #007bff;
+                }
+
+        .content {
+            background-color: #fff;
+            padding: 20px;
+            margin-top: 35.5px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            background-color: #f8c22e;
+            color: #fff;
+            border: none;
+        }
+
+            .btn:hover {
+                background-color: #e0a806;
+            }
+
+        /*Search*/
+        .search-form-container {
+            gap: 10px;
+            display: flex;
+            flex-wrap: nowrap;
+            width: 100%;
+        }
+
+            .search-form-container > div {
+                flex: 1;
+            }
+
+            .search-form-container .input-group-text {
+                border-radius: 4px 0 0 4px;
+            }
+
+            .search-form-container .form-control {
+                border-radius: 0 4px 4px 0;
+                flex: 1;
+            }
+
+            .search-form-container button {
+                white-space: nowrap;
+            }
+
+            /* Đảm bảo các select và input có cùng chiều rộng */
+            .search-form-container select,
+            .search-form-container input[type="date"] {
+                width: 100%;
+            }
+
+        /*Flight list*/
+        .filters {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .flight-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .price {
+            color: #f60;
+            font-weight: bold;
+        }
+
+        .details-btn {
+            font-size: 0.9em;
+            color: #007bff;
+            cursor: pointer;
+        }
+
+            .details-btn:hover {
+                text-decoration: underline;
+            }
+
+        .date-line {
+            overflow-x: auto;
+            white-space: nowrap;
+            border-bottom: 2px solid #007bff;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+        }
+
+            .date-line button {
+                border: none;
+                background: none;
+                padding: 10px 15px;
+                cursor: pointer;
+                color: #007bff;
+            }
+
+                .date-line button.active {
+                    font-weight: bold;
+                    border-bottom: 2px solid #007bff;
+                }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+
+    <partial name="~/Views/Common/_Header.cshtml" />
+
+    <div class="container my-4">
+        <!-- Search Section -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="input-group search-form-container">
+                    <div class="d-flex align-items-center">
+                        <span class="input-group-text">Từ</span>
+                        <select class="form-control" id="departureSelect">
+                            <option value="" selected>-- Chọn điểm đi --</option>
+                            <option value="2">Hồ Chí Minh (SGN)</option>
+                            <option value="1">Hà Nội (HAN)</option>
+                            <option value="3">Đà Nẵng (DNG)</option>
+                            <option value="5">Nha Trang (CRA)</option>
+                            <option value="4">Phú Quốc (PQA)</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex align-items-center">
+                        <span class="input-group-text">Đến</span>
+                        <select class="form-control" id="arrivalSelect">
+                            <option value="" selected>-- Chọn điểm đến --</option>
+                            <option value="2">Hồ Chí Minh (SGN)</option>
+                            <option value="1">Hà Nội (HAN)</option>
+                            <option value="3">Đà Nẵng (DNG)</option>
+                            <option value="5">Nha Trang (CRA)</option>
+                            <option value="4">Phú Quốc (PQA)</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex align-items-center">
+                        <span class="input-group-text">Ngày đi</span>
+                        <input type="date" name="departure-date" class="form-control departure-date" value="">
+                    </div>
+
+                    <div class="d-flex align-items-center">
+                        <span class="input-group-text">Ngày về</span>
+                        <input type="date" class="form-control">
+                    </div>
+
+                    <button class="btn btn-primary" onclick="handleSearchFlight(event)">Tìm chuyến bay</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Filters Column -->
+            <div class="col-md-3">
+                <div class="filters">
+
+
+                    <h5>Giờ bay</h5>
+                    <div class="mb-3">
+                        <h7>Giờ cất cánh</h7>
+                        <br>
+                        <label>
+                            <input type="checkbox" class="departure-time" value="00:00:00-06:00:00" /> Từ 0h đến 6h
+                        </label><br>
+                        <label>
+                            <input type="checkbox" class="departure-time" value="06:00:00-12:00:00" /> Từ 6h đến 12h
+                        </label><br>
+
+                        <label>
+                            <input type="checkbox" class="departure-time" value="12:00:00-18:00:00" /> Từ 12h đến 18h
+                        </label><br>
+
+                        <label>
+                            <input type="checkbox" class="departure-time" value="18:00:00-23:59:59" /> Từ 18h đến 0h
+                        </label><br>
+
+
+                    </div>
+
+                    <h5>Hãng chuyển chở</h5>
+                    <div class="mb-3">
+                        <input type="checkbox" value="airbus" class="check-brand" id="bamboo" />
+                        <label for="bamboo">Airbus</label><br>
+                        <input type="checkbox" class="check-brand" value="boeing" id="vna">
+                        <label for="vna">Boeing</label>
+                    </div>
+
+
+                    <h5>Giá vé</h5>
+                    <div class="mb-3">
+                        <label>
+                            <input type="checkbox" class="price-range" value="250000-2500000" />250000 VND -2500000 VND
+                        </label><br>
+                        <label>
+                            <input type="checkbox" class="price-range" value="2500000-5000000" />2500000 VND -5000000 VND
+                        </label><br>
+                        <label>
+                            <input type="checkbox" class="price-range" value="5000000-7500000" />5000000 VND -7500000 VND
+                        </label><br>
+                        <label>
+                            <input type="checkbox" class="price-range" value="7500000-10000000" />7500000 VND -10000000 VND
+                        </label><br>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flights Column -->
+            <div class="col-md-9">
+                <h5 class="flight-title">Chuyến bay một chiều Hồ Chí Minh (SGN) - Hà Nội (HAN)</h5>
+                <p class="departureDateTitle">Ngày đi: Thứ hai, 27/01/2025 - Tổng số: người lớn</p>
+
+                <!-- Date Selector Line -->
+                <div class="date-line"></div>
+
+                <!-- Flight Cards -->
+                <div class="flight-list-card">
+                </div>
+            </div>
+        </div>
+    </div>
+    <partial name="~/Views/Common/_Footer.cshtml" />
+    <script type="text/javascript" src="~/js/ListFlight.js" asp-append-version="true"></script>
+</body>
+</html>

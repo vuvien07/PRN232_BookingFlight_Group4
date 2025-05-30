@@ -9,6 +9,7 @@ using BookingFlightServer.Entiies;
 using Repositories;
 using BookingFlightServer.Repositories.Implements;
 using BookingFlightServer.Middlewares;
+using BookingFlightServer.Repositories;
 
 namespace BookingFlightServer
 {
@@ -50,7 +51,11 @@ namespace BookingFlightServer
 		}
 		public static void ConfigureServices(IServiceCollection services)
 		{
-			services.AddControllers();
+			services.AddControllers()
+				.ConfigureApiBehaviorOptions(
+				options => options.SuppressModelStateInvalidFilter = true
+				)
+				.AddJsonOptions(options => options.JsonSerializerOptions.PropertyNameCaseInsensitive = true);
 			services.AddDbContext<BookingFlightContext>(options => options.UseSqlServer("Name=ConnectionStrings:DBContext"));
 			services.AddCors(options =>
 			{
@@ -66,6 +71,9 @@ namespace BookingFlightServer
 			services.AddTransient<IJwtService, JwtService>();
 			services.AddTransient<IAccountService, AccountService>();
 			services.AddTransient<IAccountRepository, AccountRepository>();
+			services.AddTransient<IFlightService, FlightService>();
+			services.AddTransient<IFlightRepository, FlightRepository>();
+			services.AddTransient<IClassSeatRepository, ClassSeatRepository>();
 		}
 	}
 }

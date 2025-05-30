@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using BookingFlightServer.Utils;
+using System.Net;
+using System.Text.Json;
 
 namespace BookingFlightServer.Middlewares
 {
@@ -17,6 +19,17 @@ namespace BookingFlightServer.Middlewares
 			{
 				await _next(context);
 			}
+			catch (AppException ex)
+			{
+				context.Response.StatusCode = 500;
+				context.Response.ContentType = "application/json";
+				var errorResponse = new
+				{
+					message = ex.Message
+				};
+				var json = JsonSerializer.Serialize(errorResponse);
+				await context.Response.WriteAsync(json);
+			}
 			catch (Exception ex)
 			{
 				_logger.LogError(ex, "An error occurred");
@@ -24,8 +37,7 @@ namespace BookingFlightServer.Middlewares
 				context.Response.ContentType = "application/json";
 				var errorResponse = new
 				{
-					status = 500,
-					message = "Có lỗi xảy ra: " + ex.Message
+					message = "Có lỗi xảy ra trên hệ thống"
 				};
 				var json = JsonSerializer.Serialize(errorResponse);
 				await context.Response.WriteAsync(json);

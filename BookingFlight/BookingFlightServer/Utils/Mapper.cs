@@ -1,4 +1,6 @@
-﻿namespace BookingFlightServer.Utils
+﻿using System.Reflection;
+
+namespace BookingFlightServer.Utils
 {
 	public class Mapper
 	{
@@ -11,7 +13,9 @@
 			var destinationProperties = destination.GetType().GetProperties().ToDictionary(p => p.Name);
 			foreach (var sourceProperty in sourceProperties)
 			{
-				if (!destinationProperties.TryGetValue(sourceProperty.Name, out var destinationProperty))
+				var mapToAttribute = sourceProperty.GetCustomAttribute<MapToAttribute>();
+				var targetName = mapToAttribute?.TargetName ?? sourceProperty.Name;
+				if (!destinationProperties.TryGetValue(targetName, out var destinationProperty))
 					continue;
 				if (!destinationProperty.CanWrite)
 					continue;

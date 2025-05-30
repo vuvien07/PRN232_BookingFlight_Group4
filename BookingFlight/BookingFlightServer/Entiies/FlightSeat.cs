@@ -9,7 +9,7 @@ public partial class FlightSeat
 
     public int SeatId { get; set; }
 
-    public bool? IsSat { get; set; }
+    public bool IsSat { get; set; }
 
     public int? TicketId { get; set; }
 

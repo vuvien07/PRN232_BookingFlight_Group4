@@ -27,8 +27,7 @@ namespace BookingFlightServer.Controllers
         {
 			if (!ModelState.IsValid)
 			{
-				var errors = ModelState.Values.Select(v => v.Errors?.FirstOrDefault()?.ErrorMessage);
-				return BadRequest(errors);
+				return BadRequest(UtilHelper.GetModelStateErrors(ModelState));
 			}
 			Account? account = await _accountService.findByUsernameAndPassword(loginDTO.Username, loginDTO.Password);
 			if (account == null) return BadRequest(new { message = "Username or password is incorrect" });

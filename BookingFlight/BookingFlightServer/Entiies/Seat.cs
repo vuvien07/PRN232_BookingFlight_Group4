@@ -13,7 +13,7 @@ public partial class Seat
 
     public int StatusId { get; set; }
 
-    public int? PlaneId { get; set; }
+    public int PlaneId { get; set; }
 
     public virtual ClassSeat Class { get; set; } = null!;
 

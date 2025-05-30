@@ -14,6 +14,25 @@ namespace BookingFlightServer.Services.Implements
 		{
 			_configuration = configuration;
 		}
+
+		public string CreateJwtDTOToken<T>(T t)
+		{
+			DateTime expiration = DateTime.Now.AddMinutes(Convert.ToDouble(int.MaxValue));
+			List<Claim> claims = t.GetType().GetProperties().Select(x => new Claim(x.Name, x.GetValue(t)?.ToString() ?? string.Empty)).ToList();
+			SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? string.Empty));
+			SigningCredentials credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+			JwtSecurityToken token = new JwtSecurityToken(
+				_configuration["Jwt:Issuer"],
+				_configuration["Jwt:Audience"],
+				claims,
+				expires: expiration,
+				signingCredentials: credentials
+				);
+			JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+			string tokenString = handler.WriteToken(token);
+			return tokenString;
+		}
+
 		public string CreateJwtToken(AccountDTO accountDTO)
 		{
 			DateTime expiration = DateTime.Now.AddMinutes(Convert.ToDouble(_configuration["Jwt:Expiration_In_Minutes"]));
