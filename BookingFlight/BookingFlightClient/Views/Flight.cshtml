@@ -100,63 +100,63 @@
         <div class="search-wrapper position-absolute top-50 start-50 translate-middle p-4 bg-light rounded shadow">
             <div class="search-form">
                 <h4 class="mb-3 text-center">Vé máy bay</h4>
-                <form action="flight" id="searchFlightForm" method="post">
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <label class="form-label">Từ</label>
-                            <select class="form-control" id="departureSelectPlace" name="From">
-                                <option value="2">Hồ Chí Minh (SGN)</option>
-                                <option value="1">Hà Nội (HAN)</option>
-                                <option value="3">Đà Nẵng (DNG)</option>
-                                <option value="5">Nha Trang (CRA)</option>
-                                <option value="4">Phú Quốc (PQA)</option>
-                            </select>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label">Đến</label>
-                            <select class="form-control" id="arrivalSelectPlace" name="To">
-                                <option value="2">Hồ Chí Minh (SGN)</option>
-                                <option value="1">Hà Nội (HAN)</option>
-                                <option value="3">Đà Nẵng (DNG)</option>
-                                <option value="5">Nha Trang (CRA)</option>
-                                <option value="4">Phú Quốc (PQA)</option>
-                            </select>
-                        </div>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Từ</label>
+                        <select class="form-control" id="departureSelectPlace" name="From">
+                            <option value="2">Hồ Chí Minh (SGN)</option>
+                            <option value="1">Hà Nội (HAN)</option>
+                            <option value="3">Đà Nẵng (DNG)</option>
+                            <option value="5">Nha Trang (CRA)</option>
+                            <option value="4">Phú Quốc (PQA)</option>
+                        </select>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <label class="form-label">Ngày đi</label>
-                            <label>
-                                <input type="date" name="DepartureDate" class="form-control" required>
-                            </label>
-                        </div>
+                    <div class="col-6">
+                        <label class="form-label">Đến</label>
+                        <select class="form-control" id="arrivalSelectPlace" name="To">
+                            <option value="2">Hồ Chí Minh (SGN)</option>
+                            <option value="1">Hà Nội (HAN)</option>
+                            <option value="3">Đà Nẵng (DNG)</option>
+                            <option value="5">Nha Trang (CRA)</option>
+                            <option value="4">Phú Quốc (PQA)</option>
+                        </select>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-4">
-                            <label class="form-label">Người lớn</label>
-                            <label>
-                                <input type="number" name="Adult" class="form-control" value="1" min="1">
-                            </label>
-                        </div>
-                        <div class="col-4">
-                            <label class="form-label">Trẻ em</label>
-                            <label>
-                                <input type="number" name="Child" class="form-control" value="0" min="0">
-                            </label>
-                        </div>
-                        <div class="col-4">
-                            <label class="form-label">Em bé</label>
-                            <label>
-                                <input type="number" name="Baby" class="form-control" value="0" min="0">
-                            </label>
-                        </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Ngày đi</label>
+                        <label>
+                            <input type="date" name="DepartureDate" class="form-control">
+                        </label><br />
+                        <span class="text-danger" id="DepartureDate"></span>
                     </div>
-                    <input type="hidden" name="jsonData" value="">
-                    <button type="submit" class="btn btn-warning w-100" onclick="submitFlightForm(event)">
-                        Tìm chuyến bay
-                    </button>
-                </form>
-
+                </div>
+                <div class="row mb-3">
+                    <div class="col-4">
+                        <label class="form-label">Người lớn</label>
+                        <label>
+                            <input type="number" name="NumAdult" class="form-control" value="1" min="1">
+                        </label><br />
+                        <span class="text-danger" id="NumAdult"></span>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label">Trẻ em</label>
+                        <label>
+                            <input type="number" name="NumChild" class="form-control" value="0" min="0">
+                        </label><br />
+                        <span class="text-danger" id="NumChild"></span>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label">Em bé</label>
+                        <label>
+                            <input type="number" name="NumInfant" class="form-control" value="0" min="0">
+                        </label><br />
+                        <span class="text-danger" id="NumInfant"></span>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-warning w-100" onclick="SubmitFlightInfo(event)">
+                    Tìm chuyến bay
+                </button>
             </div>
         </div>
     </header>
@@ -340,73 +340,7 @@
         </div>
 
     </div>
-
-    <script>
-           document.addEventListener('DOMContentLoaded', function () {
-            const departureDate = document.getElementById('departureSelectPlace');
-            const arrivalDate = document.getElementById('arrivalSelectPlace');
-
-            arrivalDate.options[0].disabled = true;
-            arrivalDate.options[1].selected = true;
-
-            departureDate.addEventListener('change', function () {
-                updateArrivalOptions();
-            });
-            arrivalDate.addEventListener('change', function () {
-                updateDepartureOptions();
-            });
-
-            function updateArrivalOptions() {
-                const selectedDeparture = departureDate.value;
-                Array.from(arrivalDate.options).forEach(option => {
-                    option.disabled = option.value === selectedDeparture && option.value !== '';
-                });
-            }
-
-            // Hàm cập nhật options cho điểm đi
-            function updateDepartureOptions() {
-                const selectedArrival = arrivalDate.value;
-                Array.from(departureDate.options).forEach(option => {
-                    option.disabled = option.value === selectedArrival && option.value !== '';
-                });
-            }
-        });
-        $(document).ready(function () {
-            $(document).on('change', 'input[name="Adult"], input[name="Child"], input[name="Baby"]', function () {
-                let Adult = $("input[name='Adult']").val();
-                let Child = $("input[name='Child']").val();
-                let Baby = $("input[name='Baby']").val();
-                if(Adult === ""){
-                    $("input[name='Adult']").val(0);
-                }
-                if(Child === ""){
-                    $("input[name='Child']").val(0);
-                }
-                if(Baby === ""){
-                    $("input[name='Baby']").val(0);
-                }
-            });
-        });
-
-        function submitFlightForm(event) {
-            event.preventDefault();
-            let Adult = $("input[name='Adult']").val();
-            let Child = $("input[name='Child']").val();
-            let Baby = $("input[name='Baby']").val();
-            if (parseInt(Adult) + parseInt(Child) + parseInt(Baby) > 9) {
-                Swal.fire({
-                    title: "Error",
-                    text: "Tối đa 9 người!",
-                    icon: "error",
-                    timer: 1000,
-                    showConfirmButton: false
-                });
-                return;
-            }
-            $("#searchFlightForm").submit();
-        }
-    </script>
-
+    <script src="~/js/Flight.js" asp-append-version="true"></script>
     <partial name="~/Views/Common/_Footer.cshtml" />
 </body>
 </html>

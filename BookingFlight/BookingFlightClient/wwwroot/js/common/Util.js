@@ -5,7 +5,8 @@ function parseJwtToken(token) {
     var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
-    return JSON.parse(jsonPayload);
+    var result = JSON.parse(jsonPayload);
+    return result;
 }
 
 function CheckAccess(roles) {
@@ -42,3 +43,16 @@ async function isSucessRequestFreshToken() {
     return isSucess;
 }
 
+function formatDate(date) {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${year}-${month}-${day}`;
+}
+
+function formatTime(dateString) {
+    let date = new Date(dateString);
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+}

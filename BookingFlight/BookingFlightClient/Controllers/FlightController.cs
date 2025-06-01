@@ -8,5 +8,10 @@ namespace BookingFlightClient.Controllers
         {
             return View("~/Views/Flight.cshtml");
         }
-    }
+        [HttpGet("flight/list")]
+		public IActionResult GetFlightListPage()
+		{
+			return View("~/Views/ListFlight.cshtml");
+		}
+	}
 }

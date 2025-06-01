@@ -1,4 +1,6 @@
-﻿namespace BookingFlightServer.DTO
+﻿using System.Text.Json;
+
+namespace BookingFlightServer.DTO
 {
 	public class FlightCheckoutRequestDTO
 	{

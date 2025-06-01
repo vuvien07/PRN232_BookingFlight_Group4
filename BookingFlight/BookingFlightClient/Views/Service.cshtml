@@ -1,0 +1,192 @@
+﻿<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Service</title>
+    <link href="~/css/common/Footer.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            background: url('${pageContext.request.contextPath}/images/background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            padding-top: 69px;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .service-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            }
+
+        .service-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+        }
+
+        .price {
+            color: #f60;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            position: sticky;
+            top: 80px;
+            margin-top: 53px;
+        }
+
+        .btn-next {
+            background-color: #006994 !important;
+            color: white !important;
+            border: none;
+            padding: 10px 30px;
+            width: 100%;
+        }
+
+            .btn-next:hover {
+                background: #40E0D0 !important;
+            }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .divider {
+            border-top: 1px solid #dee2e6;
+            margin: 15px 0;
+        }
+
+        /*Select favourite seat*/
+        .seat-map {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .seat {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+            .seat:hover:not(.unavailable) {
+                transform: scale(1.1);
+            }
+
+            .seat.selected {
+                outline: 4px solid #0d6efd;
+            }
+
+            .seat.special {
+                background-color: #dc3545;
+            }
+
+            .seat.front {
+                background-color: #6f42c1;
+            }
+
+            .seat.standard {
+                background-color: #198754;
+            }
+
+            .seat.unavailable {
+                background-color: #adb5bd;
+                cursor: not-allowed;
+            }
+
+        .seat-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            display: none;
+            z-index: 1000;
+        }
+
+        .seat:hover .seat-tooltip {
+            display: block;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+
+        .modal-header {
+            background-color: #006994;
+            color: white;
+        }
+
+        .passenger-info {
+            background-color: #006994;
+            color: white;
+            padding: 15px;
+        }
+
+        .passenger-card {
+            background: white;
+            color: black;
+            padding: 15px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <partial name="~/Views/Common/_Header.cshtml" />
+
+    <div class="container my-4">
+        <div class="row d-flex">
+            <!-- Services Column -->
+            <div class="col-md-8">
+                <h4 class="mb-4">Đừng quên mua hành lý, suất ăn, chọn chỗ ngồi và hơn thế nữa...</h4>
+                <div class="service-list">
+                </div>
+              
+            </div>
+            <!-- Summary Column -->
+            <div class="col-md-4">
+                <div class="summary-card" id="summary-card">
+                </div>
+            </div>
+        </div>
+
+
+        <partial name="~/Views/Common/_Footer.cshtml" />
+        <script src="~/js/Service.js" asp-append-version="true"></script>
+</body>
+</html>

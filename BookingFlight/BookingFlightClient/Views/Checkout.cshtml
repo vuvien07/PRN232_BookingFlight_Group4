@@ -1,0 +1,133 @@
+﻿<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Checkout</title>
+    <style>
+        body {
+            background: #f8f9fa;
+            background: url('${pageContext.request.contextPath}/images/background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            padding-top: 69px;
+        }
+
+        .checkout-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .flight-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            position: sticky;
+            top: 80px;
+        }
+
+        .form-control {
+            margin-bottom: 15px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .divider {
+            border-top: 1px solid #dee2e6;
+            margin: 15px 0;
+        }
+
+        .price {
+            color: #f60;
+            font-weight: bold;
+        }
+
+        .btn-confirm {
+            background-color: #006994 !important;
+            color: white !important;
+            border: none;
+            padding: 10px 30px;
+            width: 100%;
+        }
+
+            .btn-confirm:hover {
+                background-color: #40E0D0 !important;
+            }
+
+        .btn-apply {
+            background-color: #006994 !important;
+            color: white !important;
+            border: none;
+            padding: 8px 20px;
+            min-width: 100px;
+            margin-bottom: 15.5px;
+        }
+
+        .voucher-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+            .voucher-section input {
+                flex: 1;
+            }
+
+            .voucher-section button {
+                white-space: nowrap;
+            }
+    </style>
+</head>
+<body>
+    <partial name="~/Views/Common/_Header.cshtml" />
+    <div class="container my-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="checkout-section">
+                    <h5 class="mb-3">Thông tin chuyến bay <sup class="text-danger font-weight-bold">*</sup></h5>
+                    <div class="flight-info">
+                        <div class="d-flex justify-content-between align-items-center" id="flight-info">
+                        </div>
+                    </div>
+                </div>
+                <div id="passenger-info">
+                </div>
+                <div class="checkout-section">
+                    <h5 class="mb-3">Thông tin liên hệ</h5>
+                    <input type="text" class="form-control" placeholder="Họ và Tên"
+                           onchange="handleChangeValue(contactInfo, 0, 'fullNameContact', this.value)">
+                    <p class="text-danger-fullNameContact-contact-0 d-none"></p>
+                    <input type="tel" class="form-control" placeholder="Số điện thoại"
+                           onchange="handleChangeValue(contactInfo, 0, 'phoneContact', this.value)">
+                    <p class="text-danger-phoneContact-contact-0 d-none"></p>
+                    <input type="email" class="form-control" placeholder="Email"
+                           onchange="handleChangeValue(contactInfo, 0, 'emailContact', this.value)">
+                    <p class="text-danger-emailContact-contact-0 d-none"></p>
+                    <input type="text" class="form-control" placeholder="Địa chỉ"
+                           onchange="handleChangeValue(contactInfo, 0, 'addressContact', this.value)">
+                    <p class="text-danger-addressContact-contact-0 d-none"></p>
+                </div>
+            </div>
+            <!-- Summary -->
+            <div class="col-md-4">
+                <div class="summary-card" id="invoice">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/js/Checkout.js" asp-append-version="true"></script>
+</body>
+</html>

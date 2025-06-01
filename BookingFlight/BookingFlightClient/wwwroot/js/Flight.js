@@ -11,9 +11,9 @@
                 "From": document.querySelector('select[name="From"]').value,
                 "To": document.querySelector('select[name="To"]').value,
                 "DepartureDate": document.querySelector('input[name="DepartureDate"]').value,
-                "NumAdult": parseInt(document.querySelector('input[name="Adult"]').value),
-                "NumChild": parseInt(document.querySelector('input[name="Child"]').value),
-                "NumInfant": parseInt(document.querySelector('input[name="Baby"]').value)
+                "NumAdult": parseInt(document.querySelector('input[name="NumAdult"]').value),
+                "NumChild": parseInt(document.querySelector('input[name="NumChild"]').value),
+                "NumInfant": parseInt(document.querySelector('input[name="NumInfant"]').value)
             })
         });
         if (!res.ok) {
@@ -32,7 +32,7 @@
             localStorage.setItem("flightInfoToken", json.token);
             window.location.href = '/flight/list';
         }
-    } catch {
+    } catch(error) {
         showSnackbar("Error", "error");
     }
 }

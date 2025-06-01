@@ -117,6 +117,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let token = localStorage.getItem('flightInfoToken');
     if (!token) return;
     let searchFlightModel = parseJwtToken(token);
+    searchFlightModel = JSON.parse(searchFlightModel.data);
     const departureSelect = document.getElementById('departureSelect');
     const arrivalSelect = document.getElementById('arrivalSelect');
 
@@ -231,6 +232,7 @@ async function showFlightDetail(flight, flightCard) {
     let token = localStorage.getItem('flightInfoToken');
     if (!token) return;
     let form = parseJwtToken(token);
+    form = JSON.parse(form.data);
     const res = await fetch(`http://${host}:5077/api/Flight/detail`, {
         method: 'POST',
         headers: {
@@ -397,7 +399,8 @@ document.addEventListener('DOMContentLoaded', function () {
             let token = localStorage.getItem('flightInfoToken');
             if (!token) return;
             const flight = JSON.parse(target.dataset.pickFlight);
-            const searchFlightModel = parseJwtToken(token);
+            let searchFlightModel = parseJwtToken(token);
+            searchFlightModel = JSON.parse(searchFlightModel.data);
             const seatSelect = document.querySelector(`.seatRankSelect${flight.flightId}`);
             const seatPrice = seatSelect.value;
             const [classSeatIdStr, seatPriceStr] = seatPrice.split('-');
@@ -417,7 +420,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             quantity: parseInt(searchFlightModel?.NumAdult),
                             totalPrice: getTextValue(`.total-adult-price-${flight.flightId}`),
                             seatPrice: getTextValue(`.seat-adult-price-${flight.flightId}`),
-                            tax: parseFloat(document.querySelector(`.adult-tax-${flight.flightId}`).textContent.replace('%', '')) / 100,
+                            tax: parseFloat(document.querySelector(`.adult-tax-${flight.flightId}`)?.textContent.replace('%', '')) / 100,
                             totalFlightPrice: getTextValue(`.adult-flight-price-${flight.flightId}`)
                         },
                         {
@@ -425,14 +428,14 @@ document.addEventListener('DOMContentLoaded', function () {
                             quantity: parseInt(searchFlightModel?.NumChild),
                             totalPrice: getTextValue(`.total-child-price-${flight.flightId}`),
                             seatPrice: getTextValue(`.seat-child-price-${flight.flightId}`),
-                            tax: parseFloat(document.querySelector(`.child-tax-${flight.flightId}`).textContent.replace('%', '')) / 100,
+                            tax: document.querySelector(`.child-tax-${flight.flightId}`) ? parseFloat(document.querySelector(`.child-tax-${flight.flightId}`).textContent.replace('%', '')) / 100 : 0,
                             totalFlightPrice: getTextValue(`.child-flight-price-${flight.flightId}`)
                         },
                         {
                             name: 'Baby',
                             quantity: parseInt(searchFlightModel?.NumInfant),
                             totalPrice: getTextValue(`.total-baby-price-${flight.flightId}`),
-                            tax: parseFloat(document.querySelector('.baby-tax-' + flight.flightId).textContent.replace('%', '')) / 100,
+                            tax: document.querySelector('.baby-tax-' + flight.flightId) ? parseFloat(document.querySelector('.baby-tax-' + flight.flightId)?.textContent?.replace('%', '')) / 100 : 0,
                             totalFlightPrice: 0
                         }
                     ]
@@ -450,6 +453,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             if (res.ok) {
+                localStorage.setItem('flightCheckoutToken', await res.json().then(res => res.token));
                 window.location.href = '/flight/checkout/service';
             } else {
                 showSnackbar(await res.json().then(res => res.message), "error");
@@ -464,6 +468,7 @@ window.onload = async function () {
     if (!token) return;
 
     let searchFlightModel = parseJwtToken(token);
+    searchFlightModel = JSON.parse(searchFlightModel.data);
     if (!searchFlightModel) return;
 
     const departureDateInput = document.querySelector("input[name='departure-date']");
@@ -492,7 +497,7 @@ window.onload = async function () {
 
     const departureDateTitle = document.querySelector('.departureDateTitle');
     if (departureDateTitle) {
-        departureDateTitle.innerHTML = `Ngày đi: ${days[startDate.getDay()]}, ${startDate.getDate()}/${startDate.getMonth() + 1}/${startDate.getFullYear()}, Tổng số: ${searchFlightModel?.Adult} người lớn, ${searchFlightModel?.Child} trẻ em, ${searchFlightModel?.Baby} em bé`;
+        departureDateTitle.innerHTML = `Ngày đi: ${days[startDate.getDay()]}, ${startDate.getDate()}/${startDate.getMonth() + 1}/${startDate.getFullYear()}, Tổng số: ${searchFlightModel?.NumAdult} người lớn, ${searchFlightModel?.NumChild} trẻ em, ${searchFlightModel?.NumInfant} em bé`;
     }
 
     createDateButtons();
@@ -502,6 +507,11 @@ window.onload = async function () {
 async function handleSearchFlight(event) {
     event.preventDefault();
     let value = $("input[name='departure-date']").val();
+    let token = localStorage.getItem('flightInfoToken');
+    if (!token) return;
+
+    let searchFlightModel = parseJwtToken(token);
+    searchFlightModel = JSON.parse(searchFlightModel.data);
     const days = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
     if (value) {
         startDate = new Date(value);
@@ -516,7 +526,7 @@ async function handleSearchFlight(event) {
     } else {
         $('.flight-title').html(`Chuyến bay một chiều ` + from + ` - ` + to);
     }
-    $('.departureDateTitle').html(`Ngày đi: ` + days[startDate.getDay()] + `, ` + startDate.getDate() + `/` + (startDate.getMonth() + 1) + `/` + startDate.getFullYear());
+    $('.departureDateTitle').html(`Ngày đi: ` + days[startDate.getDay()] + `, ` + startDate.getDate() + `/` + (startDate.getMonth() + 1) + `/` + startDate.getFullYear() + `, Tổng số: ` + searchFlightModel?.NumAdult + ` người lớn, ` + searchFlightModel?.NumChild + ` trẻ em, ` + searchFlightModel?.NumInfant + ` em bé`);
     createDateButtons();
     await getFlightList();
 }
@@ -525,24 +535,25 @@ function handleChangeSeatRank(event, jsonFlight) {
     let form = localStorage.getItem('flightInfoToken');
     event.preventDefault();
     if (!form) return;
+    form = JSON.parse(parseJwtToken(form).data);
     let selectElement = event.target;
     let value = selectElement.value;
     let flight = JSON.parse(decodeURIComponent(jsonFlight));
     if (value) {
         let total = 0;
-        if (form?.Adult > 0) {
-            total += (flight.basePrice * form?.Adult) + (flight.basePrice * form?.Adult * flight.tax) + (parseFloat(value.split('-')[1] * form?.Adult));
-            $(`.seat-adult-price-` + flight.flightId).text((value.split('-')[1] * form?.Adult) + ' VND');
-            $(`.total-adult-price-` + flight.flightId).text((flight.basePrice * form?.Adult) + (flight.basePrice * form?.Adult * flight.tax) + (parseFloat(value.split('-')[1]) * form?.Adult) + ' VND');
+        if (form?.NumAdult > 0) {
+            total += (flight.basePrice * form?.NumAdult) + (flight.basePrice * form?.NumAdult * flight.tax) + (parseFloat(value.split('-')[1] * form?.NumAdult));
+            $(`.seat-adult-price-` + flight.flightId).text((value.split('-')[1] * form?.NumAdult) + ' VND');
+            $(`.total-adult-price-` + flight.flightId).text((flight.basePrice * form?.NumAdult) + (flight.basePrice * form?.NumAdult * flight.tax) + (parseFloat(value.split('-')[1]) * form?.NumAdult) + ' VND');
         }
-        if (form?.Child > 0) {
-            total += (flight.basePrice * form?.Child * 0.5) + (flight.basePrice * form?.Child * flight.tax * 0.5) + (parseFloat(value.split('-')[1]) * 0.5 * form?.Child);
-            $(`.seat-child-price-` + flight.flightId).text((value.split('-')[1] * form?.Child * 0.5) + ' VND');
-            $(`.total-child-price-` + flight.flightId).text((flight.basePrice * form?.Child * 0.5) + (flight.basePrice * form?.Child * flight.tax * 0.5) + (parseFloat(value.split('-')[1]) * 0.5 * form?.Child) + ' VND');
+        if (form?.NumChild > 0) {
+            total += (flight.basePrice * form?.NumChild * 0.5) + (flight.basePrice * form?.NumChild * flight.tax * 0.5) + (parseFloat(value.split('-')[1]) * 0.5 * form?.NumChild);
+            $(`.seat-child-price-` + flight.flightId).text((value.split('-')[1] * form?.NumChild * 0.5) + ' VND');
+            $(`.total-child-price-` + flight.flightId).text((flight.basePrice * form?.NumChild * 0.5) + (flight.basePrice * form?.NumChild * flight.tax * 0.5) + (parseFloat(value.split('-')[1]) * 0.5 * form?.NumChild) + ' VND');
         }
-        if (form?.Baby > 0) {
-            total += (flight.basePrice * form?.Baby * flight.tax / 4);
-            $(`.total-baby-price-` + flight.flightId).text((flight.basePrice * form?.Baby * flight.tax / 4) + ' VND');
+        if (form?.NumInfant > 0) {
+            total += (flight.basePrice * form?.NumInfant * flight.tax / 4);
+            $(`.total-baby-price-` + flight.flightId).text((flight.basePrice * form?.NumInfant * flight.tax / 4) + ' VND');
         }
         let text = `- Tổng cộng: ` + total + ` VND`;
         seatPrice = parseFloat(value.split('-')[1]);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 
@@ -10,6 +11,25 @@ namespace BookingFlightServer.Utils
 		{
 			return modelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.Errors.FirstOrDefault()?.ErrorMessage);
 		}
+		public static Dictionary<string, string?> GetPassengerModelStateErrors(ModelStateDictionary modelState)
+		{
+			return modelState.ToDictionary(
+	   kvp => ExtractFieldName(kvp.Key),
+	   kvp => kvp.Value?.Errors.FirstOrDefault()?.ErrorMessage
+   );
+		}
+		private static string ExtractFieldName(string key)
+		{
+			var parts = key.Split('.');
+
+			if (parts.Length >= 3)
+			{
+				return $"{parts[1]}{parts[2]}";
+			}
+
+			return key;
+		}
+
 		public static string ParseFromDateTime(DateTime dt, string pattern)
 		{
 			return dt.ToString(pattern);
@@ -54,6 +74,22 @@ namespace BookingFlightServer.Utils
 				PropertyNameCaseInsensitive = true
 			};
 			return JsonSerializer.Deserialize<T>(json, options) ?? new T();
+		}
+		public static string SerializeObject<T>(T json)
+		{
+			var options = new JsonSerializerOptions
+			{
+				PropertyNameCaseInsensitive = true
+			};
+			return JsonSerializer.Serialize<T>(json);
+		}
+		public static string GetUnderlyingTypeName(Type type)
+		{
+			if (Nullable.GetUnderlyingType(type) != null)
+			{
+				return Nullable.GetUnderlyingType(type)!.Name; // e.g., "Int32", "Single"
+			}
+			return type.Name; // e.g., "String", "Int32", "Float"
 		}
 	}
 }

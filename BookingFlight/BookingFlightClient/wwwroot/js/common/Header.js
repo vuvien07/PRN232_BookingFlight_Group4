@@ -22,7 +22,9 @@
                                 </div> 
             `;
     } else {
-        showSnackbar("Login success", "success");
+        if (params.get('isLoggingIn')) {
+            showSnackbar("Login success", "success");
+        }
         let decodedToken = parseJwtToken(token);
         if (decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] == "Customer") {
             document.getElementById('headerDropdownMenu').

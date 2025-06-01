@@ -1,4 +1,6 @@
-﻿namespace BookingFlightServer.DTO
+﻿using System.Text.Json;
+
+namespace BookingFlightServer.DTO
 {
 	public class PreorderFlightDTO
 	{
@@ -9,5 +11,7 @@
 		public float Tax { get; set; }
 		public decimal SeatPrice { get; set; }
 		public decimal TotalFlightPrice { get; set; }
+
+		public override string ToString() => JsonSerializer.Serialize(this);
 	}
 }

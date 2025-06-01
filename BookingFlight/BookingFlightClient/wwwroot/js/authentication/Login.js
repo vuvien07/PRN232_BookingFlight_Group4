@@ -1,5 +1,4 @@
-﻿const host = window.location.hostname;
-document.addEventListener("DOMContentLoaded", function () {
+﻿document.addEventListener("DOMContentLoaded", function () {
     // Xử lý sự kiện change trên checkbox có class 'rememberMe'
     document.addEventListener("change", function (event) {
         if (event.target && event.target.classList.contains("rememberMe")) {

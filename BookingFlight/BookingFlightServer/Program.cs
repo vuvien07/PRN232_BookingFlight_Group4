@@ -74,6 +74,9 @@ namespace BookingFlightServer
 			services.AddTransient<IFlightService, FlightService>();
 			services.AddTransient<IFlightRepository, FlightRepository>();
 			services.AddTransient<IClassSeatRepository, ClassSeatRepository>();
+			services.AddTransient<ICheckoutFlightService, CheckoutFlightService>();
+			services.AddTransient<IClassSeatRepository, ClassSeatRepository>();
+			services.AddTransient<IServiceRepository, ServiceRepository>();
 		}
 	}
 }

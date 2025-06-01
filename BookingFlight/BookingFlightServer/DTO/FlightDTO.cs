@@ -1,4 +1,6 @@
-﻿namespace BookingFlightServer.DTO
+﻿using System.Text.Json;
+
+namespace BookingFlightServer.DTO
 {
 	public class FlightDTO
 	{
@@ -14,5 +16,7 @@
 		public string Manufacture { get; set; } = null!;
 		public string PlaneCode { get; set; } = null!;
 		public decimal Tax { get; set; }
+
+		public override string ToString() => JsonSerializer.Serialize(this);
 	}
 }

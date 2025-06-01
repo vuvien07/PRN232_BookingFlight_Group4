@@ -93,7 +93,7 @@ namespace BookingFlightServer.Repositories.Implements
 			if (filterFlightDTO.Brands.Count() > 0)
 			{
 				result = result.Where(r => filterFlightDTO.Brands.Any(range =>
-				r.PlaneCode.Contains(range)
+				r.Manufacture.ToLower().Contains(range)
 				));
 			}
 			if (filterFlightDTO.Prices.Count() > 0)
@@ -196,7 +196,7 @@ namespace BookingFlightServer.Repositories.Implements
 			if (filterFlightDTO.Brands.Count() > 0)
 			{
 				result = result.Where(r => filterFlightDTO.Brands.Any(range =>
-				r.PlaneCode.Contains(range)
+				r.Manufacture.ToLower().Contains(range)
 				));
 			}
 			if (filterFlightDTO.Prices.Count() > 0)

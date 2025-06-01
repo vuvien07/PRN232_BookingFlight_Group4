@@ -1,4 +1,5 @@
 ﻿using BookingFlightServer.DTO;
+using BookingFlightServer.Entiies;
 
 namespace BookingFlightServer.Services
 {
@@ -8,5 +9,7 @@ namespace BookingFlightServer.Services
 		Task<long> GetTotalFlight(FilterFlightDTO filterFlightDTO);
 		Task<List<dynamic>> GetAllClassSeatByFlightIdAndSeatEmpty(int flightId);
 		Task<long> CountAllClassSeatByFlightIdAndSeatEmpty(int flightId);
+		Task<List<Service>> GetServicesByFlightId(int flightId);
+
 	}
 }
