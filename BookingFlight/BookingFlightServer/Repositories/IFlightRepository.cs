@@ -1,4 +1,4 @@
-﻿using BookingFlightServer.DTO;
+﻿using BookingFlightServer.DTO.Filter;
 
 namespace BookingFlightServer.Repositories
 {

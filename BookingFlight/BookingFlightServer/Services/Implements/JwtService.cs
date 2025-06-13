@@ -1,4 +1,4 @@
-﻿using BookingFlightServer.DTO;
+﻿using BookingFlightServer.DTO.Shared;
 using BookingFlightServer.Utils;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections;

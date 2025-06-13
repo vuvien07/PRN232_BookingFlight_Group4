@@ -1,4 +1,4 @@
-﻿using BookingFlightServer.DTO;
+﻿using BookingFlightServer.DTO.Request;
 using BookingFlightServer.Entiies;
 
 namespace BookingFlightServer.Repositories

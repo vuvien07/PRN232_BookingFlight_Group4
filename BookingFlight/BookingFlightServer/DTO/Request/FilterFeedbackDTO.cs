@@ -1,4 +1,4 @@
-﻿namespace BookingFlightServer.DTO
+﻿namespace BookingFlightServer.DTO.Request
 {
 	public class FilterFeedbackDTO
 	{

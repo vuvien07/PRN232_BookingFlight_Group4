@@ -1,4 +1,4 @@
-﻿using BookingFlightServer.DTO;
+﻿using BookingFlightServer.DTO.Shared;
 
 namespace BookingFlightServer.Services
 {

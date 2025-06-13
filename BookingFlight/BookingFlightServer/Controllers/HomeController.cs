@@ -1,4 +1,4 @@
-﻿using BookingFlightServer.DTO;
+﻿using BookingFlightServer.DTO.Request;
 using BookingFlightServer.Services;
 using BookingFlightServer.Utils;
 using Microsoft.AspNetCore.Http;

@@ -1,4 +1,4 @@
-﻿using BookingFlightServer.DTO;
+﻿using BookingFlightServer.DTO.Shared;
 using System.ComponentModel.DataAnnotations;
 
 namespace BookingFlightServer.Validations

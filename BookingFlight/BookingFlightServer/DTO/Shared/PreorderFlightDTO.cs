@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace BookingFlightServer.DTO
+namespace BookingFlightServer.DTO.Shared
 {
 	public class PreorderFlightDTO
 	{

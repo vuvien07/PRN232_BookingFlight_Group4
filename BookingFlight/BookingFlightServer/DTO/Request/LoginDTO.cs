@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace BookingFlightServer.DTO
+namespace BookingFlightServer.DTO.Request
 {
 	public class LoginDTO
 	{

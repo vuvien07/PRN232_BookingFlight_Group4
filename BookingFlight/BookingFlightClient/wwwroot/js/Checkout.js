@@ -1,5 +1,6 @@
 ﻿let token = localStorage.getItem('flightCheckoutToken');
 let errorLabels = [];
+let adultInfoList = [], childInfoList = [], infantInfoList = [], contactInfo =[];
 let flightCheckoutRequestForm = parseJwtToken(token);
 flightCheckoutRequestForm = JSON.parse(flightCheckoutRequestForm.data);
 async function loadPageInfo() {
@@ -24,6 +25,52 @@ window.onload = async () => {
     await loadPageInfo();
     showPassengerForm();
     loadFlightInfo();
+    flightCheckoutRequestForm?.PreorderFlights?.map(preorder => {
+        if (preorder.Name === "Adult" && preorder.Quantity > 0) {
+            for (let i = 0; i < preorder.Quantity; i++) {
+                adultInfoList.push({
+                    Id: i,
+                    Name: "",
+                    Gender: "male",
+                    FullName: "",
+                    DateOfBirth: "",
+                    Cccd: "",
+                    Type: "Adult"
+                });
+            }
+        }
+        if (preorder.Name === "Child" && preorder.Quantity > 0) {
+            for (let i = 0; i < preorder.Quantity; i++) {
+                childInfoList.push({
+                    Id: i,
+                    Name: "",
+                    Gender: "male",
+                    FullName: "",
+                    DateOfBirth: "",
+                    Type: "Child"
+                });
+            }
+        }
+        if (preorder.Name === "Infant" && preorder.Quantity > 0) {
+            for (let i = 0; i < preorder.Quantity; i++) {
+                infantInfoList.push({
+                    Id: i,
+                    Name: "",
+                    Gender: "male",
+                    FullName: "",
+                    DateOfBirth: "",
+                    Type: "Infant"
+                });
+            }
+
+        }
+    });
+    contactInfo.push({
+        fullNameContact: '',
+        phoneContact: '',
+        emailContact: '',
+        addressContact: ''
+    })
 };
 
 function updateInvoice(data) {
@@ -115,6 +162,7 @@ function showPassengerForm() {
                 errorLabels.push(`FullNameAdult${i}`);
                 errorLabels.push(`NameAdult${i}`);
                 errorLabels.push(`DateOfBirthAdult${i}`);
+                errorLabels.push(`CccdAdult${i}`);
                 contentHtml += `
                  <div class="checkout-section">
                                     <h5 class="mb-3">
@@ -122,28 +170,28 @@ function showPassengerForm() {
                                     </h5>
                                     <div class="form-check mb-3">
                                         <input class="form-check-input" type="radio" name="gender-adult-${i}" id="male" value="male"
-                                        onchange="handleChangeValue(adultInfoList, ${i}, 'gender', this.value)" checked>
+                                        onchange="handleChangeValue('adult', ${i}, 'Gender', this.value)" checked>
                                         <label class="form-check-label" for="male">Quý ông</label>
                                     </div>
                                     <div class="form-check mb-3">
                                         <input class="form-check-input" type="radio" name="gender-adult-${i}" id="female" value="female"
-                                        onchange="handleChangeValue(adultInfoList, ${i}, 'gender', this.value)">
+                                        onchange="handleChangeValue('adult', ${i}, 'Gender', this.value)">
                                         <label class="form-check-label" for="female">Quý bà</label>
                                     </div>
                                     <input type="text" class="form-control" placeholder="Họ" name="name-adult-${i}"
-                                    onchange="handleChangeValue(adultInfoList, ${i}, 'name', this.value)">
+                                    onchange="handleChangeValue('adult', ${i}, 'Name', this.value)">
                                     <p class="text-danger" id="NameAdult${i}"></p>
                                     <input type="text" class="form-control" placeholder="Tên đệm và tên" name="fullName-adult-${i}"
-                                    onchange="handleChangeValue(adultInfoList, ${i}, 'fullName', this.value)">
+                                    onchange="handleChangeValue('adult', ${i}, 'FullName', this.value)">
                                     <p class="text-danger" id="FullNameAdult${i}"></p>
                                     <input type="date"
                                     class="form-control"
                                     placeholder="Ngày sinh"
                                     name="dateOfBirth-adult-${i}"
-                                    onchange="handleChangeValue(adultInfoList, ${i}, 'dateOfBirth', this.value)">
+                                    onchange="handleChangeValue('adult', ${i}, 'DateOfBirth', this.value)">
                                     <p class="text-danger" id="DateOfBirthAdult${i}"></p>
-                                    <input type="text" class="form-control" placeholder="CCCD" name="cccd-adult"
-                                    onchange="handleChangeValue(adultInfoList, ${i}, 'cccd', this.value)">
+                                    <input type="text" class="form-control" placeholder="CCCD" name="cccd-adult-${i}"
+                                    onchange="handleChangeValue('adult', ${i}, 'Cccd', this.value)">
                                     <p class="text-danger" id="CccdAdult${i}"></p>
                                 </div>
                 `;
@@ -170,25 +218,25 @@ function showPassengerForm() {
                                     </h5>
                                     <div class="form-check mb-3">
                                         <input class="form-check-input" type="radio" name="gender-child-${i}" value="male"
-                                        onchange="handleChangeValue(childInfoList, ${i}, 'gender', this.value)" checked>
+                                        onchange="handleChangeValue('child', ${i}, 'Gender', this.value)" checked>
                                         <label class="form-check-label" for="male">Nam</label>
                                     </div>
                                     <div class="form-check mb-3">
                                         <input class="form-check-input" type="radio" name="gender-child-${i}" value="female"
-                                        onchange="handleChangeValue(childInfoList, ${i}, 'gender', this.value)">
+                                        onchange="handleChangeValue('child', ${i}, 'Gender', this.value)">
                                         <label class="form-check-label" for="female">Nữ</label>
                                     </div>
                                     <input type="text" class="form-control" placeholder="Họ" name="name-child-${i}"
-                                    onchange="handleChangeValue(childInfoList, ${i}, 'name', this.value)">
+                                    onchange="handleChangeValue('child', ${i}, 'Name', this.value)">
                                     <p class="text-danger" id="NameChild${i}"></p>
                                     <input type="text" class="form-control" placeholder="Tên đệm và tên" name="fullName-child-${i}"
-                                    onchange="handleChangeValue(childInfoList, ${i}, 'fullName', this.value)">
+                                    onchange="handleChangeValue('child', ${i}, 'FullName', this.value)">
                                     <p class="text-danger" id="FullNameChild${i}"></p>
                                     <input type="date"
                                     class="form-control"
                                     placeholder="Ngày sinh"
                                     name="dateOfBirth-child-${i}"
-                                    onchange="handleChangeValue(childInfoList, ${i}, 'dateOfBirth', this.value)">
+                                    onchange="handleChangeValue('child', ${i}, 'DateOfBirth', this.value)">
                                     <p class="text-danger" id="DateOfBirthChild${i}"></p>
                                 </div>
             `;
@@ -215,25 +263,25 @@ function showPassengerForm() {
                                     </h5>
                                     <div class="form-check mb-3">
                                         <input class="form-check-input" type="radio" name="gender-baby-${i}" value="male"
-                                               onchange="handleChangeValue(babyInfoList, ${i}, 'gender', this.value)" checked>
+                                               onchange="handleChangeValue('infant', ${i}, 'Gender', this.value)" checked>
                                         <label class="form-check-label" for="male">Nam</label>
                                     </div>
                                     <div class="form-check mb-3">
                                         <input class="form-check-input" type="radio" name="gender-baby-${i}" value="female"
-                                               onchange="handleChangeValue(babyInfoList, ${i}, 'gender', this.value)">
+                                               onchange="handleChangeValue('infant', ${i}, 'Gender', this.value)">
                                         <label class="form-check-label" for="female">Nữ</label>
                                     </div>
                                     <input type="text" class="form-control" placeholder="Họ" name="name-baby-${i}"
-                                           onchange="handleChangeValue(babyInfoList, ${i}, 'name', this.value)">
+                                           onchange="handleChangeValue('infant', ${i}, 'Name', this.value)">
                                     <p class="text-danger" id="NameBaby${i}"></p>
                                     <input type="text" class="form-control" placeholder="Tên đệm và tên" name="fullName-baby-${i}"
-                                           onchange="handleChangeValue(babyInfoList, ${i}, 'fullName', this.value)">
+                                           onchange="handleChangeValue('infant', ${i}, 'FullName', this.value)">
                                     <p class="text-danger" id="FullNameBaby${i}"></p>
                                     <input type="date"
                                            class="form-control"
                                            placeholder="Ngày sinh"
                                            name="dateOfBirth-baby-${i}"
-                                           onchange="handleChangeValue(babyInfoList, ${i}, 'dateOfBirth', this.value)">
+                                           onchange="handleChangeValue('infant', ${i}, 'DateOfBirth', this.value)">
                                     <p class="text-danger" id="DateOfBirthBaby${i}"></p>
                                 </div>
             `;
@@ -247,6 +295,7 @@ function showPassengerForm() {
 async function nextToConfirmPassengerForm(e) {
     e.preventDefault();
     try {
+        flightCheckoutRequestForm.PassengerInformationForms = adultInfoList.concat(childInfoList).concat(infantInfoList);
         const res = await fetch(`http://${host}:5077/api/CheckoutFlight/confirmPassengerForm`, {
             method: "POST",
             headers: {
@@ -264,6 +313,15 @@ async function nextToConfirmPassengerForm(e) {
         console.log(err);
         showSnackbar("Co loi xay ra", "error");
     }
+}
+
+function handleChangeValue(type, index, field, value) {
+    let list;
+    if (type === 'adult') list = adultInfoList;
+    else if (type === 'child') list = childInfoList;
+    else if (type === 'infant') list = infantInfoList;
+
+    list[index][field] = value;
 }
 
 

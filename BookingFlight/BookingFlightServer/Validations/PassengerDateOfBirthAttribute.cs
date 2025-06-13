@@ -32,7 +32,7 @@ namespace BookingFlightServer.Validations
 						return new ValidationResult("Vui lòng nhập ngày sinh người lớn", new[] { $"Adult{id}" });
 					case "Child":
 						return new ValidationResult("Vui lòng nhập ngày sinh trẻ em", new[] { $"Child{id}" });
-					case "Baby":
+					case "Infant":
 						return new ValidationResult("Vui lòng nhập ngày sinh em bé", new[] { $"Baby{id}" });
 				}
 			}
@@ -53,7 +53,7 @@ namespace BookingFlightServer.Validations
 						return new ValidationResult("Năm sinh của trẻ em nằm trong khoảng 3 - 17", new[] { $"Child{id}" });
 					}
 					break;
-				case "Baby":
+				case "Infant":
 					if (age > 2)
 					{
 						return new ValidationResult("Năm sinh của bé phải nhỏ hơn 3", new[] { $"Child{id}" });

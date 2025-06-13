@@ -1,4 +1,4 @@
-﻿namespace BookingFlightServer.DTO
+﻿namespace BookingFlightServer.DTO.Filter
 {
 	public class FilterFlightDTO
 	{

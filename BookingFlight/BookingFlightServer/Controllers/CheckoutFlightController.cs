@@ -1,4 +1,4 @@
-﻿using BookingFlightServer.DTO;
+﻿using BookingFlightServer.DTO.Shared;
 using BookingFlightServer.Entiies;
 using BookingFlightServer.Services;
 using BookingFlightServer.Utils;

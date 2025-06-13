@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
-namespace BookingFlightServer.DTO
+namespace BookingFlightServer.DTO.Shared
 {
 	public class ItemDTO
 	{

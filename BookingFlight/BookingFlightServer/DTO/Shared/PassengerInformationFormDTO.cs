@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
-namespace BookingFlightServer.DTO
+namespace BookingFlightServer.DTO.Shared
 {
 	public class PassengerInformationFormDTO
 	{
@@ -14,6 +14,7 @@ namespace BookingFlightServer.DTO
 		public string FullName { get; set; } = "";
 		[PassengerDateOfBirth("Id", "Type")]
 		public string DateOfBirth { get; set; } = "";
+		[PassengerCccd("Id", "Type")]
 		public string Cccd { get; set; } = "";
 		public string Type { get; set; } = "";
 		public override string ToString() => JsonSerializer.Serialize(this);

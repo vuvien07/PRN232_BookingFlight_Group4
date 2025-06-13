@@ -32,7 +32,7 @@ namespace BookingFlightServer.Validations
 						return new ValidationResult("Vui lòng nhập tên đầy đủ người lớn", new[] { $"Adult{id}" });
 					case "Child":
 						return new ValidationResult("Vui lòng nhập tên đầy đủ trẻ em", new[] { $"Child{id}" });
-					case "Baby":
+					case "Infant":
 						return new ValidationResult("Vui lòng nhập tên đầy đủ em bé", new[] { $"Baby{id}" });
 				}
 			}
