@@ -5,7 +5,8 @@
         const res = await fetch(`http://${host}:5077/api/Home`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "SessionId": localStorage.getItem("sessionId")
             },
             body: JSON.stringify({
                 "From": document.querySelector('select[name="From"]').value,
@@ -32,7 +33,7 @@
             localStorage.setItem("flightInfoToken", json.token);
             window.location.href = '/flight/list';
         }
-    } catch(error) {
+    } catch (error) {
         showSnackbar("Error", "error");
     }
 }

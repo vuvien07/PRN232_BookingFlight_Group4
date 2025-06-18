@@ -24,7 +24,7 @@ namespace BookingFlightServer.Validations
 			{
 				return new ValidationResult("Dữ liệu không hợp lệ.");
 			}
-			if (dob.IsNullOrEmpty())
+			if (string.IsNullOrEmpty(dob))
 			{
 				switch (type)
 				{

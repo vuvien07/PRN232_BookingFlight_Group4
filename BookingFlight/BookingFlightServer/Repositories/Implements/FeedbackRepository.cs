@@ -1,5 +1,5 @@
 ﻿using BookingFlightServer.DTO.Request;
-using BookingFlightServer.Entiies;
+using BookingFlightServer.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookingFlightServer.Repositories.Implements

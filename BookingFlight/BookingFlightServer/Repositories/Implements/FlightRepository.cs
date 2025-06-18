@@ -1,6 +1,6 @@
 ﻿using BookingFlightServer.DTO.Filter;
 using BookingFlightServer.DTO.Query;
-using BookingFlightServer.Entiies;
+using BookingFlightServer.Entities;
 using BookingFlightServer.Utils;
 using Microsoft.EntityFrameworkCore;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;

@@ -3,6 +3,7 @@ using BookingFlightServer.DTO.Request;
 using BookingFlightServer.DTO.Shared;
 using BookingFlightServer.Services;
 using BookingFlightServer.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

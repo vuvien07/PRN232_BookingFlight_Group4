@@ -16,5 +16,10 @@ namespace BookingFlightClient.Controllers
 		{
 			return View("~/Views/Checkout.cshtml");
 		}
+		[Route("confirm")]
+		public IActionResult ConfirmCheckoutIndex()
+		{
+			return View("~/Views/ConfirmCheckout.cshtml");
+		}
 	}
 }

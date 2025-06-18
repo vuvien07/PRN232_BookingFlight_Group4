@@ -139,6 +139,10 @@
             }
 
     </style>
+    <script>
+        let sessionId = "@Context.Session.GetString("sessionId")"
+        localStorage.setItem("sessionId", sessionId);
+    </script>
 </head>
 <body>
     <partial name="~/Views/Common/_Header.cshtml" />

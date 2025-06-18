@@ -1,4 +1,4 @@
-﻿using BookingFlightServer.Entiies;
+﻿using BookingFlightServer.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookingFlightServer.Repositories.Implements

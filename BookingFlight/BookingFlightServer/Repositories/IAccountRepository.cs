@@ -1,4 +1,4 @@
-﻿using BookingFlightServer.Entiies;
+﻿using BookingFlightServer.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;

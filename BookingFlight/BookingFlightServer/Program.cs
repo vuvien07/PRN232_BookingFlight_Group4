@@ -5,11 +5,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
-using BookingFlightServer.Entiies;
 using Repositories;
 using BookingFlightServer.Repositories.Implements;
 using BookingFlightServer.Middlewares;
 using BookingFlightServer.Repositories;
+using BookingFlightServer.Proxies.Services;
+using BookingFlightServer.Proxies.Services.Implements;
+using BookingFlightServer.Entities;
+using BookingFlightClient.Repositories;
+using Library;
 
 namespace BookingFlightServer
 {
@@ -19,6 +23,13 @@ namespace BookingFlightServer
 		{
 			var builder = WebApplication.CreateBuilder(args);
 			ConfigureServices(builder.Services);
+			builder.Services.AddSingleton(sp =>
+			{
+				var config = sp.GetRequiredService<IConfiguration>();
+				var connectionString = config["Redis:ConnectionString"]
+					?? throw new ArgumentNullException();
+				return new RedisHelper(connectionString);
+			});
 			builder.Services.AddAuthentication(options =>
 			{
 				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -42,6 +53,7 @@ namespace BookingFlightServer
 			app.UseCors("AllowAll");
 			app.UseAuthentication();
 			app.UseAuthorization();
+			app.UseMiddleware<CheckAccessApiMiddleware>();
 			app.UseMiddleware<ExceptionHandlerMiddleware>();
 			app.UseStaticFiles();
 
@@ -77,6 +89,9 @@ namespace BookingFlightServer
 			services.AddTransient<ICheckoutFlightService, CheckoutFlightService>();
 			services.AddTransient<IClassSeatRepository, ClassSeatRepository>();
 			services.AddTransient<IServiceRepository, ServiceRepository>();
+			services.AddTransient<IVnPayService, VnPayService>();
+			services.AddTransient<IPermissionApiRepository, PermissionApiRepository>();
+
 		}
 	}
 }

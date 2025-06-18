@@ -9,14 +9,17 @@ function parseJwtToken(token) {
     return result;
 }
 
-function CheckAccess(roles) {
-    let token = localStorage.getItem('token');
-    if (!token) {
-        return false;
-    } else {
-        var decodedToken = parseJwtToken(token);
-        return roles.includes(decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']);
+async function CheckAccess() {
+    const token = localStorage.getItem('token');
+    const headers = {};
+    if (token) {
+        headers['Authorization'] = 'Bearer ' + token;
     }
+    headers['RequestPath'] = window.location.pathname;
+    await fetch(`http://${host}:5189/api/auth`, {
+        method: 'GET',
+        headers: headers
+    });
 }
 
 async function isSucessRequestFreshToken() {

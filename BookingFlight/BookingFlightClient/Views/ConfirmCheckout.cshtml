@@ -1,5 +1,169 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿<html>
+<head>
+    <title>Confirm Checkout</title>
+    <link href="~/css/common/Footer.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            background-size: cover;
+            position: relative;
+            padding-top: 69px;
+        }
+
+        .confirm-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 2px solid #ddd;
+        }
+
+
+        .flight-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 8px;
+            position: sticky;
+        }
+
+        .form-control {
+            margin-bottom: 15px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2vh;
+        }
+
+        .divider {
+            border-top: 1px solid #dee2e6;
+            margin: 15px 0;
+        }
+
+        .price {
+            color: #f60;
+            font-weight: bold;
+        }
+
+        .voucher-section input {
+            flex: 1;
+        }
+
+        .voucher-section button {
+            white-space: nowrap;
+        }
+
+        .confirm-body {
+            margin: 0 15% 0 15%;
+        }
+
+        .confirm-content {
+            max-height: 200vw;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <partial name="~/Views/Common/_Header.cshtml" />
+    <div class="confirm-body confirm-section">
+        <div class="text-center">
+            <h5>Xác nhận thanh toán</h5>
+        </div>
+        <hr>
+        <div class="row confirm-content">
+            <div class="col-md-6">
+                <div>
+                    <h5 class="mb-3">Thông tin chuyến bay <sup class="text-danger font-weight-bold">*</sup></h5>
+                    <div class="flight-info">
+                        <div class="d-flex justify-content-between align-items-center" id="flight-info">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h5 class="mb-3">Các dịch vụ đã chọn <sup class="text-danger font-weight-bold">*</sup></h5>
+                    <div id="service-list-info">
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div>
+                    <h5 class="mb-3">Thông tin hành khách<sup class="text-danger font-weight-bold">*</sup></h5>
+                    <div id="passenger-info">
+                    </div>
+                </div>
+                <div>
+                    <h5 class="mb-3">Thông tin liên hệ<sup class="text-danger font-weight-bold">*</sup></h5>
+                    <div id="contact-info">
+                        <div class="card">
+                            <div class="card-body">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-6">
+                <h5 class="mb-3">Thông tin giá cả<sup class="text-danger font-weight-bold">*</sup></h5>
+                <div id="summary-card">
+
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="terms-section p-4 bg-light rounded">
+                    <h4 class="mb-3">Điều Khoản Thanh Toán</h4>
+
+                    <h5>1. Phương Thức Thanh Toán</h5>
+                    <p>
+                        Chúng tôi chấp nhận thanh toán qua <strong>thẻ tín dụng, thẻ ghi nợ, chuyển khoản ngân hàng và ví điện tử</strong>.
+                        Tất cả các giao dịch đều được bảo mật theo tiêu chuẩn <strong>PCI DSS</strong>.
+                    </p>
+
+                    <h5>2. Chính Sách Hoàn Tiền</h5>
+                    <p>
+                        Các khoản thanh toán <strong>không được hoàn lại</strong> sau khi xác nhận đặt hàng.
+                        Nếu có sai sót trong quá trình thanh toán, vui lòng liên hệ <strong>bộ phận hỗ trợ khách hàng</strong> trong vòng <strong>7 ngày</strong>.
+                    </p>
+
+                    <h5>3. Xác Nhận Thanh Toán</h5>
+                    <p>
+                        Sau khi thanh toán thành công, hệ thống sẽ gửi <strong>email xác nhận</strong> đến địa chỉ email của bạn trong vòng <strong>5 phút</strong>.
+                        Nếu không nhận được, vui lòng kiểm tra <strong>thư rác (spam)</strong> hoặc liên hệ với chúng tôi.
+                    </p>
+
+                    <h5>4. Bảo Mật Thông Tin Thanh Toán</h5>
+                    <p>
+                        Chúng tôi cam kết không lưu trữ thông tin thẻ tín dụng của khách hàng.
+                        Tất cả thông tin giao dịch được <strong>mã hóa và bảo mật tuyệt đối</strong>.
+                    </p>
+
+                    <h5>5. Hỗ Trợ Thanh Toán</h5>
+                    <p>Nếu có bất kỳ vấn đề gì liên quan đến thanh toán, vui lòng liên hệ <strong>bộ phận chăm sóc khách hàng</strong> qua email hoặc hotline.</p>
+                </div>
+            </div>
+        </div><hr>
+        <div class="row">
+            <div class="col-md-6">
+                <button class="btn btn-outline-dark px-4 py-2 btn-vnpay" onclick="nextToPaymentWithVnpay(event)">Thanh toán qua VNPay</button>
+            </div>
+            <div class="col-md-6">
+                <button class="btn btn-outline-dark px-4 py-2 me-5">Thanh toán qua Email</button>
+            </div>
+        </div>
+
+    </div>
+    <script src="~/js/ConfirmCheckout.js" asp-append-version="true"></script>
+</body>
+</html>
+<partial name="~/Views/Common/_Footer.cshtml" />

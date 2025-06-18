@@ -33,7 +33,8 @@ async function LoginToSystem(e) {
         const res = await fetch(`http://${host}:5077/api/login`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "SessionId": localStorage.getItem("token")
             },
             body: JSON.stringify({
                 "Username": document.querySelector('input[name="Username"]').value,
@@ -54,7 +55,19 @@ async function LoginToSystem(e) {
         } else {
             let json = await res.json();
             localStorage.setItem("token", json.token);
-            window.location.href = "/";
+            let parseToken = parseJwtToken(json.token);
+            await fetch(`http://${host}:5189/api/AfterLogin?role=${parseToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]}`)
+                .then(res => {
+                    if (!res.ok) throw new Error("Request failed");
+                    return;
+                })
+                .then(() => {
+                    window.location.href = "/";
+                })
+                .catch(err => {
+                    console.error("AfterLogin error:", err);
+                    alert("Đăng nhập thất bại hoặc role không hợp lệ.");
+                });
         }
     } catch (error) {
         console.log(error);

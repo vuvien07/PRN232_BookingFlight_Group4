@@ -20,7 +20,7 @@ async function getFlightList() {
         const res = await fetch(`http://${host}:5077/api/Flight/list`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify(filterForm)
         });
@@ -464,6 +464,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 window.onload = async function () {
+    await CheckAccess();
     let token = localStorage.getItem('flightInfoToken');
     if (!token) return;
 

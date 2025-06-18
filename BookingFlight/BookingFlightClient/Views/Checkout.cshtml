@@ -108,17 +108,17 @@
                 <div class="checkout-section">
                     <h5 class="mb-3">Thông tin liên hệ</h5>
                     <input type="text" class="form-control" placeholder="Họ và Tên"
-                           onchange="handleChangeValue(contactInfo, 0, 'fullNameContact', this.value)">
-                    <p class="text-danger-fullNameContact-contact-0 d-none"></p>
+                           onchange="handleChangeContactValue('fullNameContact', this.value)">
+                    <p class="text-danger" id="FullNameContact"></p>
                     <input type="tel" class="form-control" placeholder="Số điện thoại"
-                           onchange="handleChangeValue(contactInfo, 0, 'phoneContact', this.value)">
-                    <p class="text-danger-phoneContact-contact-0 d-none"></p>
+                           onchange="handleChangeContactValue('phoneContact', this.value)">
+                    <p class="text-danger" id="PhoneContact"></p>
                     <input type="email" class="form-control" placeholder="Email"
-                           onchange="handleChangeValue(contactInfo, 0, 'emailContact', this.value)">
-                    <p class="text-danger-emailContact-contact-0 d-none"></p>
+                           onchange="handleChangeContactValue('emailContact', this.value)">
+                    <p class="text-danger" id="EmailContact"></p>
                     <input type="text" class="form-control" placeholder="Địa chỉ"
-                           onchange="handleChangeValue(contactInfo, 0, 'addressContact', this.value)">
-                    <p class="text-danger-addressContact-contact-0 d-none"></p>
+                           onchange="handleChangeContactValue('addressContact', this.value)">
+                    <p class="text-danger" id="AddressContact"></p>
                 </div>
             </div>
             <!-- Summary -->

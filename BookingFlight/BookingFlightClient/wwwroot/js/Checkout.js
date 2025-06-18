@@ -1,6 +1,6 @@
 ﻿let token = localStorage.getItem('flightCheckoutToken');
 let errorLabels = [];
-let adultInfoList = [], childInfoList = [], infantInfoList = [], contactInfo =[];
+let adultInfoList = [], childInfoList = [], infantInfoList = [], contactInfo = [];
 let flightCheckoutRequestForm = parseJwtToken(token);
 flightCheckoutRequestForm = JSON.parse(flightCheckoutRequestForm.data);
 async function loadPageInfo() {
@@ -71,6 +71,10 @@ window.onload = async () => {
         emailContact: '',
         addressContact: ''
     })
+    errorLabels.push('FullNameContact');
+    errorLabels.push('PhoneContact');
+    errorLabels.push('EmailContact');
+    errorLabels.push('AddressContact');
 };
 
 function updateInvoice(data) {
@@ -157,7 +161,7 @@ function showPassengerForm() {
                     FullName: "",
                     DateOfBirth: "",
                     Cccd: "",
-                    Type:"Adult"
+                    Type: "Adult"
                 });
                 errorLabels.push(`FullNameAdult${i}`);
                 errorLabels.push(`NameAdult${i}`);
@@ -309,6 +313,10 @@ async function nextToConfirmPassengerForm(e) {
                 DisplayError(errorLabels[i], result);
             }
         }
+        if (res.ok) {
+            localStorage.setItem('flightCheckoutToken', result.token);
+            window.location.href = '/flight/checkout/confirm';
+        }
     } catch (err) {
         console.log(err);
         showSnackbar("Co loi xay ra", "error");
@@ -322,6 +330,10 @@ function handleChangeValue(type, index, field, value) {
     else if (type === 'infant') list = infantInfoList;
 
     list[index][field] = value;
+}
+
+function handleChangeContactValue(field, value) {
+    flightCheckoutRequestForm[field] = value;
 }
 
 

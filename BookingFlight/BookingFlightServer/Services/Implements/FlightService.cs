@@ -1,5 +1,5 @@
 ﻿using BookingFlightServer.DTO.Filter;
-using BookingFlightServer.Entiies;
+using BookingFlightServer.Entities;
 using BookingFlightServer.Repositories;
 
 namespace BookingFlightServer.Services.Implements

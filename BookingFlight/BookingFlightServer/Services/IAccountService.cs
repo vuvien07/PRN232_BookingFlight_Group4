@@ -1,4 +1,5 @@
-﻿using BookingFlightServer.Entiies;
+﻿
+using BookingFlightServer.Entities;
 
 namespace BookingFlightServer.Services
 {

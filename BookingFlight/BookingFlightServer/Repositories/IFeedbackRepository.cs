@@ -1,6 +1,5 @@
 ﻿using BookingFlightServer.DTO.Request;
-using BookingFlightServer.Entiies;
-
+using BookingFlightServer.Entities;
 namespace BookingFlightServer.Repositories
 {
 	public interface IFeedbackRepository

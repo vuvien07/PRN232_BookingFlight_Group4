@@ -1,5 +1,5 @@
 ﻿using BookingFlightServer.DTO.Shared;
-using BookingFlightServer.Entiies;
+using BookingFlightServer.Entities;
 using BookingFlightServer.Services;
 using BookingFlightServer.Utils;
 using Microsoft.AspNetCore.Http;
