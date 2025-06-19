@@ -1,58 +1,250 @@
-﻿<html lang="en">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<footer class="luxury-footer">
-    <div class="footer-container">
-        <div class="footer-grid">
-            <div class="footer-about">
-                <div class="footer-logo">Luxury Flight</div>
-                <p>
-                    Khám phá trải nghiệm bay đẳng cấp cùng Luxury Flight. Chúng tôi cam kết mang đến cho bạn những chuyến
-                    bay an toàn, thoải mái với dịch vụ 5 sao và giá cả hợp lý nhất.
-                </p>
-                <div class="social-links">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="~/css/common/Footer_New.css" rel="stylesheet" />
+</head>
+<body>
+    <footer class="luxury-footer">
+        <div class="footer-container">
+            <div class="footer-grid">                <!-- About Section -->                <div class="footer-about">
+                    <div class="footer-logo">
+                        <i class="fas fa-cloud"></i>
+                        CloudNine
+                    </div>                    <p data-vn="Khám phá trải nghiệm bay tuyệt vời cùng CloudNine. Chúng tôi cam kết mang đến cho bạn những chuyến bay an toàn, thoải mái với dịch vụ tận tâm và giá cả hợp lý nhất trên thị trường." data-en="Discover amazing flight experiences with CloudNine. We are committed to providing you with safe, comfortable flights with dedicated service and the most reasonable prices on the market." data-zh="与CloudNine一起探索精彩的飞行体验。我们致力于为您提供安全、舒适的航班，以及市场上最优惠的价格和贴心的服务。">
+                        Khám phá trải nghiệm bay tuyệt vời cùng CloudNine. Chúng tôi cam kết mang đến cho bạn những chuyến
+                        bay an toàn, thoải mái với dịch vụ tận tâm và giá cả hợp lý nhất trên thị trường.
+                    </p>
+                    <div class="quick-actions">
+                        <a href="/flight" class="action-btn">
+                            <i class="fas fa-plane-departure"></i> <span data-vn="Đặt vé ngay" data-en="Book Now" data-zh="立即订票">Đặt vé ngay</span>
+                        </a>
+                        <a href="/promotion" class="action-btn">
+                            <i class="fas fa-tags"></i> <span data-vn="Khuyến mãi" data-en="Promotions" data-zh="促销">Khuyến mãi</span>
+                        </a>
+                    </div>
+                    <div class="social-links">
+                        <a href="#" title="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" title="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" title="YouTube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        <a href="#" title="TikTok">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
+                        <a href="#" title="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>                <!-- Services Section -->
+                <div class="footer-section">
+                    <h3 class="footer-heading" data-vn="Dịch Vụ" data-en="Services" data-zh="服务">Dịch Vụ</h3>
+                    <ul class="footer-links">
+                        <li>
+                            <a href="/flight">
+                                <i class="fas fa-plane-departure"></i>
+                                <span data-vn="Đặt vé máy bay" data-en="Book Flight" data-zh="机票预订">Đặt vé máy bay</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/promotion">
+                                <i class="fas fa-tags"></i>
+                                <span data-vn="Ưu đãi đặc biệt" data-en="Special Offers" data-zh="特别优惠">Ưu đãi đặc biệt</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/services/vip">
+                                <i class="fas fa-crown"></i>
+                                <span data-vn="Dịch vụ VIP" data-en="VIP Service" data-zh="VIP服务">Dịch vụ VIP</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/services/baggage">
+                                <i class="fas fa-suitcase"></i>
+                                <span data-vn="Hành lý & Phụ trội" data-en="Baggage & Extras" data-zh="行李及附加服务">Hành lý & Phụ trội</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/services/insurance">
+                                <i class="fas fa-shield-alt"></i>
+                                <span data-vn="Bảo hiểm du lịch" data-en="Travel Insurance" data-zh="旅行保险">Bảo hiểm du lịch</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/services/hotel">
+                                <i class="fas fa-hotel"></i>
+                                <span data-vn="Đặt khách sạn" data-en="Hotel Booking" data-zh="酒店预订">Đặt khách sạn</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>                <!-- Support Section -->
+                <div class="footer-section">
+                    <h3 class="footer-heading" data-vn="Hỗ Trợ" data-en="Support" data-zh="支持">Hỗ Trợ</h3>
+                    <ul class="footer-links">
+                        <li>
+                            <a href="/help/faq">
+                                <i class="fas fa-question-circle"></i>
+                                <span data-vn="FAQ" data-en="FAQ" data-zh="常见问题">FAQ</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/help/booking-guide">
+                                <i class="fas fa-book-open"></i>
+                                <span data-vn="Hướng dẫn đặt vé" data-en="Booking Guide" data-zh="订票指南">Hướng dẫn đặt vé</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/help/cancellation">
+                                <i class="fas fa-times-circle"></i>
+                                <span data-vn="Chính sách hoàn hủy" data-en="Cancellation Policy" data-zh="退改政策">Chính sách hoàn hủy</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/help/terms">
+                                <i class="fas fa-file-contract"></i>
+                                <span data-vn="Điều khoản sử dụng" data-en="Terms of Service" data-zh="使用条款">Điều khoản sử dụng</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/help/privacy">
+                                <i class="fas fa-user-shield"></i>
+                                <span data-vn="Chính sách riêng tư" data-en="Privacy Policy" data-zh="隐私政策">Chính sách riêng tư</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/contact">
+                                <i class="fas fa-envelope"></i>
+                                <span data-vn="Liên hệ" data-en="Contact" data-zh="联系我们">Liên hệ</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>                <!-- Contact Section -->
+                <div class="footer-section">
+                    <h3 class="footer-heading" data-vn="Liên Hệ" data-en="Contact" data-zh="联系我们">Liên Hệ</h3>
+                    <div class="contact-info">
+                        <p>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span data-vn="444 Thôn 4, Hà Nội, Việt Nam" data-en="444 Ward 4, Hanoi, Vietnam" data-zh="越南河内第4坊444号">444 Thôn 4, Hà Nội, Việt Nam</span>
+                        </p>
+                        <p>
+                            <i class="fas fa-phone"></i>
+                            <span data-vn="1900 6886 (24/7)" data-en="1900 6886 (24/7)" data-zh="1900 6886 (24/7)">1900 6886 (24/7)</span>
+                        </p>                        <p>
+                            <i class="fas fa-envelope"></i>
+                            support@cloudnine.vn
+                        </p>
+                        <p>
+                            <i class="fas fa-globe"></i>
+                            www.cloudnine.vn
+                        </p>
+                    </div>
+                    
+                    <div class="contact-highlight">
+                        <p>
+                            <i class="fas fa-headset"></i>
+                            <span data-vn="Hỗ trợ khách hàng 24/7" data-en="24/7 Customer Support" data-zh="24/7客户支持">Hỗ trợ khách hàng 24/7</span>
+                        </p>
+                    </div>
+
+                    <!-- Newsletter Signup -->
+                    <div class="newsletter-signup">
+                        <h4 data-vn="Đăng ký nhận tin khuyến mãi" data-en="Subscribe for Promotions" data-zh="订阅促销信息">Đăng ký nhận tin khuyến mãi</h4>
+                        <div class="newsletter-form">
+                            <input type="email" class="newsletter-input" placeholder="Email của bạn" 
+                                   data-placeholder-vn="Email của bạn" 
+                                   data-placeholder-en="Your email"
+                                   data-placeholder-zh="您的邮箱">
+                            <button class="newsletter-btn">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <div class="footer-section">
-                <h3 class="footer-heading">Dịch Vụ</h3>
-                <ul class="footer-links">
-                    <li><a href="#">Đặt vé máy bay</a></li>
-                    <li><a href="#">Ưu đãi đặc biệt</a></li>
-                    <li><a href="#">Dịch vụ VIP</a></li>
-                    <li><a href="#">Hành lý & Phụ trội</a></li>
-                    <li><a href="#">Bảo hiểm du lịch</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h3 class="footer-heading">Hỗ Trợ</h3>
-                <ul class="footer-links">
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">Chính sách hoàn hủy</a></li>
-                    <li><a href="#">Điều khoản sử dụng</a></li>
-                    <li><a href="#">Chính sách riêng tư</a></li>
-                    <li><a href="#">Liên hệ</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-section">
-                <h3 class="footer-heading">Liên Hệ</h3>
-                <div class="contact-info">
-                    <p>444 Thôn 4, Hà Nội</p>
-                    <p>1900 6886</p>
-                    <p>support@luxuryflight.vn</p>
-                    <p>24/7 Customer Service</p>
+            </div>            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <div class="footer-bottom-content">
+                    <p data-vn="© 2025 CloudNine - Mọi quyền được bảo lưu | Thiết kế bởi CloudNine Team" data-en="© 2025 CloudNine - All rights reserved | Designed by CloudNine Team" data-zh="© 2025 CloudNine - 版权所有 | 由CloudNine团队设计">&copy; 2025 CloudNine - Mọi quyền được bảo lưu | Thiết kế bởi CloudNine Team</p>
+                    
+                    <div class="footer-payment">
+                        <span style="color: rgba(255,255,255,0.8); margin-right: 10px;" data-vn="Thanh toán:" data-en="Payment:" data-zh="支付方式:">Thanh toán:</span>
+                        <div class="payment-icon">VISA</div>
+                        <div class="payment-icon">MC</div>
+                        <div class="payment-icon">ATM</div>
+                        <div class="payment-icon">QR</div>
+                    </div>
+                </div>
+                
+                <div class="footer-certificates">
+                    <div class="certificate">
+                        <i class="fas fa-certificate"></i>
+                        <span data-vn="Đã đăng ký bản quyền" data-en="Copyright Registered" data-zh="版权已注册">Đã đăng ký bản quyền</span>
+                    </div>
+                    <div class="certificate">
+                        <i class="fas fa-shield-check"></i>
+                        <span data-vn="Bảo mật SSL" data-en="SSL Security" data-zh="SSL安全">Bảo mật SSL</span>
+                    </div>
+                    <div class="certificate">
+                        <i class="fas fa-award"></i>
+                        <span data-vn="Chứng nhận chất lượng" data-en="Quality Certified" data-zh="质量认证">Chứng nhận chất lượng</span>
+                    </div>
                 </div>
             </div>
         </div>
+    </footer>    <script>
+        // Newsletter subscription
+        document.querySelector('.newsletter-btn').addEventListener('click', function() {
+            const email = document.querySelector('.newsletter-input').value;
+            if (email) {
+                // Get current language for messages
+                const currentLang = window.LanguageUtils ? window.LanguageUtils.getCurrentLanguage() : 'vn';
+                let message;
+                if (currentLang === 'vn') {
+                    message = 'Cảm ơn bạn đã đăng ký nhận tin khuyến mãi!';
+                } else if (currentLang === 'en') {
+                    message = 'Thank you for subscribing to our promotions!';
+                } else if (currentLang === 'zh') {
+                    message = '感谢您订阅我们的促销信息！';
+                }
+                alert(message);
+                document.querySelector('.newsletter-input').value = '';
+            } else {
+                const currentLang = window.LanguageUtils ? window.LanguageUtils.getCurrentLanguage() : 'vn';
+                let message;
+                if (currentLang === 'vn') {
+                    message = 'Vui lòng nhập email hợp lệ!';
+                } else if (currentLang === 'en') {
+                    message = 'Please enter a valid email!';
+                } else if (currentLang === 'zh') {
+                    message = '请输入有效的邮箱地址！';
+                }
+                alert(message);
+            }
+        });
 
-        <div class="footer-bottom">
-            <p>&copy; 2024 Luxury Flight - Mọi quyền được bảo lưu | Thiết kế bởi Luxury Flight Team</p>
-        </div>
-    </div>
-</footer>
+        // Smooth scroll for internal links
+        document.querySelectorAll('.footer-links a[href^="/"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Add smooth transition effect
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+
+        // Initialize language switching for footer
+        document.addEventListener('DOMContentLoaded', function() {
+            // If LanguageUtils is available, apply current language to footer
+            if (window.LanguageUtils) {
+                const currentLang = window.LanguageUtils.getCurrentLanguage();
+                // Apply current language settings
+                window.LanguageUtils.switchLanguage(currentLang);
+            }
+        });
+    </script>
+</body>
 </html>

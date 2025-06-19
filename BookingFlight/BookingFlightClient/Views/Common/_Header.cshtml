@@ -1,65 +1,165 @@
-﻿<html lang=en>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flight Booking</title>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
-    <link href="~/css/common/Header.css" rel="stylesheet" />
-</head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-light">
-            <div class="container">
-                <a class="navbar-brand" href="/home">Luxury Flight</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/flight">Chuyến bay</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/news">Tin tức</a>
-                        </li>
-                    </ul>
-
-
-                    <div class="account-info d-flex align-items-center">
-                        <div class="dropdown">
-                            <div class="buttons">
-                                <button class="btn btn-outline-dark btn-sm" onclick="toggleDropdown()">User</button>
-                            </div>
-                            <div id="headerDropdownMenu">
-                            </div>
+<!-- Main Header -->
+<header class="main-header">
+    <!-- Top Header with Contact Info -->
+    <div class="header-top">
+        <div class="header-top-content">
+            <div class="header-contact">
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <span>Hotline: 1900 6886</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>support@cloudnine.vn</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-clock"></i>                    <span data-vn="24/7 Support" data-en="24/7 Support" data-zh="24/7 支持">24/7 Support</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="/help" class="header-link">
+                    <i class="fas fa-question-circle"></i>
+                    <span data-vn="Trợ giúp" data-en="Help" data-zh="帮助">Trợ giúp</span>
+                </a><div class="language-selector" onclick="toggleLanguage()">
+                    <i class="fas fa-globe"></i>
+                    <span id="currentLang">VN</span>
+                    <i class="fas fa-chevron-down"></i>
+                    <div class="language-dropdown" id="languageDropdown">
+                        <div class="lang-option active" data-lang="vn">
+                            <img src="https://flagcdn.com/w20/vn.png" alt="VN" class="flag-icon">
+                            <span>Tiếng Việt</span>
+                        </div>
+                        <div class="lang-option" data-lang="en">
+                            <img src="https://flagcdn.com/w20/us.png" alt="EN" class="flag-icon">
+                            <span>English</span>
+                        </div>
+                        <div class="lang-option" data-lang="zh">
+                            <img src="https://flagcdn.com/w20/cn.png" alt="ZH" class="flag-icon">
+                            <span>中文</span>
                         </div>
                     </div>
                 </div>
+                <div class="header-social">
+                    <a href="#" class="social-link" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-link" title="YouTube"><i class="fab fa-youtube"></i></a>
+                </div>
             </div>
-        </nav>
-        <div class="modal fade" id="searchTicketModal" tabindex="-1" aria-labelledby="searchTicketModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="searchTicketModalLabel">Tra cứu vé máy bay</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+    </div>
+    
+    <!-- Main Navigation -->
+    <nav class="main-nav">
+        <div class="header-container">
+            <div class="nav-content">
+                <a href="/home" class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-cloud"></i>
+                        <div class="logo-accent">9</div>
                     </div>
-                    <div class="modal-body">
-                        <form id="searchTicketForm" action="/ticket" method="get">
-                            <div class="mb-3">
-                                <label for="ticketNumber" class="form-label">Mã đặt chỗ</label>
-                                <input type="text" class="form-control" id="ticketNumber" name="ticketNumber" required>
-                            </div>
-                        </form>
+                    <div class="logo-text">
+                        <span class="logo-main">CloudNine</span>
+                        <span class="logo-sub">Elevate your travel experience</span>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                        <button type="submit" form="searchTicketForm" class="btn btn-primary">Tìm kiếm</button>
+                </a>
+                
+                <ul class="nav-menu" id="navMenu">                    <li class="nav-item">
+                        <a href="/Home" class="nav-link">
+                            <i class="fas fa-home"></i> 
+                            <span data-vn="Trang chủ" data-en="Home" data-zh="首页">Trang chủ</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/light" class="nav-link">
+                            <i class="fas fa-plane-departure"></i> 
+                            <span data-vn="Đặt vé" data-en="Book Flight" data-zh="订票">Đặt vé</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/services" class="nav-link">
+                            <i class="fas fa-concierge-bell"></i> 
+                            <span data-vn="Dịch vụ" data-en="Services" data-zh="服务">Dịch vụ</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/news" class="nav-link">
+                            <i class="fas fa-newspaper"></i> 
+                            <span data-vn="Tin tức" data-en="News" data-zh="新闻">Tin tức</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/help" class="nav-link">
+                            <i class="fas fa-question-circle"></i> 
+                            <span data-vn="Trợ giúp" data-en="Help" data-zh="帮助">Trợ giúp</span>
+                        </a>
+                    </li>
+                </ul>
+                  <!-- User Section -->
+                <div class="user-section">
+                    <!-- Dynamic header dropdown menu will be populated by JavaScript -->
+                    <div id="headerDropdownMenu">
+                        <!-- Default login button - will be replaced by JS -->
+                        <a href="/Login" class="login-btn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span data-vn="Đăng nhập" data-en="Login" data-zh="登录">Đăng nhập</span>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-    </header>
-    <script src="~/js/common/Header.js" asp-append-version="true"></script>
-</body>
-</html>
+    </nav>
+
+    <!-- Search Ticket Modal -->
+    <div class="modal fade" id="searchTicketModal" tabindex="-1" aria-labelledby="searchTicketModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">                <div class="modal-header">
+                    <h5 class="modal-title" id="searchTicketModalLabel">
+                        <i class="fas fa-search"></i> 
+                        <span data-vn="Tra cứu vé máy bay" data-en="Flight Ticket Search" data-zh="航班票务查询">Tra cứu vé máy bay</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="searchTicketForm" action="/ticket" method="get">
+                        <div class="mb-3">
+                            <label for="ticketNumber" class="form-label">
+                                <i class="fas fa-ticket-alt"></i> 
+                                <span data-vn="Mã đặt chỗ" data-en="Booking Code" data-zh="预订代码">Mã đặt chỗ</span>
+                            </label>
+                            <input type="text" class="form-control" id="ticketNumber" name="ticketNumber" 
+                                   placeholder="Nhập mã đặt chỗ của bạn"
+                                   data-placeholder-vn="Nhập mã đặt chỗ của bạn" 
+                                   data-placeholder-en="Enter your booking code" 
+                                   data-placeholder-zh="请输入您的预订代码" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="lastName" class="form-label">
+                                <i class="fas fa-user"></i> 
+                                <span data-vn="Họ tên" data-en="Full Name" data-zh="姓名">Họ tên</span>
+                            </label>
+                            <input type="text" class="form-control" id="lastName" name="lastName" 
+                                   placeholder="Nhập họ tên"
+                                   data-placeholder-vn="Nhập họ tên" 
+                                   data-placeholder-en="Enter full name" 
+                                   data-placeholder-zh="请输入姓名" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> 
+                        <span data-vn="Đóng" data-en="Close" data-zh="关闭">Đóng</span>
+                    </button>
+                    <button type="submit" form="searchTicketForm" class="btn btn-primary">
+                        <i class="fas fa-search"></i> 
+                        <span data-vn="Tìm kiếm" data-en="Search" data-zh="搜索">Tìm kiếm</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Include JavaScript files -->
+<script src="~/js/common/LanguageUtils.js" asp-append-version="true"></script>
+<script src="~/js/common/Header.js" asp-append-version="true"></script>

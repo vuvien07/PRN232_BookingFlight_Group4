@@ -1,4 +1,5 @@
-﻿<html lang="en">
+﻿<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -143,165 +144,520 @@
         let sessionId = "@Context.Session.GetString("sessionId")"
         localStorage.setItem("sessionId", sessionId);
     </script>
+    <title>CloudNine - Elevate your travel experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/common/Header.css" rel="stylesheet" />
+    <link href="~/css/Home.css" rel="stylesheet" />
 </head>
 <body>
     <partial name="~/Views/Common/_Header.cshtml" />
-    <header class="banner position-relative">
-        <img src="images/background1.jpg" alt="Banner">
-        <!-- Event Slideshow -->
-        <div class="event-slideshow">
-            <div class="event-container">
-                <div class="event-wrapper" id="eventWrapper">
-                    <div class="event-slide active">
-                        <img src="~/images/event1.webp" alt="Event 1">
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-bg"></div>        <div class="container">            <div class="hero-content">                <h1 class="hero-title" data-vn="Khám Phá Thế Giới Cùng CloudNine" data-en="Explore the World with CloudNine" data-zh="与CloudNine一起探索世界">Khám Phá Thế Giới Cùng CloudNine</h1>
+                <p class="hero-subtitle" data-vn="Trải nghiệm dịch vụ hàng không cao cấp với giá cả hợp lý. Đặt vé nhanh chóng, an toàn và tiện lợi nhất." data-en="Experience premium airline services at reasonable prices. Book tickets quickly, safely and most conveniently." data-zh="以合理的价格体验优质的航空服务。快速、安全、便捷地预订机票。">
+                    Trải nghiệm dịch vụ hàng không cao cấp với giá cả hợp lý. 
+                    Đặt vé nhanh chóng, an toàn và tiện lợi nhất.
+                </p>
+                <div class="hero-features">
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span data-vn="Giá tốt nhất" data-en="Best Price" data-zh="最优价格">Giá tốt nhất</span>
                     </div>
-                    <div class="event-slide">
-                        <img src="~/images/event2.jpg" alt="Event 2">
+                    <div class="feature-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span data-vn="Thanh toán bảo mật" data-en="Secure Payment" data-zh="安全支付">Thanh toán bảo mật</span>
                     </div>
-                    <div class="event-slide">
-                        <img src="~/images/event3.png" alt="Event 3">
+                    <div class="feature-item">
+                        <i class="fas fa-headset"></i>
+                        <span data-vn="Hỗ trợ 24/7" data-en="24/7 Support" data-zh="24/7 支持">Hỗ trợ 24/7</span>
                     </div>
-                </div>
-
-
-                <button class="slide-btn prev" onclick="changeSlide(-1)">❮</button>
-                <button class="slide-btn next" onclick="changeSlide(1)">❯</button>
-
-
-                <div class="dot-container">
-                    <span class="dot active" onclick="currentSlide(1)"></span>
-                    <span class="dot" onclick="currentSlide(2)"></span>
-                    <span class="dot" onclick="currentSlide(3)"></span>
+                </div>                <div class="cta-buttons">
+                    <button type="button" class="btn-primary" data-bs-toggle="modal" data-bs-target="#flightSearchModal">
+                        <i class="fas fa-plane-departure"></i> <span data-vn="Đặt vé ngay" data-en="Book Now" data-zh="立即订票">Đặt vé ngay</span>
+                    </button>
+                    <a href="/promotion" class="btn-secondary">
+                        <i class="fas fa-tags"></i> <span data-vn="Xem khuyến mãi" data-en="View Promotions" data-zh="查看促销">Xem khuyến mãi</span>
+                    </a>
                 </div>
             </div>
-        </div>
-    </header>
+        </div></div>
+    </section>
 
-    <div class="container">
-        <div class="about-section promotion-section">
-            <h4 class="mb-4">Về Chúng Tôi</h4>
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <div class="about-content">
-                        <h5 class="mb-3" style="color: #006994;">Đối tác đáng tin cậy cho mọi hành trình của bạn</h5>
-                        <p class="mb-4">
-                            Chúng tôi tự hào là đơn vị tiên phong trong lĩnh vực đặt vé máy bay trực tuyến tại
-                            Việt Nam, mang đến cho khách hàng những trải nghiệm đặt vé thuận tiện và an toàn nhất.
-                        </p>
-                        <div class="row g-4 mb-4">
-                            <div class="col-6">
-                                <div class="achievement-box p-3 text-center"
-                                     style="background: #f8f9fa; border-radius: 8px;">
-                                    <h3 style="color: #006994;">500K+</h3>
-                                    <p class="mb-0">Khách hàng tin tưởng</p>
-                                </div>
+    <!-- Flight Search Modal -->
+    <div class="modal fade" id="flightSearchModal" tabindex="-1" aria-labelledby="flightSearchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">                <div class="modal-header">
+                    <h5 class="modal-title" id="flightSearchModalLabel">
+                        <i class="fas fa-plane-departure"></i> <span data-vn="Tìm kiếm chuyến bay" data-en="Flight Search" data-zh="航班搜索">Tìm kiếm chuyến bay</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div><div class="modal-body">
+                    <form id="searchForm" class="search-form" action="/flight" method="get">
+                        <div class="row g-3">                            <div class="col-md-6">
+                                <label for="departure" class="form-label">
+                                    <i class="fas fa-plane-departure"></i> <span data-vn="Điểm khởi hành" data-en="Departure" data-zh="出发地">Điểm khởi hành</span>
+                                </label>
+                                <select id="departure" name="departure" class="form-select" required>
+                                    <option value="" data-vn="Chọn điểm khởi hành" data-en="Select departure" data-zh="选择出发地">Chọn điểm khởi hành</option>
+                                    <option value="HAN">Hà Nội (HAN)</option>
+                                    <option value="SGN">TP. Hồ Chí Minh (SGN)</option>
+                                    <option value="DAD">Đà Nẵng (DAD)</option>
+                                    <option value="CXR">Cam Ranh (CXR)</option>
+                                    <option value="PQC">Phú Quốc (PQC)</option>
+                                </select>
                             </div>
-                            <div class="col-6">
-                                <div class="achievement-box p-3 text-center"
-                                     style="background: #f8f9fa; border-radius: 8px;">
-                                    <h3 style="color: #006994;">50+</h3>
-                                    <p class="mb-0">Đối tác hàng không</p>
-                                </div>
+                            <div class="col-md-6">
+                                <label for="destination" class="form-label">
+                                    <i class="fas fa-plane-arrival"></i> <span data-vn="Điểm đến" data-en="Destination" data-zh="目的地">Điểm đến</span>
+                                </label>
+                                <select id="destination" name="destination" class="form-select" required>
+                                    <option value="" data-vn="Chọn điểm đến" data-en="Select destination" data-zh="选择目的地">Chọn điểm đến</option>
+                                    <option value="HAN">Hà Nội (HAN)</option>
+                                    <option value="SGN">TP. Hồ Chí Minh (SGN)</option>
+                                    <option value="DAD">Đà Nẵng (DAD)</option>
+                                    <option value="CXR">Cam Ranh (CXR)</option>
+                                    <option value="PQC">Phú Quốc (PQC)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="departureDate" class="form-label">
+                                    <i class="fas fa-calendar-alt"></i> <span data-vn="Ngày khởi hành" data-en="Departure Date" data-zh="出发日期">Ngày khởi hành</span>
+                                </label>
+                                <input type="date" id="departureDate" name="departureDate" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="returnDate" class="form-label">
+                                    <i class="fas fa-calendar-check"></i> <span data-vn="Ngày về (tùy chọn)" data-en="Return Date (optional)" data-zh="返回日期(可选)">Ngày về (tùy chọn)</span>
+                                </label>
+                                <input type="date" id="returnDate" name="returnDate" class="form-control">
+                            </div>                            <div class="col-md-6">
+                                <label for="passengers" class="form-label">
+                                    <i class="fas fa-users"></i> <span data-vn="Số hành khách" data-en="Passengers" data-zh="乘客人数">Số hành khách</span>
+                                </label>
+                                <select id="passengers" name="passengers" class="form-select" required>
+                                    <option value="1" data-vn="1 người" data-en="1 Person" data-zh="1人">1 người</option>
+                                    <option value="2" data-vn="2 người" data-en="2 People" data-zh="2人">2 người</option>
+                                    <option value="3" data-vn="3 người" data-en="3 People" data-zh="3人">3 người</option>
+                                    <option value="4" data-vn="4 người" data-en="4 People" data-zh="4人">4 người</option>
+                                    <option value="5+" data-vn="5+ người" data-en="5+ People" data-zh="5+人">5+ người</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="class" class="form-label">
+                                    <i class="fas fa-star"></i> <span data-vn="Hạng vé" data-en="Class" data-zh="舱位等级">Hạng vé</span>
+                                </label>
+                                <select id="class" name="class" class="form-select" required>
+                                    <option value="economy" data-vn="Phổ thông" data-en="Economy" data-zh="经济舱">Phổ thông</option>
+                                    <option value="business" data-vn="Thương gia" data-en="Business" data-zh="商务舱">Thương gia</option>
+                                    <option value="first" data-vn="Hạng nhất" data-en="First Class" data-zh="头等舱">Hạng nhất</option>
+                                </select>
                             </div>
                         </div>
-                        <ul class="list-unstyled">
-                            <li class="mb-2">✓ Đảm bảo giá tốt nhất</li>
-                            <li class="mb-2">✓ Hỗ trợ 24/7</li>
-                            <li class="mb-2">✓ Thanh toán an toàn</li>
-                            <li>✓ Đặt vé nhanh chóng</li>
-                        </ul>
-                    </div>
+                    </form>
                 </div>
-                <div class="col-md-6">
-                    <div class="about-image"
-                         style="border-radius: 10px; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.1);">
-                        <img src="~/images/about.jpg" alt="About Us" style="width: 100%; height: 400px; object-fit: cover;">
-                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> <span data-vn="Đóng" data-en="Close" data-zh="关闭">Đóng</span>
+                    </button>
+                    <button type="submit" form="searchForm" class="btn btn-primary">
+                        <i class="fas fa-search"></i> <span data-vn="Tìm chuyến bay" data-en="Search Flights" data-zh="搜索航班">Tìm chuyến bay</span>
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="container">
-        <div class="reviews-section promotion-section mb-5">
-            <h4 class="mb-4">Khách hàng đánh giá những gì về dịch vụ của chúng tôi ?</h4>
-
-            <div class="d-flex align-items-center mb-3">
-                <div class="d-flex me-3">
-                </div>
-                <div>
-                </div>
-
+    </div>    <!-- Services Section -->
+    <section class="services-section">
+        <div class="container">            <div class="section-header">
+                <h2 class="section-title" data-vn="Tại Sao Chọn CloudNine?" data-en="Why Choose CloudNine?" data-zh="为什么选择CloudNine？">Tại Sao Chọn CloudNine?</h2>
+                <p class="section-subtitle" data-vn="Chúng tôi cam kết mang đến trải nghiệm bay tuyệt vời nhất với dịch vụ chuyên nghiệp và giá cả cạnh tranh" data-en="We are committed to providing the best flight experience with professional service and competitive pricing" data-zh="我们致力于以专业的服务和具有竞争力的价格提供最佳的飞行体验">
+                    Chúng tôi cam kết mang đến trải nghiệm bay tuyệt vời nhất với dịch vụ chuyên nghiệp và giá cả cạnh tranh
+                </p>
             </div>
-
-            <div class="row">
-            </div>
-
-            <div class="text-center mt-3">
-                <a href="/feedback" class="text-decoration-none">See List All Feedback</a>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>                    <h3 class="service-title" data-vn="Giá Tốt Nhất" data-en="Best Price" data-zh="最优价格">Giá Tốt Nhất</h3>
+                    <p class="service-description" data-vn="Cam kết giá vé máy bay tốt nhất thị trường. So sánh giá từ nhiều hãng hàng không và chọn lựa phù hợp nhất." data-en="Committed to the best airfare prices in the market. Compare prices from multiple airlines and choose the most suitable option." data-zh="承诺市场上最优惠的机票价格。比较多家航空公司的价格，选择最合适的选项。">
+                        Cam kết giá vé máy bay tốt nhất thị trường. So sánh giá từ nhiều hãng hàng không và chọn lựa phù hợp nhất.
+                    </p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3 class="service-title" data-vn="Đặt Vé Nhanh Chóng" data-en="Quick Booking" data-zh="快速订票">Đặt Vé Nhanh Chóng</h3>
+                    <p class="service-description" data-vn="Quy trình đặt vé đơn giản, nhanh chóng chỉ trong vài phút. Nhận vé điện tử ngay lập tức qua email." data-en="Simple and quick booking process in just a few minutes. Receive e-tickets instantly via email." data-zh="简单快速的订票流程，只需几分钟。通过电子邮件即时接收电子票。">
+                        Quy trình đặt vé đơn giản, nhanh chóng chỉ trong vài phút. Nhận vé điện tử ngay lập tức qua email.
+                    </p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3 class="service-title" data-vn="Hỗ Trợ 24/7" data-en="24/7 Support" data-zh="24/7 支持">Hỗ Trợ 24/7</h3>
+                    <p class="service-description" data-vn="Đội ngũ chăm sóc khách hàng chuyên nghiệp sẵn sàng hỗ trợ bạn mọi lúc, mọi nơi với hotline 1900 6886." data-en="Professional customer service team ready to support you anytime, anywhere with hotline 1900 6886." data-zh="专业的客服团队随时随地为您提供支持，热线电话 1900 6886。">
+                        Đội ngũ chăm sóc khách hàng chuyên nghiệp sẵn sàng hỗ trợ bạn mọi lúc, mọi nơi với hotline 1900 6886.
+                    </p>
+                </div>                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-shield-check"></i>
+                    </div>
+                    <h3 class="service-title" data-vn="Thanh Toán Bảo Mật" data-en="Secure Payment" data-zh="安全支付">Thanh Toán Bảo Mật</h3>
+                    <p class="service-description" data-vn="Hệ thống thanh toán an toàn với công nghệ mã hóa SSL. Hỗ trợ đa dạng phương thức thanh toán." data-en="Secure payment system with SSL encryption technology. Support for various payment methods." data-zh="采用SSL加密技术的安全支付系统。支持多种支付方式。">
+                        Hệ thống thanh toán an toàn với công nghệ mã hóa SSL. Hỗ trợ đa dạng phương thức thanh toán.
+                    </p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <h3 class="service-title" data-vn="Đổi/Hủy Linh Hoạt" data-en="Flexible Change/Cancel" data-zh="灵活改签/退票">Đổi/Hủy Linh Hoạt</h3>
+                    <p class="service-description" data-vn="Chính sách đổi/hủy vé linh hoạt, minh bạch. Hoàn tiền nhanh chóng theo quy định của từng hãng bay." data-en="Flexible and transparent ticket change/cancellation policy. Quick refunds according to each airline's regulations." data-zh="灵活透明的机票改签/退票政策。根据各航空公司规定快速退款。">
+                        Chính sách đổi/hủy vé linh hoạt, minh bạch. Hoàn tiền nhanh chóng theo quy định của từng hãng bay.
+                    </p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <h3 class="service-title" data-vn="Ưu Đãi Hấp Dẫn" data-en="Attractive Offers" data-zh="优惠活动">Ưu Đãi Hấp Dẫn</h3>
+                    <p class="service-description" data-vn="Nhiều chương trình khuyến mãi, ưu đãi đặc biệt dành cho khách hàng thân thiết và đặt vé sớm." data-en="Many promotional programs and special offers for loyal customers and early bookings." data-zh="为忠实客户和提前预订提供多种促销活动和特别优惠。">
+                        Nhiều chương trình khuyến mãi, ưu đãi đặc biệt dành cho khách hàng thân thiết và đặt vé sớm.
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
+    </section>    <!-- Promotions Section -->
+    <section class="promotions-section">
+        <div class="container">            <div class="section-header">
+                <h2 class="section-title" data-vn="Khuyến Mãi Hot" data-en="Hot Promotions" data-zh="热门促销">Khuyến Mãi Hot</h2>
+                <p class="section-subtitle" data-vn="Đừng bỏ lỡ những ưu đãi hấp dẫn từ CloudNine" data-en="Don't miss out on attractive offers from CloudNine" data-zh="不要错过CloudNine的优惠活动">Đừng bỏ lỡ những ưu đãi hấp dẫn từ CloudNine</p>
+            </div>
+            <div class="promo-slider">                <div class="promo-slide active">
+                    <img src="~/images/event1.webp" alt="Khuyến mãi 1">
+                    <div class="promo-content">
+                        <h3 class="promo-title" data-vn="Giảm 30% Tất Cả Chuyến Bay" data-en="30% Off All Flights" data-zh="所有航班30%折扣">Giảm 30% Tất Cả Chuyến Bay</h3>
+                        <p class="promo-description" data-vn="Ưu đãi đặc biệt trong tháng này. Áp dụng cho tất cả các tuyến bay nội địa và quốc tế." data-en="Special offer this month. Applicable to all domestic and international flights." data-zh="本月特别优惠。适用于所有国内和国际航班。">
+                            Ưu đãi đặc biệt trong tháng này. Áp dụng cho tất cả các tuyến bay nội địa và quốc tế.
+                        </p>
+                        <a href="/promotion" class="promo-btn" data-vn="Xem Chi Tiết" data-en="View Details" data-zh="查看详情">Xem Chi Tiết</a>
+                    </div>
+                </div>
+                <div class="promo-slide">
+                    <img src="~/images/event2.jpg" alt="Khuyến mãi 2">
+                    <div class="promo-content">
+                        <h3 class="promo-title" data-vn="Flash Sale Cuối Tuần" data-en="Weekend Flash Sale" data-zh="周末限时抢购">Flash Sale Cuối Tuần</h3>
+                        <p class="promo-description" data-vn="Vé máy bay chỉ từ 999.000đ cho các chuyến bay trong nước. Số lượng có hạn!" data-en="Flight tickets from only 999,000 VND for domestic flights. Limited quantity!" data-zh="国内航班机票仅999,000越南盾起。数量有限！">
+                            Vé máy bay chỉ từ 999.000đ cho các chuyến bay trong nước. Số lượng có hạn!
+                        </p>
+                        <a href="/promotion" class="promo-btn" data-vn="Đặt Ngay" data-en="Book Now" data-zh="立即预订">Đặt Ngay</a>
+                    </div>
+                </div>
+                <div class="promo-slide">
+                    <img src="~/images/event3.png" alt="Khuyến mãi 3">
+                    <div class="promo-content">
+                        <h3 class="promo-title" data-vn="Combo Du Lịch Tiết Kiệm" data-en="Travel Combo Savings" data-zh="旅行套餐优惠">Combo Du Lịch Tiết Kiệm</h3>
+                        <p class="promo-description" data-vn="Đặt vé máy bay + khách sạn tiết kiệm đến 40%. Trải nghiệm kỳ nghỉ hoàn hảo." data-en="Book flight + hotel and save up to 40%. Experience the perfect vacation." data-zh="预订机票+酒店最多节省40%。体验完美假期。">
+                            Đặt vé máy bay + khách sạn tiết kiệm đến 40%. Trải nghiệm kỳ nghỉ hoàn hảo.
+                        </p>
+                        <a href="/promotion" class="promo-btn" data-vn="Khám Phá" data-en="Explore" data-zh="探索">Khám Phá</a>
+                    </div>
+                </div>
+                
+                <!-- Slider Controls -->
+                <button class="slider-nav slider-prev" onclick="changePromoSlide(-1)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="slider-nav slider-next" onclick="changePromoSlide(1)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                
+                <div class="slider-controls">
+                    <div class="slider-dot active" onclick="currentPromoSlide(1)"></div>
+                    <div class="slider-dot" onclick="currentPromoSlide(2)"></div>
+                    <div class="slider-dot" onclick="currentPromoSlide(3)"></div>
+                </div>
+            </div>
+        </div>
+    </section>    <!-- About Section -->
+    <section class="about-section">
+        <div class="container">
+            <div class="about-content">                <div class="about-text">
+                    <h3 data-vn="Đối Tác Đáng Tin Cậy Cho Mọi Hành Trình" data-en="Trusted Partner For Every Journey" data-zh="每次旅程的可信赖伙伴">Đối Tác Đáng Tin Cậy Cho Mọi Hành Trình</h3>                    <p data-vn="CloudNine tự hào là đơn vị tiên phong trong lĩnh vực đặt vé máy bay trực tuyến tại Việt Nam. Với hơn 10 năm kinh nghiệm, chúng tôi đã phục vụ hàng triệu khách hàng với cam kết mang đến trải nghiệm đặt vé thuận tiện, an toàn và tiết kiệm nhất." data-en="CloudNine is proud to be a pioneer in the field of online flight booking in Vietnam. With over 10 years of experience, we have served millions of customers with a commitment to providing the most convenient, safe and economical booking experience." data-zh="CloudNine自豪地成为越南在线机票预订领域的先锋。凭借超过10年的经验，我们已为数百万客户提供服务，致力于提供最便捷、安全和经济的预订体验。">
+                        CloudNine tự hào là đơn vị tiên phong trong lĩnh vực đặt vé máy bay trực tuyến tại Việt Nam. 
+                        Với hơn 10 năm kinh nghiệm, chúng tôi đã phục vụ hàng triệu khách hàng với cam kết mang đến 
+                        trải nghiệm đặt vé thuận tiện, an toàn và tiết kiệm nhất.
+                    </p>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-number">500K+</span>
+                            <span class="stat-label" data-vn="Khách hàng tin tưởng" data-en="Trusted customers" data-zh="信赖客户">Khách hàng tin tưởng</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">50+</span>
+                            <span class="stat-label" data-vn="Đối tác hàng không" data-en="Airline partners" data-zh="航空合作伙伴">Đối tác hàng không</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">100+</span>
+                            <span class="stat-label" data-vn="Điểm đến" data-en="Destinations" data-zh="目的地">Điểm đến</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">99%</span>
+                            <span class="stat-label" data-vn="Khách hàng hài lòng" data-en="Customer satisfaction" data-zh="客户满意度">Khách hàng hài lòng</span>
+                        </div>
+                    </div>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check"></i> <span data-vn="Đảm bảo giá tốt nhất thị trường" data-en="Guaranteed best market price" data-zh="保证市场最优价格">Đảm bảo giá tốt nhất thị trường</span></li>
+                        <li><i class="fas fa-check"></i> <span data-vn="Hệ thống đặt vé hiện đại, bảo mật cao" data-en="Modern, highly secure booking system" data-zh="现代化高安全预订系统">Hệ thống đặt vé hiện đại, bảo mật cao</span></li>
+                        <li><i class="fas fa-check"></i> <span data-vn="Đội ngũ tư vấn chuyên nghiệp" data-en="Professional consulting team" data-zh="专业咨询团队">Đội ngũ tư vấn chuyên nghiệp</span></li>
+                        <li><i class="fas fa-check"></i> <span data-vn="Chính sách hậu mãi chu đáo" data-en="Thoughtful after-sales policy" data-zh="周到的售后政策">Chính sách hậu mãi chu đáo</span></li>
+                    </ul>
+                </div>
+                <div class="about-image">
+                    <img src="~/images/about.jpg" alt="Về chúng tôi">
+                </div>
+            </div>
+        </div>
+    </section>    <!-- Testimonials Section -->
+    <section class="testimonials-section">
+        <div class="container">            <div class="section-header">
+                <h2 class="section-title" data-vn="Khách Hàng Nói Gì Về Chúng Tôi" data-en="What Our Customers Say About Us" data-zh="客户对我们的评价">Khách Hàng Nói Gì Về Chúng Tôi</h2>
+                <p class="section-subtitle" data-vn="Hàng ngàn khách hàng đã tin tưởng và hài lòng với dịch vụ của CloudNine" data-en="Thousands of customers have trusted and been satisfied with CloudNine's services" data-zh="成千上万的客户信任并满意CloudNine的服务">Hàng ngàn khách hàng đã tin tưởng và hài lòng với dịch vụ của CloudNine</p>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-quote">"</div>                    <p class="testimonial-text" data-vn="Dịch vụ tuyệt vời! Đặt vé nhanh chóng, giá cả hợp lý và nhân viên hỗ trợ rất nhiệt tình. Tôi sẽ tiếp tục sử dụng Luxury Flight cho những chuyến bay tiếp theo." data-en="Excellent service! Quick booking, reasonable prices and very enthusiastic support staff. I will continue to use Luxury Flight for future flights." data-zh="优秀的服务！快速预订，价格合理，支持人员非常热情。我将继续使用Luxury Flight预订未来的航班。">
+                        "Dịch vụ tuyệt vời! Đặt vé nhanh chóng, giá cả hợp lý và nhân viên hỗ trợ rất nhiệt tình. 
+                        Tôi sẽ tiếp tục sử dụng Luxury Flight cho những chuyến bay tiếp theo."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">A</div>
+                        <div class="author-info">
+                            <h4 data-vn="Anh Minh" data-en="Mr. Minh" data-zh="明先生">Anh Minh</h4>
+                            <p data-vn="Doanh nhân" data-en="Businessman" data-zh="商人">Doanh nhân</p>
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-quote">"</div>                    <p class="testimonial-text" data-vn="Giao diện website dễ sử dụng, quy trình đặt vé đơn giản. Đặc biệt ấn tượng với dịch vụ chăm sóc khách hàng 24/7, luôn sẵn sàng giải đáp mọi thắc mắc." data-en="Easy-to-use website interface, simple booking process. Especially impressed with 24/7 customer service, always ready to answer all questions." data-zh="网站界面易于使用，预订流程简单。特别对24/7客户服务印象深刻，随时准备回答所有问题。">
+                        "Giao diện website dễ sử dụng, quy trình đặt vé đơn giản. Đặc biệt ấn tượng với dịch vụ 
+                        chăm sóc khách hàng 24/7, luôn sẵn sàng giải đáp mọi thắc mắc."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">L</div>
+                        <div class="author-info">
+                            <h4 data-vn="Chị Linh" data-en="Ms. Linh" data-zh="玲女士">Chị Linh</h4>
+                            <p data-vn="Giáo viên" data-en="Teacher" data-zh="教师">Giáo viên</p>
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-quote">"</div>                    <p class="testimonial-text" data-vn="So với các trang web khác, Luxury Flight có giá vé tốt nhất và nhiều chương trình khuyến mãi hấp dẫn. Thanh toán online an toàn, nhận vé nhanh chóng." data-en="Compared to other websites, Luxury Flight has the best ticket prices and many attractive promotional programs. Safe online payment, quick ticket receipt." data-zh="与其他网站相比，Luxury Flight拥有最优惠的机票价格和许多有吸引力的促销活动。在线支付安全，快速收到票据。">
+                        "So với các trang web khác, Luxury Flight có giá vé tốt nhất và nhiều chương trình khuyến mãi hấp dẫn. 
+                        Thanh toán online an toàn, nhận vé nhanh chóng."
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">T</div>                        <div class="author-info">
+                            <h4 data-vn="Anh Tuấn" data-en="Mr. Tuan" data-zh="俊先生">Anh Tuấn</h4>
+                            <p data-vn="Kỹ sư IT" data-en="IT Engineer" data-zh="IT工程师">Kỹ sư IT</p>
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>            <div class="text-center mt-4">
+                <a href="/feedback" class="btn-primary">
+                    <i class="fas fa-comments"></i> <span data-vn="Xem Tất Cả Đánh Giá" data-en="View All Reviews" data-zh="查看所有评价">Xem Tất Cả Đánh Giá</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section">
+        <div class="container">            <div class="newsletter-content">
+                <h3><i class="fas fa-envelope"></i> <span data-vn="Đăng Ký Nhận Tin Khuyến Mãi" data-en="Subscribe to Promotions" data-zh="订阅促销信息">Đăng Ký Nhận Tin Khuyến Mãi</span></h3>
+                <p data-vn="Nhận thông tin về các ưu đãi đặc biệt và chương trình khuyến mãi mới nhất từ Luxury Flight" data-en="Get information about special offers and the latest promotional programs from Luxury Flight" data-zh="获取来自Luxury Flight的特别优惠和最新促销活动信息">Nhận thông tin về các ưu đãi đặc biệt và chương trình khuyến mãi mới nhất từ Luxury Flight</p>
+                <div class="newsletter-form">
+                    <input type="email" class="newsletter-input" placeholder="Nhập email của bạn..." 
+                           data-placeholder-vn="Nhập email của bạn..." 
+                           data-placeholder-en="Enter your email..."
+                           data-placeholder-zh="请输入您的邮箱...">
+                    <button class="newsletter-btn">
+                        <i class="fas fa-paper-plane"></i> <span data-vn="Đăng Ký" data-en="Subscribe" data-zh="订阅">Đăng Ký</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <partial name="~/Views/Common/_Footer.cshtml" />
 
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let currentSlideIndex = 1;
-        const totalSlides = document.querySelectorAll('.event-slide').length;
+        // Promotion Slider
+        let currentPromoSlideIndex = 0;
+        const promoSlides = document.querySelectorAll('.promo-slide');
+        const promoDots = document.querySelectorAll('.slider-dot');
 
-
-        function changeSlide(direction) {
-            showSlide(currentSlideIndex + direction);
+        function showPromoSlide(index) {
+            promoSlides.forEach(slide => slide.classList.remove('active'));
+            promoDots.forEach(dot => dot.classList.remove('active'));
+            
+            promoSlides[index].classList.add('active');
+            promoDots[index].classList.add('active');
         }
 
-
-        function currentSlide(n) {
-            showSlide(n);
-        }
-
-
-        function showSlide(n) {
-            const slides = document.querySelectorAll('.event-slide');
-            const dots = document.querySelectorAll('.dot');
-
-
-            if (n > totalSlides) {
-                currentSlideIndex = 1;
-            } else if (n < 1) {
-                currentSlideIndex = totalSlides;
-            } else {
-                currentSlideIndex = n;
+        function changePromoSlide(direction) {
+            currentPromoSlideIndex += direction;
+            if (currentPromoSlideIndex >= promoSlides.length) {
+                currentPromoSlideIndex = 0;
+            } else if (currentPromoSlideIndex < 0) {
+                currentPromoSlideIndex = promoSlides.length - 1;
             }
-
-
-            // Hide all slides
-            slides.forEach(slide => {
-                slide.classList.remove('active');
-            });
-
-
-            // Remove active class from all dots
-            dots.forEach(dot => {
-                dot.classList.remove('active');
-            });
-
-
-            // Show current slide
-            slides[currentSlideIndex - 1].classList.add('active');
-            dots[currentSlideIndex - 1].classList.add('active');
+            showPromoSlide(currentPromoSlideIndex);
         }
 
+        function currentPromoSlide(index) {
+            currentPromoSlideIndex = index - 1;
+            showPromoSlide(currentPromoSlideIndex);
+        }
 
         // Auto slide
         setInterval(() => {
-            changeSlide(1);
-        }, 3000);
+            changePromoSlide(1);
+        }, 5000);        // Search form validation
+        const searchForm = document.getElementById('searchForm');
+        if (searchForm) {
+            searchForm.addEventListener('submit', function(e) {
+                const departure = document.getElementById('departure').value;
+                const destination = document.getElementById('destination').value;
+                
+                if (departure === destination && departure !== '') {
+                    e.preventDefault();
+                    alert('Điểm khởi hành và điểm đến không thể giống nhau!');
+                    return false;
+                }
+                
+                // Close modal on successful submission
+                const modal = bootstrap.Modal.getInstance(document.getElementById('flightSearchModal'));
+                if (modal) {
+                    modal.hide();
+                }
+            });
+        }
 
+        // Set minimum date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('departureDate').setAttribute('min', today);
+        document.getElementById('returnDate').setAttribute('min', today);
 
-        // Initial call
-        showSlide(currentSlideIndex);
+        // Return date should be after departure date
+        document.getElementById('departureDate').addEventListener('change', function() {
+            document.getElementById('returnDate').setAttribute('min', this.value);
+        });        // Newsletter subscription
+        document.querySelector('.newsletter-btn').addEventListener('click', function() {
+            const email = document.querySelector('.newsletter-input').value;
+            if (email && email.includes('@@')) {
+                alert('Cảm ơn bạn đã đăng ký nhận tin khuyến mãi!');
+                document.querySelector('.newsletter-input').value = '';
+            } else {
+                alert('Vui lòng nhập email hợp lệ!');
+            }
+        });
 
+        // Smooth scroll for CTA buttons
+        document.querySelectorAll('a[href^="/"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Add loading effect
+                if (this.classList.contains('btn-primary') || this.classList.contains('btn-secondary')) {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                }
+            });
+        });
+
+        // Animate counters
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-number');
+            counters.forEach(counter => {
+                const target = parseInt(counter.textContent.replace(/[^0-9]/g, ''));
+                const increment = target / 100;
+                let current = 0;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    
+                    if (counter.textContent.includes('K+')) {
+                        counter.textContent = Math.floor(current) + 'K+';
+                    } else if (counter.textContent.includes('%')) {
+                        counter.textContent = Math.floor(current) + '%';
+                    } else if (counter.textContent.includes('+')) {
+                        counter.textContent = Math.floor(current) + '+';
+                    } else {
+                        counter.textContent = Math.floor(current);
+                    }
+                }, 20);
+            });
+        }
+
+        // Trigger counter animation when section is visible
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    observer.unobserve(entry.target);
+                }
+            });
+        });        const aboutSection = document.querySelector('.about-section');
+        if (aboutSection) {
+            observer.observe(aboutSection);
+        }
     </script>
 
+    <!-- Language Utils Script -->
+    <script src="~/js/common/LanguageUtils.js" asp-append-version="true"></script>
+    
+    <!-- Initialize language switching for Home page -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Apply saved language preference when page loads
+            if (window.LanguageUtils) {
+                const currentLang = window.LanguageUtils.getCurrentLanguage();
+                console.log('Home page - applying language:', currentLang);
+                window.LanguageUtils.switchLanguage(currentLang);
+            }
+        });
+    </script>
 </body>
-
 </html>

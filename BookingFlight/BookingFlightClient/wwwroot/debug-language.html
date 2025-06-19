@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Switcher Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .language-selector {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #667eea;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            position: relative;
+            margin: 20px 0;
+        }
+        .language-selector:hover {
+            background: #5a6fd8;
+        }
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            padding: 8px 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            min-width: 150px;
+        }
+        .language-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .lang-option:hover {
+            background: #f0f0f0;
+        }
+        .lang-option.active {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            font-weight: 600;
+        }
+        .flag-icon {
+            width: 16px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        .test-content {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .status {
+            background: #e8f5e8;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #4caf50;
+        }
+        .error {
+            background: #ffeaea;
+            border-left-color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 data-vn="Test Chuyển Đổi Ngôn Ngữ" data-en="Language Switching Test">Test Chuyển Đổi Ngôn Ngữ</h1>
+        
+        <div class="status" id="status">Đang khởi tạo...</div>
+        
+        <div class="language-selector" onclick="toggleLanguage()">
+            <i class="fas fa-globe">🌐</i>
+            <span id="currentLang">VN</span>
+            <span>▼</span>
+            <div class="language-dropdown" id="languageDropdown">
+                <div class="lang-option active" data-lang="vn">
+                    <img src="https://flagcdn.com/w20/vn.png" alt="VN" class="flag-icon">
+                    <span>Tiếng Việt</span>
+                </div>
+                <div class="lang-option" data-lang="en">
+                    <img src="https://flagcdn.com/w20/us.png" alt="EN" class="flag-icon">
+                    <span>English</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-content">
+            <h3 data-vn="Nội dung test" data-en="Test content">Nội dung test</h3>
+            <p data-vn="Đây là một đoạn văn bản tiếng Việt để test chức năng chuyển đổi ngôn ngữ." 
+               data-en="This is an English text paragraph to test the language switching functionality.">
+               Đây là một đoạn văn bản tiếng Việt để test chức năng chuyển đổi ngôn ngữ.
+            </p>
+            
+            <label data-vn="Nhập tên của bạn:" data-en="Enter your name:">Nhập tên của bạn:</label><br>
+            <input type="text" placeholder="Họ và tên" 
+                   data-placeholder-vn="Họ và tên" 
+                   data-placeholder-en="Full name">
+            
+            <br><br>
+            <button data-vn="Gửi thông tin" data-en="Submit information">Gửi thông tin</button>
+        </div>
+        
+        <div id="console" style="background: #f0f0f0; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;">
+            <strong>Console Log:</strong><br>
+        </div>
+    </div>
+
+    <script>
+        // Custom console log to display on page
+        const consoleDiv = document.getElementById('console');
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        function addToConsole(message, type = 'log') {
+            const time = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : type === 'warn' ? 'orange' : 'black';
+            consoleDiv.innerHTML += `<div style="color: ${color};">[${time}] ${message}</div>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsole(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsole(args.join(' '), 'error');
+        };
+        
+        // Test Language Functions
+        let currentLang = 'vn';
+        
+        window.toggleLanguage = function() {
+            console.log('toggleLanguage called');
+            const dropdown = document.getElementById('languageDropdown');
+            const selector = document.querySelector('.language-selector');
+            
+            if (dropdown && selector) {
+                dropdown.classList.toggle('show');
+                console.log('Dropdown toggled, show class:', dropdown.classList.contains('show'));
+                updateStatus('Dropdown toggled successfully');
+            } else {
+                console.error('Elements not found - dropdown:', dropdown, 'selector:', selector);
+                updateStatus('ERROR: Elements not found', true);
+            }
+        }
+        
+        function switchLanguage(lang) {
+            console.log('switchLanguage called with:', lang);
+            currentLang = lang;
+            
+            // Update current language display
+            const currentLangSpan = document.getElementById('currentLang');
+            if (currentLangSpan) {
+                currentLangSpan.textContent = lang.toUpperCase();
+                console.log('Updated current language display to:', lang.toUpperCase());
+            }
+            
+            // Update all text elements
+            const elements = document.querySelectorAll('[data-vn][data-en]');
+            console.log('Found elements with language data:', elements.length);
+            
+            elements.forEach((element, index) => {
+                const text = element.getAttribute(`data-${lang}`);
+                if (text && text.trim()) {
+                    element.textContent = text;
+                    console.log(`Element ${index} updated:`, text);
+                }
+            });
+            
+            // Update placeholders
+            const inputElements = document.querySelectorAll('input[placeholder]');
+            inputElements.forEach(input => {
+                const placeholderText = input.getAttribute(`data-placeholder-${lang}`);
+                if (placeholderText) {
+                    input.placeholder = placeholderText;
+                    console.log('Updated placeholder:', placeholderText);
+                }
+            });
+            
+            // Update active states
+            document.querySelectorAll('.lang-option').forEach(option => {
+                option.classList.remove('active');
+                if (option.getAttribute('data-lang') === lang) {
+                    option.classList.add('active');
+                }
+            });
+            
+            // Close dropdown
+            const dropdown = document.getElementById('languageDropdown');
+            if (dropdown) dropdown.classList.remove('show');
+            
+            // Update status
+            updateStatus(`Language switched to: ${lang.toUpperCase()}`);
+            
+            // Save to localStorage
+            try {
+                localStorage.setItem('preferred-language', lang);
+                console.log('Saved to localStorage');
+            } catch (error) {
+                console.error('Failed to save:', error);
+            }
+        }
+        
+        function updateStatus(message, isError = false) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = isError ? 'status error' : 'status';
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            updateStatus('DOM loaded successfully');
+            
+            // Test elements
+            const dropdown = document.getElementById('languageDropdown');
+            const selector = document.querySelector('.language-selector');
+            const currentLangSpan = document.getElementById('currentLang');
+            
+            console.log('Elements check:');
+            console.log('- dropdown:', !!dropdown);
+            console.log('- selector:', !!selector);
+            console.log('- currentLangSpan:', !!currentLangSpan);
+            
+            if (dropdown && selector && currentLangSpan) {
+                updateStatus('All elements found ✓');
+            } else {
+                updateStatus('ERROR: Missing elements', true);
+            }
+            
+            // Add click handlers
+            document.querySelectorAll('.lang-option').forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const lang = this.getAttribute('data-lang');
+                    console.log('Language option clicked:', lang);
+                    switchLanguage(lang);
+                });
+            });
+            
+            // Load saved language
+            const savedLang = localStorage.getItem('preferred-language') || 'vn';
+            console.log('Loading saved language:', savedLang);
+            switchLanguage(savedLang);
+        });
+        
+        // Click outside to close
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.language-selector')) {
+                const dropdown = document.getElementById('languageDropdown');
+                if (dropdown) dropdown.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

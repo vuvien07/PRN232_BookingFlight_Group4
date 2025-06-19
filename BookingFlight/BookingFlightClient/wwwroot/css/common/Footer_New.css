@@ -1,4 +1,4 @@
-﻿/* Modern Footer Styles */
+/* Modern Footer Styles */
 .luxury-footer {
     background: linear-gradient(135deg, #1a365d 0%, #006994 50%, #40E0D0 100%);
     color: white;
@@ -370,36 +370,4 @@
         width: 40px;
         height: 40px;
     }
-}
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: #ffffff;
-		transition: all 0.3s ease;
-	}
-
-		.social-links a:hover {
-			background: #40E0D0;
-			transform: translateY(-3px);
-		}
-
-.footer-bottom {
-	border-top: 1px solid rgba(255, 255, 255, 0.1);
-	padding-top: 20px;
-	text-align: center;
-	color: white;
-}
-
-@media (max-width: 992px) {
-	.footer-grid {
-		grid-template-columns: 1fr 1fr;
-		gap: 30px;
-	}
-}
-
-@media (max-width: 576px) {
-	.footer-grid {
-		grid-template-columns: 1fr;
-		gap: 30px;
-	}
 }

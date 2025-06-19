@@ -13,9 +13,8 @@
 
 <body>
     <partial name="~/Views/Common/_SnackBar.cshtml"/>
-    @RenderBody()
-
-    <script src="~/js/lib/bootstrap.bundle.min.js"></script>
+    @RenderBody()    <script src="~/js/lib/bootstrap.bundle.min.js"></script>
+    <script src="~/js/common/LanguageUtils.js" asp-append-version="true"></script>
     <script src="~/js/common/Snackbar.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
 </body>

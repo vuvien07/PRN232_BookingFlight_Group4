@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Debug Test</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .language-selector {
+            display: inline-block;
+            position: relative;
+            margin-bottom: 30px;
+        }
+        .language-toggle {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1000;
+        }
+        .language-dropdown.show {
+            display: block;
+        }
+        .lang-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .lang-option:hover {
+            background: #f5f5f5;
+        }
+        .lang-option.active {
+            background: #007bff;
+            color: white;
+        }
+        .flag-icon {
+            width: 20px;
+            height: auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .debug-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        input, select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Language Debug Test Page</h1>
+        
+        <!-- Language Selector -->
+        <div class="language-selector">
+            <button class="language-toggle" onclick="toggleLanguageDropdown()">
+                <i class="fas fa-globe"></i>
+                <span id="currentLang">VN</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="language-dropdown" id="languageDropdown">
+                <div class="lang-option active" data-lang="vn" onclick="switchLanguage('vn')">
+                    <img src="https://flagcdn.com/w20/vn.png" alt="VN" class="flag-icon">
+                    <span>Tiếng Việt</span>
+                </div>
+                <div class="lang-option" data-lang="en" onclick="switchLanguage('en')">
+                    <img src="https://flagcdn.com/w20/us.png" alt="EN" class="flag-icon">
+                    <span>English</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debug Info -->
+        <div class="debug-info" id="debugInfo">
+            <div><strong>Current Language:</strong> <span id="currentLangDebug">vn</span></div>
+            <div><strong>LanguageUtils Available:</strong> <span id="languageUtilsStatus">Checking...</span></div>
+            <div><strong>Elements Found:</strong> <span id="elementsCount">0</span></div>
+            <div><strong>Last Switch:</strong> <span id="lastSwitch">None</span></div>
+        </div>
+
+        <!-- Test Sections -->
+        <div class="test-section">
+            <h3 data-vn="Phần Tiêu Đề" data-en="Header Section">Phần Tiêu Đề</h3>
+            <p data-vn="Đây là đoạn văn bản kiểm tra việc đổi ngôn ngữ. Nếu bạn thấy text này thay đổi khi chuyển ngôn ngữ thì tính năng hoạt động đúng." 
+               data-en="This is a test paragraph for language switching. If you see this text change when switching languages, the feature is working correctly.">
+               Đây là đoạn văn bản kiểm tra việc đổi ngôn ngữ. Nếu bạn thấy text này thay đổi khi chuyển ngôn ngữ thì tính năng hoạt động đúng.
+            </p>
+            <button data-vn="Nút Kiểm Tra" data-en="Test Button">Nút Kiểm Tra</button>
+        </div>
+
+        <div class="test-section">
+            <h3 data-vn="Form Kiểm Tra" data-en="Test Form">Form Kiểm Tra</h3>
+            <label data-vn="Tên của bạn:" data-en="Your Name:">Tên của bạn:</label>
+            <input type="text" placeholder="Nhập tên" 
+                   data-placeholder-vn="Nhập tên" 
+                   data-placeholder-en="Enter name">
+            
+            <label data-vn="Chọn quốc gia:" data-en="Select Country:">Chọn quốc gia:</label>
+            <select>
+                <option value="" data-vn="Chọn quốc gia" data-en="Select Country">Chọn quốc gia</option>
+                <option value="vn" data-vn="Việt Nam" data-en="Vietnam">Việt Nam</option>
+                <option value="us" data-vn="Hoa Kỳ" data-en="United States">Hoa Kỳ</option>
+                <option value="jp" data-vn="Nhật Bản" data-en="Japan">Nhật Bản</option>
+            </select>
+        </div>
+
+        <div class="test-section">
+            <h3 data-vn="Danh Sách Kiểm Tra" data-en="Test List">Danh Sách Kiểm Tra</h3>
+            <ul>
+                <li data-vn="Mục đầu tiên" data-en="First item">Mục đầu tiên</li>
+                <li data-vn="Mục thứ hai" data-en="Second item">Mục thứ hai</li>
+                <li data-vn="Mục thứ ba" data-en="Third item">Mục thứ ba</li>
+            </ul>
+        </div>
+
+        <!-- Manual Test Buttons -->
+        <div class="test-section">
+            <h3>Manual Test Controls</h3>
+            <button onclick="testLanguageSwitch('vn')">Switch to Vietnamese</button>
+            <button onclick="testLanguageSwitch('en')">Switch to English</button>
+            <button onclick="runDebugTest()">Run Debug Test</button>
+            <button onclick="countElements()">Count Elements</button>
+        </div>
+    </div>
+
+    <!-- Load LanguageUtils -->
+    <script src="js/common/LanguageUtils.js"></script>
+    
+    <script>
+        function toggleLanguageDropdown() {
+            console.log('toggleLanguageDropdown called');
+            const dropdown = document.getElementById('languageDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function switchLanguage(lang) {
+            console.log('switchLanguage called with:', lang);
+            
+            // Update current language display
+            document.getElementById('currentLang').textContent = lang.toUpperCase();
+            document.getElementById('currentLangDebug').textContent = lang;
+            document.getElementById('lastSwitch').textContent = new Date().toLocaleTimeString() + ' - ' + lang;
+            
+            // Update active language option
+            document.querySelectorAll('.lang-option').forEach(option => {
+                option.classList.remove('active');
+                if (option.getAttribute('data-lang') === lang) {
+                    option.classList.add('active');
+                }
+            });
+
+            // Use LanguageUtils if available
+            if (window.LanguageUtils) {
+                window.LanguageUtils.switchLanguage(lang);
+            } else {
+                // Fallback manual implementation
+                console.log('Using fallback language switching');
+                manualLanguageSwitch(lang);
+            }
+            
+            // Close dropdown
+            document.getElementById('languageDropdown').classList.remove('show');
+            
+            // Update element count
+            countElements();
+        }
+
+        function manualLanguageSwitch(lang) {
+            // Update all text elements
+            const elements = document.querySelectorAll('[data-vn][data-en]');
+            console.log('Found elements for manual switch:', elements.length);
+            
+            elements.forEach((element, index) => {
+                const text = element.getAttribute(`data-${lang}`);
+                if (text && text.trim()) {
+                    element.textContent = text;
+                    console.log(`Updated element ${index}:`, text);
+                }
+            });
+            
+            // Update placeholders
+            const inputs = document.querySelectorAll('input[placeholder]');
+            inputs.forEach(input => {
+                const placeholder = input.getAttribute(`data-placeholder-${lang}`);
+                if (placeholder) {
+                    input.placeholder = placeholder;
+                }
+            });
+            
+            // Update select options
+            const options = document.querySelectorAll('option[data-vn][data-en]');
+            options.forEach(option => {
+                const text = option.getAttribute(`data-${lang}`);
+                if (text && text.trim()) {
+                    option.textContent = text;
+                }
+            });
+        }
+
+        function testLanguageSwitch(lang) {
+            console.log('Manual test switch to:', lang);
+            switchLanguage(lang);
+        }
+
+        function runDebugTest() {
+            console.log('=== DEBUG TEST START ===');
+            console.log('LanguageUtils available:', typeof window.LanguageUtils);
+            
+            if (window.LanguageUtils) {
+                console.log('Current language:', window.LanguageUtils.getCurrentLanguage());
+                console.log('Language config:', window.LanguageUtils.getLanguageConfig());
+            }
+            
+            const elements = document.querySelectorAll('[data-vn][data-en]');
+            console.log('Elements with language data:', elements.length);
+            
+            elements.forEach((element, index) => {
+                console.log(`Element ${index}:`, {
+                    tagName: element.tagName,
+                    vn: element.getAttribute('data-vn'),
+                    en: element.getAttribute('data-en'),
+                    currentText: element.textContent.trim()
+                });
+            });
+            
+            console.log('=== DEBUG TEST END ===');
+        }
+
+        function countElements() {
+            const elements = document.querySelectorAll('[data-vn][data-en]');
+            document.getElementById('elementsCount').textContent = elements.length;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, initializing...');
+            
+            // Check LanguageUtils availability
+            setTimeout(() => {
+                const status = window.LanguageUtils ? 'Available' : 'Not Available';
+                document.getElementById('languageUtilsStatus').textContent = status;
+                
+                if (window.LanguageUtils) {
+                    console.log('LanguageUtils loaded successfully');
+                    const currentLang = window.LanguageUtils.getCurrentLanguage();
+                    switchLanguage(currentLang);
+                } else {
+                    console.log('LanguageUtils not available, using fallback');
+                }
+                
+                countElements();
+            }, 100);
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.language-selector')) {
+                document.getElementById('languageDropdown').classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

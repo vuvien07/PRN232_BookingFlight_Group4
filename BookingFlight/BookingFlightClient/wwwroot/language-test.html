@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Language Switching</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .language-test {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .test-section {
+            margin: 15px 0;
+        }
+        .test-section h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        input, button {
+            padding: 8px 12px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+        button:hover {
+            background: #5a6fd8;
+        }
+        .current-lang {
+            background: #e8f4fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 data-vn="Demo Chức Năng Đổi Ngôn Ngữ" data-en="Language Switching Demo">Demo Chức Năng Đổi Ngôn Ngữ</h1>
+        
+        <div class="current-lang">
+            <strong data-vn="Ngôn ngữ hiện tại:" data-en="Current Language:">Ngôn ngữ hiện tại:</strong> 
+            <span id="currentLanguageDisplay">Tiếng Việt</span>
+        </div>
+
+        <div class="language-test">
+            <h2 data-vn="Điều Khiển Ngôn Ngữ" data-en="Language Controls">Điều Khiển Ngôn Ngữ</h2>
+            <button onclick="switchToVietnamese()" data-vn="Chuyển sang Tiếng Việt" data-en="Switch to Vietnamese">Chuyển sang Tiếng Việt</button>
+            <button onclick="switchToEnglish()" data-vn="Chuyển sang Tiếng Anh" data-en="Switch to English">Chuyển sang Tiếng Anh</button>
+        </div>
+
+        <div class="test-section">
+            <h3 data-vn="Thông Tin Cá Nhân" data-en="Personal Information">Thông Tin Cá Nhân</h3>
+            <label data-vn="Họ và tên:" data-en="Full Name:">Họ và tên:</label><br>
+            <input type="text" placeholder="Nhập họ và tên" 
+                   data-placeholder-vn="Nhập họ và tên" 
+                   data-placeholder-en="Enter full name"><br>
+            
+            <label data-vn="Email:" data-en="Email:">Email:</label><br>
+            <input type="email" placeholder="Nhập email" 
+                   data-placeholder-vn="Nhập email" 
+                   data-placeholder-en="Enter email"><br>
+            
+            <label data-vn="Số điện thoại:" data-en="Phone Number:">Số điện thoại:</label><br>
+            <input type="tel" placeholder="Nhập số điện thoại" 
+                   data-placeholder-vn="Nhập số điện thoại" 
+                   data-placeholder-en="Enter phone number">
+        </div>
+
+        <div class="test-section">
+            <h3 data-vn="Thông Tin Chuyến Bay" data-en="Flight Information">Thông Tin Chuyến Bay</h3>
+            <p data-vn="Chuyến bay: VN123 - Hà Nội đến TP.HCM" data-en="Flight: VN123 - Hanoi to Ho Chi Minh City">Chuyến bay: VN123 - Hà Nội đến TP.HCM</p>
+            <p data-vn="Thời gian: 2 giờ 15 phút" data-en="Duration: 2 hours 15 minutes">Thời gian: 2 giờ 15 phút</p>
+            <p data-vn="Giá vé: 1.500.000 VNĐ" data-en="Price: 1,500,000 VND">Giá vé: 1.500.000 VNĐ</p>
+        </div>
+
+        <div class="test-section">
+            <h3 data-vn="Dịch Vụ" data-en="Services">Dịch Vụ</h3>
+            <ul>
+                <li data-vn="Suất ăn miễn phí" data-en="Free meal">Suất ăn miễn phí</li>
+                <li data-vn="Giải trí trên máy bay" data-en="In-flight entertainment">Giải trí trên máy bay</li>
+                <li data-vn="Wifi miễn phí" data-en="Free WiFi">Wifi miễn phí</li>
+                <li data-vn="Hỗ trợ 24/7" data-en="24/7 Support">Hỗ trợ 24/7</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3 data-vn="Thao Tác" data-en="Actions">Thao Tác</h3>
+            <button data-vn="Đặt vé ngay" data-en="Book Now">Đặt vé ngay</button>
+            <button data-vn="Xem chi tiết" data-en="View Details">Xem chi tiết</button>
+            <button data-vn="Liên hệ hỗ trợ" data-en="Contact Support">Liên hệ hỗ trợ</button>
+        </div>
+
+        <div class="language-test">
+            <h2 data-vn="Thông Tin Kỹ Thuật" data-en="Technical Information">Thông Tin Kỹ Thuật</h2>
+            <p data-vn="Ngôn ngữ được lưu trong localStorage và sẽ được khôi phục khi tải lại trang." 
+               data-en="Language preference is saved in localStorage and will be restored when the page reloads.">
+               Ngôn ngữ được lưu trong localStorage và sẽ được khôi phục khi tải lại trang.
+            </p>
+            <p data-vn="Tất cả các phần tử có data-vn và data-en sẽ được cập nhật tự động." 
+               data-en="All elements with data-vn and data-en attributes will be updated automatically.">
+               Tất cả các phần tử có data-vn và data-en sẽ được cập nhật tự động.
+            </p>
+        </div>
+    </div>
+
+    <!-- Include Language Utils -->
+    <script src="/js/common/LanguageUtils.js"></script>
+    <script>
+        function switchToVietnamese() {
+            if (window.LanguageUtils) {
+                window.LanguageUtils.switchLanguage('vn');
+            }
+            updateCurrentLanguageDisplay();
+        }
+
+        function switchToEnglish() {
+            if (window.LanguageUtils) {
+                window.LanguageUtils.switchLanguage('en');
+            }
+            updateCurrentLanguageDisplay();
+        }        function updateCurrentLanguageDisplay() {
+            const display = document.getElementById('currentLanguageDisplay');
+            if (display && window.LanguageUtils) {
+                const currentLang = window.LanguageUtils.getCurrentLanguage();
+                const config = window.LanguageUtils.getLanguageConfig(currentLang);
+                display.textContent = config ? config.name : currentLang;
+            }
+        }
+
+        function testLanguageSwitch() {
+            console.log('=== Language Switch Test ===');
+            console.log('LanguageUtils available:', !!window.LanguageUtils);
+            if (window.LanguageUtils) {
+                console.log('Current language:', window.LanguageUtils.getCurrentLanguage());
+                console.log('Available languages:', window.LanguageUtils.getLanguageConfig());
+                
+                // Count elements with language attributes
+                const elementsWithLang = document.querySelectorAll('[data-vn][data-en]');
+                console.log('Elements with language attributes:', elementsWithLang.length);
+                
+                // Test switching
+                const currentLang = window.LanguageUtils.getCurrentLanguage();
+                const newLang = currentLang === 'vn' ? 'en' : 'vn';
+                console.log('Testing switch from', currentLang, 'to', newLang);
+                window.LanguageUtils.switchLanguage(newLang);
+            }
+        }
+
+        // Listen for language changes
+        window.addEventListener('languageChanged', function(event) {
+            console.log('Language changed:', event.detail);
+            updateCurrentLanguageDisplay();
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentLanguageDisplay();
+        });
+    </script>
+</body>
+</html>
