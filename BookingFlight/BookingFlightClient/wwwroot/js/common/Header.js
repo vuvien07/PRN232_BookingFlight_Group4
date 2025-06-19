@@ -1,52 +1,11 @@
 // Language switching functionality - Updated to use LanguageUtils
 let currentLang = 'vn';
 
-// User authentication handling
+// Legacy onload handler - replaced by DOMContentLoaded
+// This is kept for compatibility but the main logic is now in initializeAuthentication()
 window.onload = () => {
-    const token = localStorage.getItem('token');
-    const params = new URLSearchParams(window.location.search);
-    if (!token) {
-        if(params.get('isLogout')) {
-            showSnackbar("Logout success", "success");
-            const newUrl = `${window.location.pathname}`;
-            window.history.replaceState({}, '', newUrl);
-        }
-        document.getElementById('headerDropdownMenu').
-            innerHTML = `
-            <div class="dropdown-menu" id="dropdownMenu"> 
-                                  <button class="yellow-btn">Chuyến bay của tôi</button> 
-                                     <button class="menu-item" onclick="signup()"> 
-                                       <i class="fas fa-user-plus"></i> 
-                                         Đăng ký 
-                                     </button> 
-                                  <button class="menu-item" onclick="login()"> 
-                                        <i class="fas fa-sign-in-alt"></i> 
-                                        Đăng nhập 
-                                     </button> 
-                                </div> 
-            `;
-    } else {
-        if (params.get('isLoggingIn')) {
-            showSnackbar("Login success", "success");
-        }
-        let decodedToken = parseJwtToken(token);
-        if (decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] == "Customer") {
-            document.getElementById('headerDropdownMenu').
-                innerHTML = `
-            <div class="dropdown-menu" id="dropdownMenu">
-                                    <button class="yellow-btn">Chuyến bay của tôi</button>
-                                    <button class="menu-item" onclick="goToProfile()">
-                                        <i class="fas fa-user"></i>
-                                        Profile
-                                    </button>
-                                    <button class="menu-item" onclick="logout()">
-                                        <i class="fas fa-sign-out-alt"></i>
-                                        Đăng xuất
-                                    </button>
-                                </div>
-            `;
-        }
-    }
+    // Additional initialization if needed
+    console.log('Window loaded - authentication should already be initialized');
 };
 
 // Make toggleLanguage global
@@ -341,4 +300,126 @@ function showSnackbar(message, type = 'info') {
         snackbar.classList.remove('show');
         setTimeout(() => document.body.removeChild(snackbar), 300);
     }, 3000);
+}
+
+// User dropdown menu functions
+function toggleUserMenu() {
+    const dropdown = document.getElementById('userDropdownMenu');
+    const userBtn = document.querySelector('.user-btn');
+    
+    if (dropdown && userBtn) {
+        dropdown.classList.toggle('show');
+        userBtn.classList.toggle('active');
+    }
+}
+
+function closeUserMenu() {
+    const dropdown = document.getElementById('userDropdownMenu');
+    const userBtn = document.querySelector('.user-btn');
+    
+    if (dropdown) {
+        dropdown.classList.remove('show');
+    }
+    if (userBtn) {
+        userBtn.classList.remove('active');
+    }
+}
+
+function goToMyFlights() {
+    window.location.href = '/MyFlights';
+}
+
+// Close user menu when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.user-dropdown')) {
+        closeUserMenu();
+    }
+});
+
+// Initialize authentication UI when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Header DOM loaded, initializing authentication...');
+    
+    // Check if header dropdown menu exists
+    const headerDropdown = document.getElementById('headerDropdownMenu');
+    if (!headerDropdown) {
+        console.error('Header dropdown menu not found!');
+        return;
+    }
+    
+    // Initialize authentication UI
+    initializeAuthentication();
+});
+
+function initializeAuthentication() {
+    const token = localStorage.getItem('token');
+    const params = new URLSearchParams(window.location.search);
+    
+    if (!token) {
+        // User is not logged in - show simple login button
+        if(params.get('isLogout')) {
+            showSnackbar("Logout success", "success");
+            const newUrl = `${window.location.pathname}`;
+            window.history.replaceState({}, '', newUrl);
+        }
+        
+        const headerDropdown = document.getElementById('headerDropdownMenu');
+        if (headerDropdown) {
+            headerDropdown.innerHTML = `
+                <a href="/Login" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span data-vn="Đăng nhập" data-en="Login" data-zh="登录">Đăng nhập</span>
+                </a>
+            `;
+            
+            // Apply current language to new elements
+            if (window.LanguageUtils) {
+                const currentLang = window.LanguageUtils.getCurrentLanguage();
+                window.LanguageUtils.updateDOMElements(currentLang);
+            }
+        }
+    } else {
+        // User is logged in - show user menu
+        if (params.get('isLoggingIn')) {
+            showSnackbar("Login success", "success");
+            const newUrl = `${window.location.pathname}`;
+            window.history.replaceState({}, '', newUrl);
+        }
+        
+        let decodedToken = parseJwtToken(token);
+        if (decodedToken && decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] == "Customer") {
+            const headerDropdown = document.getElementById('headerDropdownMenu');
+            if (headerDropdown) {
+                headerDropdown.innerHTML = `
+                    <div class="user-dropdown">
+                        <button class="user-btn" onclick="toggleUserMenu()">
+                            <i class="fas fa-user"></i>
+                            <span data-vn="Tài khoản" data-en="Account" data-zh="账户">Tài khoản</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <button class="menu-item" onclick="goToProfile()">
+                                <i class="fas fa-user"></i>
+                                <span data-vn="Hồ sơ" data-en="Profile" data-zh="个人资料">Hồ sơ</span>
+                            </button>
+                            <button class="menu-item" onclick="goToMyFlights()">
+                                <i class="fas fa-plane"></i>
+                                <span data-vn="Chuyến bay của tôi" data-en="My Flights" data-zh="我的航班">Chuyến bay của tôi</span>
+                            </button>
+                            <button class="menu-item" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span data-vn="Đăng xuất" data-en="Logout" data-zh="登出">Đăng xuất</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Apply current language to new elements
+                if (window.LanguageUtils) {
+                    const currentLang = window.LanguageUtils.getCurrentLanguage();
+                    window.LanguageUtils.updateDOMElements(currentLang);
+                }
+            }
+        }
+    }
 }
