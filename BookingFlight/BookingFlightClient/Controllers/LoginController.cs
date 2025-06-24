@@ -8,5 +8,10 @@ namespace BookingFlightClient.Controllers
         {
             return View("~/Views/Authentication/Login.cshtml");
         }
+
+        public IActionResult Register()
+        {
+            return View("~/Views/Authentication/Register.cshtml");
+        }
     }
 }

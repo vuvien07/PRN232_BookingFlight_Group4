@@ -1,0 +1,482 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to bottom, #4db8ff, #9933ff);
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .register-container {
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .register-card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .icon-container {
+            font-size: 4rem;
+            color: #6c757d;
+        }
+
+        input::placeholder {
+            color: #6c757d;
+            opacity: 1;
+        }
+
+        .form-control:focus {
+            border-color: #4db8ff;
+            box-shadow: 0 0 0 0.2rem rgba(77, 184, 255, 0.25);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4db8ff, #9933ff);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #3da7f0, #8a2be2);
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .password-strength {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        .strength-weak { color: #dc3545; }
+        .strength-medium { color: #ffc107; }
+        .strength-strong { color: #28a745; }
+    </style>
+</head>
+<body>
+    <!-- Alert Modal -->
+    <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header" id="modalHeader">
+                    <h5 class="modal-title" id="alertModalLabel">
+                        <i class="bi bi-info-circle-fill"></i> <span id="modalTitle">Info</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center align-middle py-4">
+                    <p id="alertMessage" class="fs-5 text-muted"></p>
+                </div>
+                <div class="modal-footer justify-content-center border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid register-container d-flex align-items-center justify-content-center">
+        <div class="register-card">
+            <div class="text-center mb-4">
+                <div class="icon-container">
+                    <i class="bi bi-person-plus-fill"></i>
+                </div>
+                <h2 class="fw-bold text-dark mt-3">Create Account</h2>
+                <p class="text-muted">Join us today! It's free and easy.</p>
+            </div>
+
+            <form id="registerForm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Enter username" required>
+                            <div id="usernameError" class="error-message"></div>
+                            <div id="usernameCheck" class="success-message"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required>
+                            <div id="emailError" class="error-message"></div>
+                            <div id="emailCheck" class="success-message"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fullname" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="fullname" name="fullname" placeholder="Enter full name" required>
+                    <div id="fullnameError" class="error-message"></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+                            <div id="passwordStrength" class="password-strength"></div>
+                            <div id="passwordError" class="error-message"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required>
+                            <div id="confirmPasswordError" class="error-message"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phoneNumber" class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="Enter phone number (e.g., +84909123456)" required>
+                    <div id="phoneError" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="address" class="form-label">Address</label>
+                    <textarea class="form-control" id="address" name="address" rows="3" placeholder="Enter your address" required></textarea>
+                    <div id="addressError" class="error-message"></div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-person-plus me-2"></i>Create Account
+                    </button>
+                </div>
+
+                <div class="text-center mt-3">
+                    <p class="text-muted">Already have an account? 
+                        <a href="/Login" class="text-decoration-none fw-bold" style="color: #4db8ff;">Sign In</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_BASE_URL = 'http://localhost:5077/api'; // Update with your server URL
+
+        // Form validation functions
+        function validateUsername(username) {
+            if (!username) return 'Username is required';
+            if (username.includes(' ')) return "Username doesn't contain space";
+            if (username.length > 50) return 'Username must be less than 50 characters';
+            return null;
+        }        function validateEmail(email) {
+            if (!email) return 'Email is required';
+            const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+            if (!emailRegex.test(email)) return 'Email is invalid';
+            if (email.length > 50) return 'Email must be less than 50 characters';
+            return null;
+        }
+
+        function validatePassword(password) {
+            if (!password) return 'Password is required';
+            if (password.includes(' ')) return "Password doesn't contain space";
+            if (password.length < 6 || password.length > 250) return 'Password must be between 6 and 250 characters';
+            return null;
+        }
+
+        function validatePhoneNumber(phone) {
+            if (!phone) return 'Phone number is required';
+            const phoneRegex = /^(\+84|0)[0-9]{9,10}$/;
+            if (!phoneRegex.test(phone)) return 'Phone number is invalid (format: +84909123456 or 0909123456)';
+            return null;
+        }
+
+        function getPasswordStrength(password) {
+            let score = 0;
+            if (password.length >= 8) score++;
+            if (/[a-z]/.test(password)) score++;
+            if (/[A-Z]/.test(password)) score++;
+            if (/[0-9]/.test(password)) score++;
+            if (/[^A-Za-z0-9]/.test(password)) score++;
+            
+            if (score < 2) return { text: 'Weak', class: 'strength-weak' };
+            if (score < 4) return { text: 'Medium', class: 'strength-medium' };
+            return { text: 'Strong', class: 'strength-strong' };
+        }
+
+        function showAlert(message, type = 'info') {
+            const modal = document.getElementById('alertModal');
+            const modalHeader = document.getElementById('modalHeader');
+            const modalTitle = document.getElementById('modalTitle');
+            const alertMessage = document.getElementById('alertMessage');
+            
+            // Set color and icon based on type
+            if (type === 'error') {
+                modalHeader.className = 'modal-header bg-danger text-white';
+                modalTitle.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> Error';
+            } else if (type === 'success') {
+                modalHeader.className = 'modal-header bg-success text-white';
+                modalTitle.innerHTML = '<i class="bi bi-check-circle-fill"></i> Success';
+            } else {
+                modalHeader.className = 'modal-header bg-info text-white';
+                modalTitle.innerHTML = '<i class="bi bi-info-circle-fill"></i> Info';
+            }
+            
+            alertMessage.textContent = message;
+            const modalInstance = new bootstrap.Modal(modal);
+            modalInstance.show();
+        }
+
+        // Real-time validation
+        document.getElementById('username').addEventListener('blur', async function() {
+            const username = this.value.trim();
+            const errorDiv = document.getElementById('usernameError');
+            const checkDiv = document.getElementById('usernameCheck');
+            
+            errorDiv.textContent = '';
+            checkDiv.textContent = '';
+            
+            const validationError = validateUsername(username);
+            if (validationError) {
+                errorDiv.textContent = validationError;
+                return;
+            }            try {
+                const response = await fetch(`${API_BASE_URL}/Register/check-username/${encodeURIComponent(username)}`, {
+                    method: 'GET',
+                    headers: {
+                        // Don't send SessionId for register endpoints
+                    }
+                });
+                
+                if (!response.ok) {
+                    console.error('Username check failed:', response.status);
+                    return;
+                }
+                
+                const responseText = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (jsonError) {
+                    console.error('JSON parse error in username check:', jsonError);
+                    return;
+                }
+                
+                if (data.exists) {
+                    errorDiv.textContent = 'Username already exists';
+                } else {
+                    checkDiv.textContent = 'Username is available';
+                }
+            } catch (error) {
+                console.error('Error checking username:', error);
+            }
+        });
+
+        document.getElementById('email').addEventListener('blur', async function() {
+            const email = this.value.trim();
+            const errorDiv = document.getElementById('emailError');
+            const checkDiv = document.getElementById('emailCheck');
+            
+            errorDiv.textContent = '';
+            checkDiv.textContent = '';
+            
+            const validationError = validateEmail(email);
+            if (validationError) {
+                errorDiv.textContent = validationError;
+                return;
+            }            try {
+                const response = await fetch(`${API_BASE_URL}/Register/check-email/${encodeURIComponent(email)}`, {
+                    method: 'GET',
+                    headers: {
+                        // Don't send SessionId for register endpoints
+                    }
+                });
+                
+                if (!response.ok) {
+                    console.error('Email check failed:', response.status);
+                    return;
+                }
+                
+                const responseText = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (jsonError) {
+                    console.error('JSON parse error in email check:', jsonError);
+                    return;
+                }
+                
+                if (data.exists) {
+                    errorDiv.textContent = 'Email already exists';
+                } else {
+                    checkDiv.textContent = 'Email is available';
+                }
+            } catch (error) {
+                console.error('Error checking email:', error);
+            }
+        });
+
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            
+            if (password) {
+                const strength = getPasswordStrength(password);
+                strengthDiv.textContent = `Password strength: ${strength.text}`;
+                strengthDiv.className = `password-strength ${strength.class}`;
+            } else {
+                strengthDiv.textContent = '';
+            }
+        });
+
+        document.getElementById('confirmPassword').addEventListener('blur', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            const errorDiv = document.getElementById('confirmPasswordError');
+            
+            if (confirmPassword && password !== confirmPassword) {
+                errorDiv.textContent = 'Password and Confirm Password must match';
+            } else {
+                errorDiv.textContent = '';
+            }
+        });
+
+        // Form submission
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = {
+                username: formData.get('username').trim(),
+                password: formData.get('password'),
+                confirmPassword: formData.get('confirmPassword'),
+                fullname: formData.get('fullname').trim(),
+                address: formData.get('address').trim(),
+                phoneNumber: formData.get('phoneNumber').trim(),
+                email: formData.get('email').trim()
+            };
+            
+            // Clear previous errors
+            document.querySelectorAll('.error-message').forEach(div => div.textContent = '');
+            
+            // Validate all fields
+            let hasErrors = false;
+            
+            const usernameError = validateUsername(data.username);
+            if (usernameError) {
+                document.getElementById('usernameError').textContent = usernameError;
+                hasErrors = true;
+            }
+            
+            const emailError = validateEmail(data.email);
+            if (emailError) {
+                document.getElementById('emailError').textContent = emailError;
+                hasErrors = true;
+            }
+            
+            const passwordError = validatePassword(data.password);
+            if (passwordError) {
+                document.getElementById('passwordError').textContent = passwordError;
+                hasErrors = true;
+            }
+            
+            if (data.password !== data.confirmPassword) {
+                document.getElementById('confirmPasswordError').textContent = 'Password and Confirm Password must match';
+                hasErrors = true;
+            }
+            
+            const phoneError = validatePhoneNumber(data.phoneNumber);
+            if (phoneError) {
+                document.getElementById('phoneError').textContent = phoneError;
+                hasErrors = true;
+            }
+            
+            if (!data.fullname) {
+                document.getElementById('fullnameError').textContent = 'Full name is required';
+                hasErrors = true;
+            }
+            
+            if (!data.address) {
+                document.getElementById('addressError').textContent = 'Address is required';
+                hasErrors = true;
+            }
+            
+            if (hasErrors) return;            try {
+                console.log('Sending registration request to:', `${API_BASE_URL}/Register`);
+                console.log('Request data:', data);
+                  const response = await fetch(`${API_BASE_URL}/Register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Don't send SessionId for register endpoint
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                console.log('Response headers:', response.headers);
+                
+                // Get response text first to see what we're getting
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (jsonError) {
+                    console.error('JSON parse error:', jsonError);
+                    console.error('Raw response:', responseText);
+                    showAlert(`Server error: Invalid JSON response. Status: ${response.status}`, 'error');
+                    return;
+                }
+                
+                console.log('Parsed result:', result);
+                  if (response.ok) {
+                    // Check if email verification is required
+                    if (result.requiresEmailVerification) {
+                        showAlert(result.message, 'success');
+                        this.reset();
+                        document.getElementById('passwordStrength').textContent = '';
+                        setTimeout(() => {
+                            window.location.href = '/Register/Success';
+                        }, 2000);
+                    } else {
+                        showAlert('Registration successful! You can now login with your account.', 'success');
+                        this.reset();
+                        document.getElementById('passwordStrength').textContent = '';
+                        setTimeout(() => {
+                            window.location.href = '/Login';
+                        }, 2000);
+                    }
+                } else {
+                    showAlert(result.message || `Registration failed. Status: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                console.error('Detailed registration error:', error);
+                showAlert(`Network error: ${error.message}. Please check your connection and try again.`, 'error');
+            }
+        });
+    </script>
+</body>
+</html>

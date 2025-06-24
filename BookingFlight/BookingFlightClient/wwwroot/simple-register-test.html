@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Register Test</title>
+</head>
+<body>
+    <h1>Simple Register Test</h1>
+    <form id="testForm">
+        <input type="text" id="username" placeholder="Username" value="testuser123"><br><br>
+        <input type="password" id="password" placeholder="Password" value="password123"><br><br>
+        <input type="text" id="email" placeholder="Email" value="test@example.com"><br><br>
+        <button type="submit">Register</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const data = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                confirmPassword: document.getElementById('password').value,
+                fullname: "Test User",
+                address: "123 Test Street",
+                phoneNumber: "0909123456",
+                email: document.getElementById('email').value
+            };
+
+            try {
+                console.log('Sending request...');
+                const response = await fetch('http://localhost:5077/api/Register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                        // Explicitly no SessionId header
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                console.log('Response status:', response.status);
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+
+                document.getElementById('result').innerHTML = `
+                    <h3>Result:</h3>
+                    <p>Status: ${response.status}</p>
+                    <p>Response: ${responseText}</p>
+                `;
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = `<p style="color:red">Error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

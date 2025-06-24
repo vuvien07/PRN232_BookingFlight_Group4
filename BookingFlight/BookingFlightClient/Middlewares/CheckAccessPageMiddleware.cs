@@ -36,9 +36,10 @@ namespace BookingFlightClient.Middlewares
 				context.Session.SetString("sessionRole", sessionRole);
 			}
 			using var scoped = _serviceProvider.CreateScope();
-			var _permissionPageRepository = scoped.ServiceProvider.GetRequiredService<IPermissionPageRepository>();
-			var url = context.Request.Path;
-			var ignorePaths = new[] { "/Unauthorized", "/Login", "/favicon.ico", "/api/AfterLogin" };
+			var _permissionPageRepository = scoped.ServiceProvider.GetRequiredService<IPermissionPageRepository>();			var url = context.Request.Path;			var ignorePaths = new[] { 
+				"/Unauthorized", "/Login", "/Register", "/Login/Register", 
+				"/favicon.ico", "/api/AfterLogin", "/ForgotPassword", "/Register/VerifyEmail", "/Register/Success" 
+			};
 			var staticFileExtendsions = new[] { ".js", ".css", ".png", ".jpg", ".jpeg", ".svg", ".ico" };
 			if(ignorePaths.Any(x => x.StartsWith(url.ToString())) || staticFileExtendsions.Contains(Path.GetExtension(url)))
 			{

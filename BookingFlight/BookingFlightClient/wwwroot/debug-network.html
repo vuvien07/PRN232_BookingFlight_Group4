@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Network Issue</title>
+</head>
+<body>
+    <h1>Debug Network Connection</h1>
+    
+    <h3>1. Test Server Connection</h3>
+    <button onclick="testServerConnection()">Test Server Health</button>
+    <div id="serverResult"></div>
+    
+    <h3>2. Test API Endpoint</h3>
+    <input type="email" id="testEmail" placeholder="Enter test email" value="test@example.com">
+    <button onclick="testForgotPasswordAPI()">Test Forgot Password API</button>
+    <div id="apiResult"></div>
+    
+    <h3>3. Network Info</h3>
+    <div id="networkInfo"></div>
+
+    <script>
+        // Display network info
+        document.getElementById('networkInfo').innerHTML = `
+            <p>Current URL: ${window.location.href}</p>
+            <p>User Agent: ${navigator.userAgent}</p>
+            <p>Online: ${navigator.onLine}</p>
+        `;
+
+        async function testServerConnection() {
+            const resultDiv = document.getElementById('serverResult');
+            resultDiv.innerHTML = 'Testing server connection...';
+            
+            try {
+                // Test multiple possible server URLs
+                const urls = [
+                    'http://localhost:5000',
+                    'https://localhost:5001', 
+                    'http://localhost:5000/api',
+                    'https://localhost:7000'
+                ];
+                
+                for (const url of urls) {
+                    try {
+                        console.log(`Testing: ${url}`);
+                        const response = await fetch(url, { 
+                            method: 'GET',
+                            mode: 'no-cors' // Bypass CORS for basic connectivity test
+                        });
+                        resultDiv.innerHTML += `<br>✅ ${url} - Connected (status: ${response.status || 'no-cors'})`;
+                    } catch (error) {
+                        resultDiv.innerHTML += `<br>❌ ${url} - Failed: ${error.message}`;
+                    }
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        async function testForgotPasswordAPI() {
+            const email = document.getElementById('testEmail').value;
+            const resultDiv = document.getElementById('apiResult');
+            resultDiv.innerHTML = 'Testing API call...';
+            
+            // Test different server URLs
+            const baseUrls = [
+                'http://localhost:5000',
+                'https://localhost:5001',
+                'https://localhost:7000'
+            ];
+            
+            for (const baseUrl of baseUrls) {
+                try {
+                    console.log(`Testing API: ${baseUrl}/api/ForgotPassword/send-email`);
+                    resultDiv.innerHTML += `<br>Testing: ${baseUrl}/api/ForgotPassword/send-email`;
+                    
+                    const response = await fetch(`${baseUrl}/api/ForgotPassword/send-email`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: email
+                        })
+                    });
+                    
+                    console.log(`Response status: ${response.status}`);
+                    console.log(`Response headers:`, response.headers);
+                    
+                    const responseText = await response.text();
+                    console.log(`Response text:`, responseText);
+                    
+                    resultDiv.innerHTML += `<br>✅ Status: ${response.status}`;
+                    resultDiv.innerHTML += `<br>Response: ${responseText}`;
+                    
+                    if (response.ok) {
+                        resultDiv.innerHTML += `<br>🎉 SUCCESS with ${baseUrl}`;
+                        break;
+                    }
+                    
+                } catch (error) {
+                    console.error(`Error with ${baseUrl}:`, error);
+                    resultDiv.innerHTML += `<br>❌ ${baseUrl} failed: ${error.message}`;
+                }
+            }
+        }
+
+        // Test on page load
+        window.addEventListener('load', function() {
+            console.log('Page loaded, ready for testing');
+        });
+    </script>
+</body>
+</html>

@@ -19,22 +19,49 @@ namespace BookingFlightServer.Middlewares
 			_serviceProvider = serviceProvider;
 			_redisHelper = redisHelper;
 		}
-
 		public async Task InvokeAsync(HttpContext context)
 		{
 			using var scoped = _serviceProvider.CreateScope();
 			var sessionId = context.Request.Headers["SessionId"];
+			var url = context.Request.Path;
+			
+			// Debug logging
+			Console.WriteLine($"API Middleware - URL: {url}, SessionId: {sessionId}");
+			
 			if (!sessionId.Any() || sessionId.Count == 0)
-			{
+			{				// For register, forgot password, and email verification endpoints, we don't need SessionId
+				var ignorePaths = new[] { "/api/Home", "/api/login", "/api/Register" };
+				var ignorePathsStartsWith = new[] { 
+					"/api/Register/check-", 
+					"/api/Register/test",
+					"/api/ForgotPassword/",
+					"/api/EmailVerification/"
+				};
+				
+				Console.WriteLine($"No SessionId - checking if URL should be ignored: {url}");
+				
+				if (ignorePaths.Any(p => p.Equals(url, StringComparison.OrdinalIgnoreCase)) || 
+				    ignorePathsStartsWith.Any(p => url.ToString().StartsWith(p, StringComparison.OrdinalIgnoreCase)))
+				{
+					Console.WriteLine($"URL {url} is in ignore list - allowing access");
+					await _next(context);
+					return;
+				}
+				
+				Console.WriteLine($"URL {url} not in ignore list - returning 401");
 				context.Response.StatusCode = 401;
 				context.Response.ContentType = "application/json";
+				await context.Response.WriteAsync("{\"message\":\"Unauthorized - No SessionId\"}");
 				return;
 			}
+			
 			var _permissionApiRepository = scoped.ServiceProvider.GetRequiredService<IPermissionApiRepository>();
-			var url = context.Request.Path;
-			var ignorePaths = new[] { "/api/Home", "/api/login" };
-			if (ignorePaths.Any(p => p.Equals(url)))
+			var ignorePaths2 = new[] { "/api/Home", "/api/login", "/api/Register" };
+			var ignorePathsStartsWith2 = new[] { "/api/Register/check-", "/api/Register/test" };
+			if (ignorePaths2.Any(p => p.Equals(url, StringComparison.OrdinalIgnoreCase)) || 
+			    ignorePathsStartsWith2.Any(p => url.ToString().StartsWith(p, StringComparison.OrdinalIgnoreCase)))
 			{
+				Console.WriteLine($"URL {url} is in ignore list - allowing access");
 				await _next(context);
 				return;
 			}
@@ -57,13 +84,15 @@ namespace BookingFlightServer.Middlewares
 			{
 				UserPermission<PermissionApi> userPermission = JsonSerializer.Deserialize<UserPermission<PermissionApi>>(redisValue) ?? new();
 				permission = userPermission.Permissions.FirstOrDefault(p => p.Url != null && p.Url.Equals(url));
-			}
-			if (permission == null)
+			}			if (permission == null)
 			{
+				Console.WriteLine($"No permission found for URL {url} and role {role} - returning 401");
 				context.Response.StatusCode = 401;
 				context.Response.ContentType = "application/json";
+				await context.Response.WriteAsync("{\"message\":\"Unauthorized - No permission\"}");
 				return;
 			}
+			Console.WriteLine($"Permission found for URL {url} - allowing access");
 			await _next(context);
 		}
 	}

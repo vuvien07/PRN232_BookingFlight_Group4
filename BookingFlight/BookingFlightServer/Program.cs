@@ -83,6 +83,7 @@ namespace BookingFlightServer
 			services.AddTransient<IJwtService, JwtService>();
 			services.AddTransient<IAccountService, AccountService>();
 			services.AddTransient<IAccountRepository, AccountRepository>();
+			services.AddTransient<IEmailService, EmailService>();
 			services.AddTransient<IFlightService, FlightService>();
 			services.AddTransient<IFlightRepository, FlightRepository>();
 			services.AddTransient<IClassSeatRepository, ClassSeatRepository>();
