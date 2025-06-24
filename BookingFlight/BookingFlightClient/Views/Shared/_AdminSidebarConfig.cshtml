@@ -1,0 +1,178 @@
+@{
+    var sidebarMenus = new List<dynamic>
+    {
+        new {
+            SectionTitle = "Main",
+            Items = new List<dynamic>
+            {
+                new { 
+                    Title = "Dashboard", 
+                    Icon = "fas fa-chart-line", 
+                    Url = "/Admin/Dashboard", 
+                    Action = "Dashboard" 
+                },
+                new { 
+                    Title = "Analytics", 
+                    Icon = "fas fa-chart-pie", 
+                    Url = "/Admin/Analytics", 
+                    Action = "Analytics" 
+                }
+            }
+        },
+        new {
+            SectionTitle = "Management",
+            Items = new List<dynamic>
+            {
+                new { 
+                    Title = "Users", 
+                    Icon = "fas fa-users", 
+                    Url = "/Admin/Users", 
+                    Action = "Users",
+                    Badge = "12"
+                },
+                new { 
+                    Title = "Flights", 
+                    Icon = "fas fa-plane-departure", 
+                    Url = "/Admin/Flights", 
+                    Action = "Flights" 
+                },
+                new { 
+                    Title = "Bookings", 
+                    Icon = "fas fa-ticket-alt", 
+                    Url = "/Admin/Bookings", 
+                    Action = "Bookings",
+                    Badge = "5"
+                },
+                new { 
+                    Title = "Airports", 
+                    Icon = "fas fa-map-marker-alt", 
+                    Url = "/Admin/Airports", 
+                    Action = "Airports" 
+                },
+                new { 
+                    Title = "Aircraft", 
+                    Icon = "fas fa-plane", 
+                    Url = "/Admin/Aircraft", 
+                    Action = "Aircraft" 
+                }
+            }
+        },
+        new {
+            SectionTitle = "Financial",
+            Items = new List<dynamic>
+            {
+                new { 
+                    Title = "Revenue", 
+                    Icon = "fas fa-dollar-sign", 
+                    Url = "/Admin/Revenue", 
+                    Action = "Revenue" 
+                },
+                new { 
+                    Title = "Payments", 
+                    Icon = "fas fa-credit-card", 
+                    Url = "/Admin/Payments", 
+                    Action = "Payments" 
+                },
+                new { 
+                    Title = "Reports", 
+                    Icon = "fas fa-file-alt", 
+                    Url = "/Admin/Reports", 
+                    Action = "Reports" 
+                }
+            }
+        },
+        new {
+            SectionTitle = "System",
+            Items = new List<dynamic>
+            {
+                new { 
+                    Title = "Settings", 
+                    Icon = "fas fa-cog", 
+                    Url = "/Admin/Settings", 
+                    Action = "Settings" 
+                },
+                new { 
+                    Title = "System Logs", 
+                    Icon = "fas fa-list-alt", 
+                    Url = "/Admin/Logs", 
+                    Action = "Logs" 
+                },
+                new { 
+                    Title = "Backup", 
+                    Icon = "fas fa-database", 
+                    Url = "/Admin/Backup", 
+                    Action = "Backup" 
+                },
+                new { 
+                    Title = "Back to Website", 
+                    Icon = "fas fa-home", 
+                    Url = "/Home", 
+                    Action = "Home",
+                    IsExternal = true
+                },
+                new { 
+                    Title = "Logout", 
+                    Icon = "fas fa-sign-out-alt", 
+                    Url = "/Login/Logout", 
+                    Action = "Logout",
+                    IsLogout = true
+                }
+            }
+        }
+    };
+    
+    var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
+}
+
+<!-- Admin Sidebar -->
+<aside class="admin-sidebar" id="adminSidebar">
+    <div class="sidebar-header">
+        <a href="/Admin/Dashboard" class="sidebar-logo">
+            <div class="sidebar-logo-icon">
+                <i class="fas fa-plane"></i>
+            </div>
+            <div class="sidebar-logo-text">
+                <h3 class="logo-title">FlightAdmin</h3>
+                <span class="logo-subtitle">Control Panel</span>
+            </div>
+        </a>
+        <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    </div>    <nav class="sidebar-nav">
+        @foreach (var menuSection in sidebarMenus)
+        {
+            <div class="nav-section">
+                <h6 class="nav-section-title">@menuSection.SectionTitle</h6>
+                <ul class="nav-menu">
+                    @foreach (var item in menuSection.Items)
+                    {
+                        var isActive = currentAction == item.Action;
+                        var linkClass = "nav-link";
+                        
+                        if (isActive)
+                        {
+                            linkClass += " active";
+                        }
+                        
+                        if (item.IsLogout == true)
+                        {
+                            linkClass += " logout-link";
+                        }
+                        
+                        <li class="nav-item">
+                            <a href="@item.Url" class="@linkClass">
+                                <span class="nav-icon"><i class="@item.Icon"></i></span>
+                                <span class="nav-text">@item.Title</span>
+                                @if (!string.IsNullOrEmpty(item.Badge))
+                                {
+                                    <span class="nav-badge">@item.Badge</span>
+                                }
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </nav>
+</aside>
