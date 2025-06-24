@@ -1,0 +1,522 @@
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Dashboard";
+}
+
+<!-- Dashboard Stats Cards -->
+<div class="dashboard-grid">
+    <div class="stats-card">
+        <div class="stats-card-header">
+            <div class="stats-icon">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+        <div class="stats-value" data-target="1234">0</div>
+        <div class="stats-label">Total Users</div>
+        <div class="stats-change positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+12.5% from last month</span>
+        </div>
+    </div>
+
+    <div class="stats-card success">
+        <div class="stats-card-header">
+            <div class="stats-icon">
+                <i class="fas fa-plane-departure"></i>
+            </div>
+        </div>
+        <div class="stats-value" data-target="856">0</div>
+        <div class="stats-label">Active Flights</div>
+        <div class="stats-change positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+8.2% from last week</span>
+        </div>
+    </div>
+
+    <div class="stats-card warning">
+        <div class="stats-card-header">
+            <div class="stats-icon">
+                <i class="fas fa-ticket-alt"></i>
+            </div>
+        </div>
+        <div class="stats-value" data-target="2459">0</div>
+        <div class="stats-label">Bookings Today</div>
+        <div class="stats-change negative">
+            <i class="fas fa-arrow-down"></i>
+            <span>-3.1% from yesterday</span>
+        </div>
+    </div>
+
+    <div class="stats-card error">
+        <div class="stats-card-header">
+            <div class="stats-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+        </div>
+        <div class="stats-value" data-target="89750">0</div>
+        <div class="stats-label">Revenue Today</div>
+        <div class="stats-change positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+15.3% from yesterday</span>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Section -->
+<div class="analytics-section">
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3 class="chart-title">Booking Trends</h3>
+            <div class="chart-actions">
+                <select class="form-select" id="chartPeriod">
+                    <option value="7">Last 7 days</option>
+                    <option value="30" selected>Last 30 days</option>
+                    <option value="90">Last 90 days</option>
+                </select>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="bookingChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3 class="chart-title">Recent Activities</h3>
+        </div>
+        <div class="activity-container">
+            <ul class="activity-list">
+                <li class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-text">New user registered: John Smith</div>
+                        <div class="activity-time">2 minutes ago</div>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-plane"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-text">Flight VN123 scheduled for departure</div>
+                        <div class="activity-time">5 minutes ago</div>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-text">Payment received: $450.00</div>
+                        <div class="activity-time">8 minutes ago</div>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-text">Booking confirmed: BF001234</div>
+                        <div class="activity-time">12 minutes ago</div>
+                    </div>
+                </li>
+                <li class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-text">Flight AB456 delayed by 30 minutes</div>
+                        <div class="activity-time">15 minutes ago</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Dashboard Sections -->
+<div class="dashboard-grid">
+    <!-- Popular Routes -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3 class="chart-title">Popular Routes</h3>
+        </div>
+        <div class="routes-list">
+            <div class="route-item">
+                <div class="route-info">
+                    <div class="route-cities">
+                        <span class="departure">HAN</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="arrival">SGN</span>
+                    </div>
+                    <div class="route-name">Hanoi → Ho Chi Minh City</div>
+                </div>
+                <div class="route-stats">
+                    <div class="booking-count">245 bookings</div>
+                    <div class="route-progress">
+                        <div class="progress-bar" style="width: 85%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="route-item">
+                <div class="route-info">
+                    <div class="route-cities">
+                        <span class="departure">SGN</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="arrival">HAN</span>
+                    </div>
+                    <div class="route-name">Ho Chi Minh City → Hanoi</div>
+                </div>
+                <div class="route-stats">
+                    <div class="booking-count">198 bookings</div>
+                    <div class="route-progress">
+                        <div class="progress-bar" style="width: 68%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="route-item">
+                <div class="route-info">
+                    <div class="route-cities">
+                        <span class="departure">DAD</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="arrival">SGN</span>
+                    </div>
+                    <div class="route-name">Da Nang → Ho Chi Minh City</div>
+                </div>
+                <div class="route-stats">
+                    <div class="booking-count">156 bookings</div>
+                    <div class="route-progress">
+                        <div class="progress-bar" style="width: 54%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flight Status -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3 class="chart-title">Flight Status Overview</h3>
+        </div>
+        <div class="status-grid">
+            <div class="status-item on-time">
+                <div class="status-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="status-info">
+                    <div class="status-count">142</div>
+                    <div class="status-label">On Time</div>
+                </div>
+            </div>
+            
+            <div class="status-item delayed">
+                <div class="status-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="status-info">
+                    <div class="status-count">23</div>
+                    <div class="status-label">Delayed</div>
+                </div>
+            </div>
+            
+            <div class="status-item cancelled">
+                <div class="status-icon">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="status-info">
+                    <div class="status-count">5</div>
+                    <div class="status-label">Cancelled</div>
+                </div>
+            </div>
+            
+            <div class="status-item boarding">
+                <div class="status-icon">
+                    <i class="fas fa-plane-departure"></i>
+                </div>
+                <div class="status-info">
+                    <div class="status-count">18</div>
+                    <div class="status-label">Boarding</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Chart initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Booking Trends Chart
+            const ctx = document.getElementById('bookingChart').getContext('2d');
+            const bookingChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Bookings',
+                        data: [1200, 1900, 1500, 2100],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6
+                    }, {
+                        label: 'Revenue ($)',
+                        data: [48000, 76000, 60000, 84000],
+                        borderColor: '#764ba2',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#764ba2',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            hoverRadius: 8
+                        }
+                    }
+                }
+            });
+
+            // Chart period selector
+            document.getElementById('chartPeriod').addEventListener('change', function() {
+                // Update chart data based on selected period
+                console.log('Chart period changed to:', this.value);
+                // Implement chart data update logic here
+            });
+
+            // Initialize counter animations with delays
+            setTimeout(() => {
+                animateCounters();
+            }, 500);
+        });
+
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stats-value');
+            counters.forEach((counter, index) => {
+                setTimeout(() => {
+                    const target = parseInt(counter.getAttribute('data-target'));
+                    const increment = target / 100;
+                    let current = 0;
+                    
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= target) {
+                            counter.textContent = target.toLocaleString();
+                            clearInterval(timer);
+                        } else {
+                            counter.textContent = Math.floor(current).toLocaleString();
+                        }
+                    }, 20);
+                }, index * 200);
+            });
+        }
+    </script>
+
+    <style>
+        /* Additional Dashboard Styles */
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        .form-select {
+            padding: 6px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .routes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .route-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .route-cities {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--primary-color);
+        }
+
+        .route-name {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        .booking-count {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+            text-align: right;
+            margin-bottom: 4px;
+        }
+
+        .route-progress {
+            width: 100px;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+            transition: width 1s ease;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .status-item.on-time {
+            background: rgba(72, 187, 120, 0.1);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .status-item.delayed {
+            background: rgba(237, 137, 54, 0.1);
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .status-item.cancelled {
+            background: rgba(245, 101, 101, 0.1);
+            border-left: 4px solid var(--error-color);
+        }
+
+        .status-item.boarding {
+            background: rgba(66, 153, 225, 0.1);
+            border-left: 4px solid var(--info-color);
+        }
+
+        .status-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .status-item.on-time .status-icon {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .status-item.delayed .status-icon {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .status-item.cancelled .status-icon {
+            background: var(--error-color);
+            color: white;
+        }
+
+        .status-item.boarding .status-icon {
+            background: var(--info-color);
+            color: white;
+        }
+
+        .status-count {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .status-label {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        @@media (max-width: 768px) {
+            .analytics-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .route-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .route-stats {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+    </style>
+}

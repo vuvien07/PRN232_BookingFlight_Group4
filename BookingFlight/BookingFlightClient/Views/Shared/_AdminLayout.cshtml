@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Panel</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Admin CSS -->
+    <link rel="stylesheet" href="~/css/admin/AdminLayout.css" asp-append-version="true" />
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>    <div class="admin-layout">
+        @await Html.PartialAsync("_AdminSidebar")
+
+        <!-- Admin Main Content -->
+        <main class="admin-main">
+            <!-- Admin Header -->
+            <header class="admin-header">
+                <div class="admin-header-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn" style="display: none;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h1 class="page-title">@ViewData["Title"]</h1>
+                        <nav class="breadcrumb">
+                            <div class="breadcrumb-item">
+                                <a href="/Admin/Dashboard" class="breadcrumb-link">Admin</a>
+                            </div>
+                            <div class="breadcrumb-item">
+                                <span>@ViewData["Title"]</span>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+
+                <div class="admin-header-right">
+                    <div class="header-search">
+                        <input type="text" class="search-input" placeholder="Search...">
+                        <button class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+
+                    <div class="header-actions">
+                        <button class="action-btn" title="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge">3</span>
+                        </button>
+                        <button class="action-btn" title="Messages">
+                            <i class="fas fa-envelope"></i>
+                            <span class="notification-badge">7</span>
+                        </button>
+                        <button class="action-btn" title="Settings">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        <div class="user-dropdown">
+                            <button class="action-btn" id="userMenuBtn" title="User Menu">
+                                <i class="fas fa-user"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Admin Content -->
+            <div class="admin-content">
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+
+    <!-- Admin JavaScript -->
+    <script src="~/js/admin/AdminLayout.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

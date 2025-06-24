@@ -1,0 +1,139 @@
+<!-- Admin Sidebar -->
+<aside class="admin-sidebar" id="adminSidebar">
+    <div class="sidebar-header">
+        <a href="/Admin/Dashboard" class="sidebar-logo">
+            <div class="sidebar-logo-icon">
+                <i class="fas fa-plane"></i>
+            </div>
+            <div class="sidebar-logo-text">
+                <h3 class="logo-title">FlightAdmin</h3>
+                <span class="logo-subtitle">Control Panel</span>
+            </div>
+        </a>
+        <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <!-- Main Section -->
+        <div class="nav-section">
+            <h6 class="nav-section-title">Main</h6>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="/Admin/Dashboard" class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Dashboard" ? "active" : "")">
+                        <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Admin/Analytics" class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Analytics" ? "active" : "")">
+                        <span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
+                        <span class="nav-text">Analytics</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Management Section -->
+        <div class="nav-section">
+            <h6 class="nav-section-title">Management</h6>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="/Admin/Users" class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Users" ? "active" : "")">
+                        <span class="nav-icon"><i class="fas fa-users"></i></span>
+                        <span class="nav-text">Users</span>
+                        <span class="nav-badge">12</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Admin/Flights" class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Flights" ? "active" : "")">
+                        <span class="nav-icon"><i class="fas fa-plane-departure"></i></span>
+                        <span class="nav-text">Flights</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Admin/Bookings" class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Bookings" ? "active" : "")">
+                        <span class="nav-icon"><i class="fas fa-ticket-alt"></i></span>
+                        <span class="nav-text">Bookings</span>
+                        <span class="nav-badge">5</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Admin/Airports" class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Airports" ? "active" : "")">
+                        <span class="nav-icon"><i class="fas fa-map-marker-alt"></i></span>
+                        <span class="nav-text">Airports</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Admin/Aircraft" class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Aircraft" ? "active" : "")">
+                        <span class="nav-icon"><i class="fas fa-plane"></i></span>
+                        <span class="nav-text">Aircraft</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Financial Section -->
+        <div class="nav-section">
+            <h6 class="nav-section-title">Financial</h6>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="/Admin/Revenue" class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Revenue" ? "active" : "")">
+                        <span class="nav-icon"><i class="fas fa-dollar-sign"></i></span>
+                        <span class="nav-text">Revenue</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Admin/Payments" class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Payments" ? "active" : "")">
+                        <span class="nav-icon"><i class="fas fa-credit-card"></i></span>
+                        <span class="nav-text">Payments</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Admin/Reports" class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Reports" ? "active" : "")">
+                        <span class="nav-icon"><i class="fas fa-file-alt"></i></span>
+                        <span class="nav-text">Reports</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- System Section -->
+        <div class="nav-section">
+            <h6 class="nav-section-title">System</h6>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="/Admin/Settings" class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Settings" ? "active" : "")">
+                        <span class="nav-icon"><i class="fas fa-cog"></i></span>
+                        <span class="nav-text">Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Admin/Logs" class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Logs" ? "active" : "")">
+                        <span class="nav-icon"><i class="fas fa-list-alt"></i></span>
+                        <span class="nav-text">System Logs</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Admin/Backup" class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Backup" ? "active" : "")">
+                        <span class="nav-icon"><i class="fas fa-database"></i></span>
+                        <span class="nav-text">Backup</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Home" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-home"></i></span>
+                        <span class="nav-text">Back to Website</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Login/Logout" class="nav-link logout-link">
+                        <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>
+                        <span class="nav-text">Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</aside>

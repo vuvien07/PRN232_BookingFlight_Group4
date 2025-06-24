@@ -329,6 +329,15 @@ function goToMyFlights() {
     window.location.href = '/MyFlights';
 }
 
+// Additional navigation functions
+function goToBookingHistory() {
+    window.location.href = '/BookingHistory';
+}
+
+function goToSettings() {
+    window.location.href = '/Settings';
+}
+
 // Close user menu when clicking outside
 document.addEventListener('click', function(e) {
     if (!e.target.closest('.user-dropdown')) {
@@ -355,10 +364,12 @@ function initializeAuthentication() {
     const token = localStorage.getItem('token');
     const params = new URLSearchParams(window.location.search);
     
+    console.log('Initializing authentication, token:', token ? 'exists' : 'not found');
+    
     if (!token) {
         // User is not logged in - show simple login button
         if(params.get('isLogout')) {
-            showSnackbar("Logout success", "success");
+            showSnackbar("Đăng xuất thành công", "success");
             const newUrl = `${window.location.pathname}`;
             window.history.replaceState({}, '', newUrl);
         }
@@ -381,32 +392,69 @@ function initializeAuthentication() {
     } else {
         // User is logged in - show user menu
         if (params.get('isLoggingIn')) {
-            showSnackbar("Login success", "success");
+            showSnackbar("Đăng nhập thành công", "success");
             const newUrl = `${window.location.pathname}`;
             window.history.replaceState({}, '', newUrl);
         }
         
         let decodedToken = parseJwtToken(token);
-        if (decodedToken && decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] == "Customer") {
+        console.log('Decoded token:', decodedToken);
+        
+        if (decodedToken) {
+            // Get username from token
+            const username = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || 
+                           decodedToken['sub'] || 
+                           decodedToken['username'] || 
+                           decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/name'] ||
+                           'User';
+            
+            const role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || 'Guest';
+            
+            console.log('Username:', username, 'Role:', role);
+            
             const headerDropdown = document.getElementById('headerDropdownMenu');
             if (headerDropdown) {
                 headerDropdown.innerHTML = `
                     <div class="user-dropdown">
                         <button class="user-btn" onclick="toggleUserMenu()">
-                            <i class="fas fa-user"></i>
-                            <span data-vn="Tài khoản" data-en="Account" data-zh="账户">Tài khoản</span>
-                            <i class="fas fa-chevron-down"></i>
+                            <div class="user-avatar">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="user-info">
+                                <span class="user-name">${username}</span>
+                                <span class="user-role" data-vn="${getRoleDisplayName(role, 'vn')}" data-en="${getRoleDisplayName(role, 'en')}" data-zh="${getRoleDisplayName(role, 'zh')}">${getRoleDisplayName(role, 'vn')}</span>
+                            </div>
+                            <i class="fas fa-chevron-down dropdown-icon"></i>
                         </button>
                         <div class="user-dropdown-menu" id="userDropdownMenu">
+                            <div class="dropdown-header">
+                                <div class="user-avatar-large">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                <div class="user-details">
+                                    <span class="user-name-large">${username}</span>
+                                    <span class="user-email" data-vn="${getRoleDisplayName(role, 'vn')}" data-en="${getRoleDisplayName(role, 'en')}" data-zh="${getRoleDisplayName(role, 'zh')}">${getRoleDisplayName(role, 'vn')}</span>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
                             <button class="menu-item" onclick="goToProfile()">
                                 <i class="fas fa-user"></i>
-                                <span data-vn="Hồ sơ" data-en="Profile" data-zh="个人资料">Hồ sơ</span>
+                                <span data-vn="Hồ sơ cá nhân" data-en="Profile" data-zh="个人资料">Hồ sơ cá nhân</span>
                             </button>
                             <button class="menu-item" onclick="goToMyFlights()">
                                 <i class="fas fa-plane"></i>
                                 <span data-vn="Chuyến bay của tôi" data-en="My Flights" data-zh="我的航班">Chuyến bay của tôi</span>
                             </button>
-                            <button class="menu-item" onclick="logout()">
+                            <button class="menu-item" onclick="goToBookingHistory()">
+                                <i class="fas fa-history"></i>
+                                <span data-vn="Lịch sử đặt vé" data-en="Booking History" data-zh="预订历史">Lịch sử đặt vé</span>
+                            </button>
+                            <button class="menu-item" onclick="goToSettings()">
+                                <i class="fas fa-cog"></i>
+                                <span data-vn="Cài đặt" data-en="Settings" data-zh="设置">Cài đặt</span>
+                            </button>
+                            <div class="dropdown-divider"></div>
+                            <button class="menu-item logout-item" onclick="logout()">
                                 <i class="fas fa-sign-out-alt"></i>
                                 <span data-vn="Đăng xuất" data-en="Logout" data-zh="登出">Đăng xuất</span>
                             </button>
@@ -420,6 +468,44 @@ function initializeAuthentication() {
                     window.LanguageUtils.updateDOMElements(currentLang);
                 }
             }
+        } else {
+            // Token is invalid, remove it and show login button
+            console.error('Invalid token, removing from localStorage');
+            localStorage.removeItem('token');
+            initializeAuthentication(); // Recursive call to show login button
         }
     }
+}
+
+// Helper function to get role display name
+function getRoleDisplayName(role, lang) {
+    const roleMap = {
+        'Customer': {
+            vn: 'Khách hàng',
+            en: 'Customer',
+            zh: '客户'
+        },
+        'Admin': {
+            vn: 'Quản trị viên',
+            en: 'Administrator',
+            zh: '管理员'
+        },
+        'Manager': {
+            vn: 'Quản lý',
+            en: 'Manager', 
+            zh: '经理'
+        },
+        'Staff': {
+            vn: 'Nhân viên',
+            en: 'Staff',
+            zh: '员工'
+        },
+        'Guest': {
+            vn: 'Khách',
+            en: 'Guest',
+            zh: '客人'
+        }
+    };
+    
+    return roleMap[role] ? roleMap[role][lang] : role;
 }

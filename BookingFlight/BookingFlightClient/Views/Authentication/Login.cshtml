@@ -1,81 +1,155 @@
-﻿<html lang="en">
+﻿<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
-    <style>
-        body {
-            background: linear-gradient(to bottom, #4db8ff, #9933ff);
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-
-        .login-container {
-            height: 100vh;
-        }
-
-        .login-card {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 350px;
-        }
-
-        .icon-container {
-            font-size: 5rem;
-            color: #6c757d;
-        }
-
-        input::placeholder {
-            color: #6c757d;
-            opacity: 1;
-        }
-    </style>
+    <title data-vn="Đăng nhập - CloudNine" data-en="Login - CloudNine" data-zh="登录 - CloudNine">Đăng nhập - CloudNine</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="~/css/Authentication/Login.css" rel="stylesheet" asp-append-version="true" />
 </head>
+
 <body>
+    <!-- Animated Background -->
+    <div class="login-background">
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+    </div>
+
+    <!-- Alert Modal -->
     <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-danger text-white">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header">
                     <h5 class="modal-title" id="alertModalLabel">
-                        <i class="bi bi-exclamation-triangle-fill"></i> Alert
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span data-vn="Thông báo" data-en="Alert" data-zh="警告">Thông báo</span>
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body text-center align-middle py-4">
-                    <p id="alertMessage" class="fs-5 text-muted"></p>
+                <div class="modal-body text-center py-4">
+                    <p id="alertMessage" class="fs-5 text-muted mb-0"></p>
                 </div>
                 <div class="modal-footer justify-content-center border-0">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i>
+                        <span data-vn="Đóng" data-en="Close" data-zh="关闭">Đóng</span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="login-container d-flex justify-content-center align-items-center">
-        <div class="login-card text-center">
-            <div class="icon-container mb-4">
-                <i class="bi bi-person-circle"></i>
-            </div>
-            <div class="mb-3">
-                <label class="form-label visually-hidden">Username</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-person"></i></span>
-                    <label>
-                        <input type="text" class="form-control" name="Username" placeholder="Username" />
-                    </label>
-                    <span class="text-danger" id="Username"></span>
+    <!-- Main Login Container -->
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Logo Section -->
+            <div class="login-logo">
+                <div class="logo-container">
+                    <i class="fas fa-cloud logo-icon"></i>
+                    <div class="logo-text">CloudNine</div>
+                </div>
+                <div class="logo-subtitle">
+                    <span data-vn="Nâng tầm trải nghiệm du lịch của bạn" data-en="Elevate your travel experience" data-zh="提升您的旅行体验">
+                        Nâng tầm trải nghiệm du lịch của bạn
+                    </span>
                 </div>
             </div>
-            <div class="mb-3">
-                <label class="form-label visually-hidden">Password</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                    <label>
-                        <input type="password" class="form-control" name="Password" placeholder="Password" />
+
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <h1 class="welcome-title">
+                    <span data-vn="Chào mừng trở lại!" data-en="Welcome Back!" data-zh="欢迎回来！">Chào mừng trở lại!</span>
+                </h1>
+                <p class="welcome-subtitle">
+                    <span data-vn="Đăng nhập để tiếp tục hành trình của bạn" data-en="Sign in to continue your journey" data-zh="登录以继续您的旅程">
+                        Đăng nhập để tiếp tục hành trình của bạn
+                    </span>
+                </p>
+            </div>
+
+            <!-- Login Form -->
+            <form class="login-form">
+                <!-- Username Field -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span data-vn="Tên đăng nhập" data-en="Username" data-zh="用户名">Tên đăng nhập</span>
                     </label>
+                    <div class="input-container">
+                        <input type="text" 
+                               class="form-control" 
+                               name="Username" 
+                               placeholder="Nhập tên đăng nhập"
+                               data-placeholder-vn="Nhập tên đăng nhập" 
+                               data-placeholder-en="Enter username" 
+                               data-placeholder-zh="输入用户名"
+                               required />
+                        <i class="fas fa-user input-icon"></i>
+                    </div>
+                    <div class="error-message" id="Username"></div>
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span data-vn="Mật khẩu" data-en="Password" data-zh="密码">Mật khẩu</span>
+                    </label>
+                    <div class="input-container">
+                        <input type="password" 
+                               class="form-control" 
+                               name="Password" 
+                               placeholder="Nhập mật khẩu"
+                               data-placeholder-vn="Nhập mật khẩu" 
+                               data-placeholder-en="Enter password" 
+                               data-placeholder-zh="输入密码"
+                               required />
+                        <i class="fas fa-lock input-icon"></i>
+                    </div>
+                    <div class="error-message" id="Password"></div>
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="form-options">
+                    <div class="form-check">
+                        <input class="form-check-input rememberMe" type="checkbox" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">
+                            <span data-vn="Ghi nhớ đăng nhập" data-en="Remember me" data-zh="记住我">Ghi nhớ đăng nhập</span>
+                        </label>
+                    </div>
+                    <a href="#" class="forgot-password">
+                        <span data-vn="Quên mật khẩu?" data-en="Forgot password?" data-zh="忘记密码？">Quên mật khẩu?</span>
+                    </a>
+                </div>
+
+                <!-- Hidden Fields -->
+                <input type="hidden" name="IsRememberMe" value="false" />
+
+                <!-- Login Button -->
+                <button type="button" onclick="LoginToSystem(event)" class="btn-login">
+                    <span data-vn="Đăng nhập" data-en="Sign In" data-zh="登录">Đăng nhập</span>
+                </button>
+
+                <!-- Sign Up Section -->
+                <div class="signup-section">
+                    <p class="signup-text">
+                        <span data-vn="Chưa có tài khoản?" data-en="Not a member?" data-zh="还不是会员？">Chưa có tài khoản?</span>
+                        <a href="signup" class="signup-link">
+                            <span data-vn="Tạo tài khoản" data-en="Create account" data-zh="创建账户">Tạo tài khoản</span>
+                        </a>
+                    </p>
+                </div>
+            </form>
                     <span class="text-danger" id="Password"></span>
                 </div>
             </div>
@@ -92,6 +166,52 @@
             <p>Not a member? <a href="/Login/Register" class="text-decoration-none">Create account</a></p>
         </div>
     </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/common/LanguageUtils.js" asp-append-version="true"></script>
     <script src="~/js/authentication/Login.js" type="text/javascript" asp-append-version="true"></script>
+
+    <script>
+        // Enhanced login functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle remember me checkbox
+            const rememberCheckbox = document.querySelector('.rememberMe');
+            const hiddenRememberField = document.querySelector('input[name="IsRememberMe"]');
+            
+            rememberCheckbox.addEventListener('change', function() {
+                hiddenRememberField.value = this.checked.toString();
+            });
+
+            // Add loading state to login button
+            const originalLoginFunction = window.LoginToSystem;
+            window.LoginToSystem = function(event) {
+                const button = event.target;
+                button.classList.add('btn-loading');
+                button.disabled = true;
+                
+                // Call original login function
+                if (originalLoginFunction) {
+                    Promise.resolve(originalLoginFunction(event))
+                        .finally(() => {
+                            button.classList.remove('btn-loading');
+                            button.disabled = false;
+                        });
+                }
+            };
+            
+            // Clear errors on input
+            const inputs = document.querySelectorAll('.form-control');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    this.classList.remove('input-error');
+                    const errorElement = document.getElementById(this.name);
+                    if (errorElement) {
+                        errorElement.textContent = '';
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
