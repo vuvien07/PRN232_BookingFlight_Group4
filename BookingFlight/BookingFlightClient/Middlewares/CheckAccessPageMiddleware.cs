@@ -60,12 +60,16 @@ namespace BookingFlightClient.Middlewares
 				"/Home",
 				"/Admin/Dashboard",
 				"/Admin",
-				"/Dashboard"
-			};
-			//var _permissionPageRepository = scoped.ServiceProvider.GetRequiredService<IPermissionPageRepository>();			var url = context.Request.Path;			var ignorePaths = new[] { 
-			//	"/Unauthorized", "/Login", "/Register", "/Login/Register", 
-			//	"/favicon.ico", "/api/AfterLogin", "/ForgotPassword", "/Register/VerifyEmail", "/Register/Success" 
-			//};
+				"/Dashboard"	,
+                "/Register", 
+				"/Login/Register",
+                "/ForgotPassword", 
+				"/Register/VerifyEmail",
+				"/Register/Success"
+
+            };
+
+			
 			var staticFileExtendsions = new[] { ".js", ".css", ".png", ".jpg", ".jpeg", ".svg", ".ico" };
 			
 			if(ignorePaths.Any(x => url.ToString().StartsWith(x)) || staticFileExtendsions.Contains(Path.GetExtension(url)))
@@ -74,10 +78,11 @@ namespace BookingFlightClient.Middlewares
 				await _next(context);
 				return;
 			}
-			
-			var role = sessionRole;
+					var role = sessionRole;
 			string? redisValue = await _redisHelper.GetAsync($"{sessionId}-{role}-Page");
-			PermissionPage? permission = null;if (redisValue == null)
+			PermissionPage? permission = null;
+			
+			if (redisValue == null)
 			{
 				_logger.LogInformation($"No Redis cache found for {sessionId}-{role}-Page, creating new permissions");
 				
