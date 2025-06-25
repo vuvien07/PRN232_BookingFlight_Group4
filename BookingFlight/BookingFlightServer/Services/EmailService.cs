@@ -1,5 +1,6 @@
 using System.Net.Mail;
 using System.Net;
+using BookingFlightServer.Utils;
 
 namespace BookingFlightServer.Services
 {
@@ -12,13 +13,11 @@ namespace BookingFlightServer.Services
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
-
-        public EmailService(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
-        public async Task<bool> SendForgotPasswordEmailAsync(string toEmail, string resetToken)
+		public EmailService(IConfiguration configuration)
+		{
+			_configuration = configuration;
+		}
+		public async Task<bool> SendForgotPasswordEmailAsync(string toEmail, string resetToken)
         {
             try
             {

@@ -5,7 +5,7 @@
 		public int FlightId { get; set; }
 		public int From { get; set; }
 		public int To { get; set; }
-		public string DepartureDate { get; set; } = null!;
+		public DateTime DepartureDate { get; set; }
 		public string ArrivalDate { get; set; } = null!;
 		public string DepartureTime { get; set; } = null!;
 		public string ArrivalTime { get; set; } = null!;

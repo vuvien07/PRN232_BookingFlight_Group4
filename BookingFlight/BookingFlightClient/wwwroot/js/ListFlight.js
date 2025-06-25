@@ -21,6 +21,7 @@ async function getFlightList() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'SessionId': localStorage.getItem('sessionId')
             },
             body: JSON.stringify(filterForm)
         });
@@ -236,7 +237,8 @@ async function showFlightDetail(flight, flightCard) {
     const res = await fetch(`http://${host}:5077/api/Flight/detail`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'SessionId': localStorage.getItem('sessionId')
         },
         body: JSON.stringify({
             flightId: flight.flightId

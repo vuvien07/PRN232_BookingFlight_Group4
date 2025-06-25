@@ -3,20 +3,20 @@ using BookingFlightServer.DTO.Query;
 using BookingFlightServer.Entities;
 using BookingFlightServer.Utils;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace BookingFlightServer.Repositories.Implements
 {
-	public class FlightRepository : IFlightRepository
+	public class FlightRepository : BaseRepository<Flight>, IFlightRepository
 	{
-		private readonly BookingFlightContext _flightContext;
-		public FlightRepository(BookingFlightContext flightContext)
+		public FlightRepository(BookingFlightContext repositoryDbContext) : base(repositoryDbContext)
 		{
-			_flightContext = flightContext;
 		}
+
 		public async Task<List<dynamic>> GetFlights(FilterFlightDTO filterFlightDTO)
 		{
-			var query = BuildFlightQuery(_flightContext);
+			var query = BuildFlightQuery(_repositoryDbContext);
 			var result = GetByFlightCondition(query, filterFlightDTO);
 			result = result.OrderBy(f => f.FlightId);
 			int totalRecords = await result.CountAsync();
@@ -33,7 +33,7 @@ namespace BookingFlightServer.Repositories.Implements
 
 		public async Task<long> GetTotalFlight(FilterFlightDTO filterFlightDTO)
 		{
-			var query = BuildFlightQuery(_flightContext);
+			var query = BuildFlightQuery(_repositoryDbContext);
 			var result = GetByFlightCondition(query, filterFlightDTO);
 			return await result.CountAsync();
 		}
@@ -74,10 +74,10 @@ namespace BookingFlightServer.Repositories.Implements
 				   } into g
 				   select new FlightQueryDTO
 				   {
-					  FlightId = g.Key.FlightId,
+					   FlightId = g.Key.FlightId,
 					   From = g.Key.From,
 					   To = g.Key.To,
-					   DepartureDate = g.Key.DepartureTime.ToString("yyyy-MM-dd"),
+					   DepartureDate = g.Key.DepartureTime,
 					   ArrivalDate = g.Key.ArrivalTime.ToString("yyyy-MM-dd"),
 					   DepartureTime = g.Key.DepartureTime.ToString("HH:mm"),
 					   ArrivalTime = g.Key.ArrivalTime.ToString("HH:mm"),
@@ -97,40 +97,78 @@ namespace BookingFlightServer.Repositories.Implements
 
 		private IAsyncEnumerable<FlightQueryDTO> GetByFlightCondition(IQueryable<FlightQueryDTO> query, FilterFlightDTO filterFlightDTO)
 		{
-			var result = query.Where(a => a.Total > 0).AsAsyncEnumerable();
+			var result = FindByCondition(query,a => a.Total > 0);
 			if (!string.IsNullOrEmpty(filterFlightDTO.From) && !string.IsNullOrEmpty(filterFlightDTO.To))
 			{
-				result = result.Where(r => r.From == int.Parse(filterFlightDTO.From) && r.To == int.Parse(filterFlightDTO.To));
+				result = FindByCondition(result, a => a.From == int.Parse(filterFlightDTO.From) && a.To == int.Parse(filterFlightDTO.To));
 			}
-			if (!string.IsNullOrEmpty(filterFlightDTO.DepartureDate))
+			if (!string.IsNullOrEmpty(filterFlightDTO.DepartureDate)
+		&& DateTime.TryParseExact(filterFlightDTO.DepartureDate, "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out DateTime filterDate))
 			{
-				result = result.Where(r => r.DepartureDate == filterFlightDTO.DepartureDate);
+				result = FindByCondition(result, a => a.DepartureDate.Date == filterDate.Date);
 			}
 			if (filterFlightDTO.DepartureTime.Count() > 0)
 			{
-				result = result.Where(r => filterFlightDTO.DepartureTime.Any(range =>
-				UtilHelper.ParseToTime(r.DepartureTime) >= UtilHelper.ParseToTime(UtilHelper.GetFromSplitString(range, "-", 0)) && UtilHelper.ParseToTime(r.DepartureTime) <= UtilHelper.ParseToTime(UtilHelper.GetFromSplitString(range, "-", 1))
-				));
+				result = FindByCondition(result, r => filterFlightDTO.DepartureTime.Any(range =>
+				UtilHelper.ParseToTime(r.DepartureTime) >= UtilHelper.ParseToTime(UtilHelper.GetFromSplitString(range, "-", 0)) && UtilHelper.ParseToTime(r.DepartureTime) <= UtilHelper.ParseToTime(UtilHelper.GetFromSplitString(range, "-", 1))));
 			}
 			if (filterFlightDTO.ArrivalTime.Count() > 0)
 			{
-				result = result.Where(r => filterFlightDTO.ArrivalTime.Any(range =>
-				UtilHelper.ParseToTime(r.ArrivalTime) >= UtilHelper.ParseToTime(UtilHelper.GetFromSplitString(range, "-", 0)) && UtilHelper.ParseToTime(r.ArrivalTime) <= UtilHelper.ParseToTime(UtilHelper.GetFromSplitString(range, "-", 1))
-				));
+				result = FindByCondition(result, r => filterFlightDTO.ArrivalTime.Any(range =>
+				UtilHelper.ParseToTime(r.ArrivalTime) >= UtilHelper.ParseToTime(UtilHelper.GetFromSplitString(range, "-", 0)) && UtilHelper.ParseToTime(r.ArrivalTime) <= UtilHelper.ParseToTime(UtilHelper.GetFromSplitString(range, "-", 1))));
 			}
 			if (filterFlightDTO.Brands.Count() > 0)
 			{
-				result = result.Where(r => filterFlightDTO.Brands.Any(range =>
+				result = FindByCondition(result, r => filterFlightDTO.Brands.Any(range =>
 				r.Manufacture.ToLower().Contains(range)
 				));
 			}
 			if (filterFlightDTO.Prices.Count() > 0)
 			{
-				result = result.Where(r => filterFlightDTO.Prices.Any(price =>
-				r.BasePrice >= decimal.Parse(UtilHelper.GetFromSplitString(price, "-", 0)) && r.BasePrice <= decimal.Parse(UtilHelper.GetFromSplitString(price, "-", 1))
-				));
+				var priceRanges = filterFlightDTO.Prices
+	.Select(price =>
+	{
+		var parts = price.Split('-');
+		return new
+		{
+			Min = decimal.Parse(parts[0]),
+			Max = decimal.Parse(parts[1])
+		};
+	})
+	.ToList();
+				var expression = BuildPriceRangeExpression(filterFlightDTO.Prices);
+				result = FindByCondition(result, expression);
 			}
-			return result;
+			return result.AsAsyncEnumerable();
 		}
+
+
+		private Expression<Func<FlightQueryDTO, bool>> BuildPriceRangeExpression(List<string> priceRangeStrings)
+		{
+			var parameter = Expression.Parameter(typeof(FlightQueryDTO), "r");
+
+			Expression? finalExpression = null;
+
+			foreach (var priceStr in priceRangeStrings)
+			{
+				var parts = priceStr.Split('-');
+				var min = decimal.Parse(parts[0]);
+				var max = decimal.Parse(parts[1]);
+
+				var property = Expression.Property(parameter, nameof(FlightQueryDTO.BasePrice));
+				var minExpr = Expression.GreaterThanOrEqual(property, Expression.Constant(min));
+				var maxExpr = Expression.LessThanOrEqual(property, Expression.Constant(max));
+				var rangeExpr = Expression.AndAlso(minExpr, maxExpr);
+
+				finalExpression = finalExpression == null
+					? rangeExpr
+					: Expression.OrElse(finalExpression, rangeExpr);
+			}
+
+			return finalExpression != null
+				? Expression.Lambda<Func<FlightQueryDTO, bool>>(finalExpression, parameter)
+				: r => true;
+		}
+
 	}
 }
