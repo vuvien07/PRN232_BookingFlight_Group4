@@ -25,13 +25,32 @@ namespace BookingFlightServer.Repositories.Implements
 			await _repositoryDbContext.SaveChangesAsync();
 		}
 
-		public IQueryable<T> FindAll(bool trackChanges) =>
-			!trackChanges ? _repositoryDbContext.Set<T>().AsNoTracking() : _repositoryDbContext.Set<T>();
-
-		public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression, bool trackChanges)
+		public IQueryable<T> FindAll(Func<IQueryable<T>, IIncludableQueryable<T, object>>? includes = null, bool trackChanges = false)
 		{
-			var result = !trackChanges ? _repositoryDbContext.Set<T>().AsNoTracking() : _repositoryDbContext.Set<T>();
-			return result.Where(expression);
+			IQueryable<T> query = _repositoryDbContext.Set<T>();
+			if (includes != null)
+			{
+				query = includes(query);
+			}
+			if (!trackChanges)
+			{
+				query = query.AsNoTracking();
+			}
+			return query;
+		}
+
+		public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression, Func<IQueryable<T>, IIncludableQueryable<T, object>>? includes = null, bool trackChanges = false)
+		{
+			IQueryable<T> query = _repositoryDbContext.Set<T>();
+			if (includes != null)
+			{
+				query = includes(query);
+			}
+			if (!trackChanges)
+			{
+				query = query.AsNoTracking();
+			}
+			return query.Where(expression);
 		}
 
 		public IQueryable<TResult> FindByCondition<TResult>(IQueryable<TResult> query, Expression<Func<TResult, bool>> expression)
@@ -39,10 +58,25 @@ namespace BookingFlightServer.Repositories.Implements
 			return query.Where(expression);
 		}
 
-		public Task Update(T entity)
+		public Task<T?> GetByCondition(Expression<Func<T, bool>> expression, Func<IQueryable<T>, IIncludableQueryable<T, object>>? includes = null, bool trackChanges = false)
+		{
+			IQueryable<T> query = _repositoryDbContext.Set<T>();
+			if (includes != null)
+			{
+				query = includes(query);
+			}
+			if (!trackChanges)
+			{
+				query = query.AsNoTracking();
+			}
+			return query.FirstOrDefaultAsync(expression);
+		}
+
+		public async Task Update(T entity)
 		{
 			_repositoryDbContext.Set<T>().Update(entity);
-			return _repositoryDbContext.SaveChangesAsync();
+			await _repositoryDbContext.SaveChangesAsync();
 		}
+
 	}
 }

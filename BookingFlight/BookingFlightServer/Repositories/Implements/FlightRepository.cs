@@ -16,6 +16,7 @@ namespace BookingFlightServer.Repositories.Implements
 
 		public async Task<List<dynamic>> GetFlights(FilterFlightDTO filterFlightDTO)
 		{
+			var findall = FindAll(f => f.Include(f => f.DepartureAirport).Include(f => f.ArrivalAirport));
 			var query = BuildFlightQuery(_repositoryDbContext);
 			var result = GetByFlightCondition(query, filterFlightDTO);
 			result = result.OrderBy(f => f.FlightId);
