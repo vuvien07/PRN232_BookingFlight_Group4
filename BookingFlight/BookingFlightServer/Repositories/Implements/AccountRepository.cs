@@ -1,8 +1,7 @@
-﻿using BookingFlightServer.Entities;
+﻿using BookingFlightServer.Data;
+using BookingFlightServer.Entities;
 using Microsoft.EntityFrameworkCore;
 using Repositories;
-using System;
-using System.Linq;
 
 namespace BookingFlightServer.Repositories.Implements
 {

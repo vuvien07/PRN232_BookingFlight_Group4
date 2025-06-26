@@ -1,4 +1,4 @@
-using BookingFlightServer.Entities;
+using BookingFlightServer.Data;
 using BookingFlightServer.Middlewares;
 using BookingFlightServer.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

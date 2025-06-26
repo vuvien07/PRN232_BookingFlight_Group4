@@ -1,4 +1,4 @@
-﻿using BookingFlightServer.Entities;
+﻿using BookingFlightServer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
