@@ -126,8 +126,7 @@
                         <label class="form-check-label" for="rememberMe">
                             <span data-vn="Ghi nhớ đăng nhập" data-en="Remember me" data-zh="记住我">Ghi nhớ đăng nhập</span>
                         </label>
-                    </div>
-                    <a href="#" class="forgot-password">
+                    </div>                    <a href="/ForgotPassword" class="forgot-password">
                         <span data-vn="Quên mật khẩu?" data-en="Forgot password?" data-zh="忘记密码？">Quên mật khẩu?</span>
                     </a>
                 </div>
@@ -138,32 +137,15 @@
                 <!-- Login Button -->
                 <button type="button" onclick="LoginToSystem(event)" class="btn-login">
                     <span data-vn="Đăng nhập" data-en="Sign In" data-zh="登录">Đăng nhập</span>
-                </button>
-
-                <!-- Sign Up Section -->
+                </button>                <!-- Sign Up Section -->
                 <div class="signup-section">
                     <p class="signup-text">
                         <span data-vn="Chưa có tài khoản?" data-en="Not a member?" data-zh="还不是会员？">Chưa có tài khoản?</span>
-                        <a href="signup" class="signup-link">
+                        <a href="/Register" class="signup-link">
                             <span data-vn="Tạo tài khoản" data-en="Create account" data-zh="创建账户">Tạo tài khoản</span>
                         </a>
                     </p>
-                </div>
-            </form>
-                    <span class="text-danger" id="Password"></span>
-                </div>
-            </div>
-            <input type="hidden" name="IsRememberMe" value="false" />
-            <button type="button" onclick="LoginToSystem(event)" class="btn btn-primary w-100">Sign In</button>
-            <div class="form-check mt-3">
-                <label class="form-check-label" for="rememberMe">
-                    <input class="form-check-input rememberMe" type="checkbox" id="rememberMe">
-                    Remember me
-                </label>
-            </div>            <div class="mt-3">
-                <a href="/ForgotPassword" class="text-decoration-none">Forgot password?</a>
-            </div><hr>
-            <p>Not a member? <a href="/Login/Register" class="text-decoration-none">Create account</a></p>
+                </div>            </form>
         </div>
     </div>
 

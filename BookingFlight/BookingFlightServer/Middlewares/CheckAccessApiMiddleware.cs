@@ -54,10 +54,14 @@ namespace BookingFlightServer.Middlewares
 				await context.Response.WriteAsync("{\"message\":\"Unauthorized - No SessionId\"}");
 				return;
 			}
-			
-			var _permissionApiRepository = scoped.ServiceProvider.GetRequiredService<IPermissionApiRepository>();
+					var _permissionApiRepository = scoped.ServiceProvider.GetRequiredService<IPermissionApiRepository>();
 			var ignorePaths2 = new[] { "/api/Home", "/api/login", "/api/Register" };
-			var ignorePathsStartsWith2 = new[] { "/api/Register/check-", "/api/Register/test" };
+			var ignorePathsStartsWith2 = new[] { 
+				"/api/Register/check-", 
+				"/api/Register/test",
+				"/api/ForgotPassword/",
+				"/api/EmailVerification/"
+			};
 			if (ignorePaths2.Any(p => p.Equals(url, StringComparison.OrdinalIgnoreCase)) || 
 			    ignorePathsStartsWith2.Any(p => url.ToString().StartsWith(p, StringComparison.OrdinalIgnoreCase)))
 			{

@@ -1,83 +1,351 @@
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Page</title>
+<!DOCTYPE html>
+<html lang="vi">
+<head>    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-vn="Đăng ký - CloudNine" data-en="Register - CloudNine" data-zh="注册 - CloudNine">Đăng ký - CloudNine</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
     <style>
         body {
-            background: linear-gradient(to bottom, #4db8ff, #9933ff);
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             margin: 0;
-            font-family: Arial, sans-serif;
+            position: relative;
+            overflow-x: hidden;
         }
 
-        .register-container {
+        /* Animated Background */
+        .login-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .floating-shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        .floating-shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 30%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        .floating-shape:nth-child(4) {
+            width: 100px;
+            height: 100px;
+            top: 10%;
+            right: 30%;
+            animation-delay: 1s;
+        }
+
+        .floating-shape:nth-child(5) {
+            width: 90px;
+            height: 90px;
+            bottom: 10%;            right: 40%;
+            animation-delay: 3s;
+        }
+
+        .login-container {
             min-height: 100vh;
-            padding: 2rem 0;
-        }
-
-        .register-card {
-            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
             padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            max-width: 500px;
-            margin: 0 auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }        .login-logo {
+            text-align: center;
+            margin-bottom: 1.5rem;
         }
 
-        .icon-container {
-            font-size: 4rem;
-            color: #6c757d;
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
         }
 
-        input::placeholder {
+        .logo-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-size: 0.9rem;
             color: #6c757d;
-            opacity: 1;
+            font-weight: 400;
+        }        .welcome-section {
+            text-align: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .welcome-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+        }
+
+        .welcome-subtitle {
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-weight: 400;
+        }.form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-col {
+            flex: 1;
+        }        .form-col .form-group {
+            margin-bottom: 0;
+        }
+
+        /* Responsive - Stack columns on mobile */
+        @@media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .form-col .form-group {
+                margin-bottom: 1rem;
+            }
+            
+            .login-card {
+                padding: 1.5rem;
+                margin: 0.5rem;
+            }
+            
+            .welcome-title {
+                font-size: 1.75rem;
+            }
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
         }
 
         .form-control:focus {
-            border-color: #4db8ff;
-            box-shadow: 0 0 0 0.2rem rgba(77, 184, 255, 0.25);
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: rgba(255, 255, 255, 0.95);
         }
 
-        .btn-primary {
-            background: linear-gradient(45deg, #4db8ff, #9933ff);
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background: linear-gradient(45deg, #3da7f0, #8a2be2);
-        }
-
-        .error-message {
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 1rem;
+        }        .error-message {
             color: #dc3545;
             font-size: 0.875rem;
             margin-top: 0.25rem;
+            display: block;
+            min-height: 1.2rem;
         }
 
         .success-message {
             color: #28a745;
             font-size: 0.875rem;
             margin-top: 0.25rem;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
+            display: block;
+            min-height: 1.2rem;
         }
 
         .password-strength {
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
         }
 
-        .strength-weak { color: #dc3545; }
-        .strength-medium { color: #ffc107; }
-        .strength-strong { color: #28a745; }
+        .password-strength.weak {
+            color: #dc3545;
+        }
+
+        .password-strength.medium {
+            color: #ffc107;
+        }
+
+        .password-strength.strong {
+            color: #28a745;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .signup-section {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .signup-text {
+            color: #6c757d;
+            margin: 0;
+        }
+
+        .signup-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .signup-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: rgba(40, 167, 69, 0.1);
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-danger {
+            background: rgba(220, 53, 69, 0.1);
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        /* Loading state */
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+        }
+        }        /* Responsive styles removed to avoid Razor parsing issues */
     </style>
 </head>
+
 <body>
+    <!-- Animated Background -->
+    <div class="login-background">
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+        <div class="floating-shape"></div>
+    </div>
+
+
     <!-- Alert Modal -->
     <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -95,90 +363,208 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="container-fluid register-container d-flex align-items-center justify-content-center">
-        <div class="register-card">
-            <div class="text-center mb-4">
-                <div class="icon-container">
-                    <i class="bi bi-person-plus-fill"></i>
+        </div>    </div>
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Logo Section -->
+            <div class="login-logo">
+                <div class="logo-container">
+                    <i class="fas fa-cloud logo-icon"></i>
+                    <div class="logo-text">CloudNine</div>
                 </div>
-                <h2 class="fw-bold text-dark mt-3">Create Account</h2>
-                <p class="text-muted">Join us today! It's free and easy.</p>
+                <div class="logo-subtitle">
+                    <span data-vn="Nâng tầm trải nghiệm du lịch của bạn" data-en="Elevate your travel experience" data-zh="提升您的旅行体验">
+                        Nâng tầm trải nghiệm du lịch của bạn
+                    </span>
+                </div>
             </div>
 
-            <form id="registerForm">
-                <div class="row">
-                    <div class="col-md-6">
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <h1 class="welcome-title">
+                    <span data-vn="Tạo tài khoản mới!" data-en="Create New Account!" data-zh="创造新账户！">Tạo tài khoản mới!</span>
+                </h1>
+                <p class="welcome-subtitle">
+                    <span data-vn="Đăng ký để bắt đầu hành trình của bạn" data-en="Sign up to start your journey" data-zh="注册开始您的旅程">
+                        Đăng ký để bắt đầu hành trình của bạn
+                    </span>
+                </p>
+            </div>            <!-- Register Form -->
+            <form id="registerForm" class="login-form">
+                <!-- Username and Email Row -->
+                <div class="form-row">
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" placeholder="Enter username" required>
-                            <div id="usernameError" class="error-message"></div>
-                            <div id="usernameCheck" class="success-message"></div>
+                            <label class="form-label">
+                                <span data-vn="Tên đăng nhập" data-en="Username" data-zh="用户名">Tên đăng nhập</span>
+                            </label>
+                            <div class="input-container">
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="username" 
+                                       name="username" 
+                                       placeholder="Nhập tên đăng nhập"
+                                       data-placeholder-vn="Nhập tên đăng nhập" 
+                                       data-placeholder-en="Enter username" 
+                                       data-placeholder-zh="输入用户名"
+                                       required />
+                                <i class="fas fa-user input-icon"></i>
+                            </div>
+                            <div class="error-message" id="usernameError"></div>
+                            <div class="success-message" id="usernameCheck"></div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required>
-                            <div id="emailError" class="error-message"></div>
-                            <div id="emailCheck" class="success-message"></div>
+                            <label class="form-label">
+                                <span data-vn="Email" data-en="Email" data-zh="邮箱">Email</span>
+                            </label>
+                            <div class="input-container">
+                                <input type="email" 
+                                       class="form-control" 
+                                       id="email" 
+                                       name="email" 
+                                       placeholder="Nhập email"
+                                       data-placeholder-vn="Nhập email" 
+                                       data-placeholder-en="Enter email" 
+                                       data-placeholder-zh="输入邮箱"
+                                       required />
+                                <i class="fas fa-envelope input-icon"></i>
+                            </div>
+                            <div class="error-message" id="emailError"></div>
+                            <div class="success-message" id="emailCheck"></div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Full Name Field -->
                 <div class="form-group">
-                    <label for="fullname" class="form-label">Full Name</label>
-                    <input type="text" class="form-control" id="fullname" name="fullname" placeholder="Enter full name" required>
-                    <div id="fullnameError" class="error-message"></div>
+                    <label class="form-label">
+                        <span data-vn="Họ và tên" data-en="Full Name" data-zh="全名">Họ và tên</span>
+                    </label>
+                    <div class="input-container">
+                        <input type="text" 
+                               class="form-control" 
+                               id="fullname" 
+                               name="fullname" 
+                               placeholder="Nhập họ và tên"
+                               data-placeholder-vn="Nhập họ và tên" 
+                               data-placeholder-en="Enter full name" 
+                               data-placeholder-zh="输入全名"
+                               required />
+                        <i class="fas fa-id-card input-icon"></i>
+                    </div>
+                    <div class="error-message" id="fullnameError"></div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-6">
+                <!-- Password and Confirm Password Row -->
+                <div class="form-row">
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+                            <label class="form-label">
+                                <span data-vn="Mật khẩu" data-en="Password" data-zh="密码">Mật khẩu</span>
+                            </label>
+                            <div class="input-container">
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="password" 
+                                       name="password" 
+                                       placeholder="Nhập mật khẩu"
+                                       data-placeholder-vn="Nhập mật khẩu" 
+                                       data-placeholder-en="Enter password" 
+                                       data-placeholder-zh="输入密码"
+                                       required />
+                                <i class="fas fa-lock input-icon"></i>
+                            </div>
+                            <div class="error-message" id="passwordError"></div>
                             <div id="passwordStrength" class="password-strength"></div>
-                            <div id="passwordError" class="error-message"></div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="form-col">
                         <div class="form-group">
-                            <label for="confirmPassword" class="form-label">Confirm Password</label>
-                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required>
-                            <div id="confirmPasswordError" class="error-message"></div>
+                            <label class="form-label">
+                                <span data-vn="Xác nhận mật khẩu" data-en="Confirm Password" data-zh="确认密码">Xác nhận mật khẩu</span>
+                            </label>
+                            <div class="input-container">
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="confirmPassword" 
+                                       name="confirmPassword" 
+                                       placeholder="Xác nhận mật khẩu"
+                                       data-placeholder-vn="Xác nhận mật khẩu" 
+                                       data-placeholder-en="Confirm password" 
+                                       data-placeholder-zh="确认密码"
+                                       required />
+                                <i class="fas fa-lock input-icon"></i>
+                            </div>
+                            <div class="error-message" id="confirmPasswordError"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="phoneNumber" class="form-label">Phone Number</label>
-                    <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="Enter phone number (e.g., +84909123456)" required>
-                    <div id="phoneError" class="error-message"></div>
+                <!-- Address and Phone Row -->
+                <div class="form-row">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span data-vn="Địa chỉ" data-en="Address" data-zh="地址">Địa chỉ</span>
+                            </label>
+                            <div class="input-container">
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="address" 
+                                       name="address" 
+                                       placeholder="Nhập địa chỉ"
+                                       data-placeholder-vn="Nhập địa chỉ" 
+                                       data-placeholder-en="Enter address" 
+                                       data-placeholder-zh="输入地址"
+                                       required />
+                                <i class="fas fa-map-marker-alt input-icon"></i>
+                            </div>
+                            <div class="error-message" id="addressError"></div>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <span data-vn="Số điện thoại" data-en="Phone Number" data-zh="电话号码">Số điện thoại</span>
+                            </label>
+                            <div class="input-container">
+                                <input type="tel" 
+                                       class="form-control" 
+                                       id="phoneNumber" 
+                                       name="phoneNumber" 
+                                       placeholder="Nhập số điện thoại"
+                                       data-placeholder-vn="Nhập số điện thoại" 
+                                       data-placeholder-en="Enter phone number" 
+                                       data-placeholder-zh="输入电话号码"
+                                       required />
+                                <i class="fas fa-phone input-icon"></i>
+                            </div>
+                            <div class="error-message" id="phoneNumberError"></div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="address" class="form-label">Address</label>
-                    <textarea class="form-control" id="address" name="address" rows="3" placeholder="Enter your address" required></textarea>
-                    <div id="addressError" class="error-message"></div>
-                </div>
+                <!-- Register Button -->
+                <button type="button" onclick="registerAccount()" class="btn-login">
+                    <span data-vn="Đăng ký" data-en="Register" data-zh="注册">Đăng ký</span>
+                </button>
 
-                <div class="d-grid gap-2 mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="bi bi-person-plus me-2"></i>Create Account
-                    </button>
-                </div>
-
-                <div class="text-center mt-3">
-                    <p class="text-muted">Already have an account? 
-                        <a href="/Login" class="text-decoration-none fw-bold" style="color: #4db8ff;">Sign In</a>
+                <!-- Sign In Section -->
+                <div class="signup-section">
+                    <p class="signup-text">
+                        <span data-vn="Đã có tài khoản?" data-en="Already have an account?" data-zh="已有账户？">Đã có tài khoản?</span>
+                        <a href="/Login" class="signup-link">
+                            <span data-vn="Đăng nhập" data-en="Sign In" data-zh="登录">Đăng nhập</span>
+                        </a>
                     </p>
                 </div>
             </form>
         </div>
     </div>
-
+                    </div>
+                </div>    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const API_BASE_URL = 'http://localhost:5077/api'; // Update with your server URL
@@ -188,10 +574,9 @@
             if (!username) return 'Username is required';
             if (username.includes(' ')) return "Username doesn't contain space";
             if (username.length > 50) return 'Username must be less than 50 characters';
-            return null;
-        }        function validateEmail(email) {
+            return null;        }        function validateEmail(email) {
             if (!email) return 'Email is required';
-            const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+            const emailRegex = new RegExp('^[^\\s@@]+@@[^\\s@@]+\\.[^\\s@@]+$');
             if (!emailRegex.test(email)) return 'Email is invalid';
             if (email.length > 50) return 'Email must be less than 50 characters';
             return null;
