@@ -28,7 +28,7 @@ namespace BookingFlightClient
 					?? throw new ArgumentNullException("Redis:ConnectionString");
 				return new RedisHelper(connectionString);
 			});
-			builder.Services.AddControllersWithViews();
+			builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation() ;
 			var app = builder.Build();
 			app.UseSession();
 			app.UseStaticFiles();

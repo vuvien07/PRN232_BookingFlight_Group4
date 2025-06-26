@@ -4,8 +4,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flight Booking</title>
     <link href="~/css/common/Footer.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/common/Header.css">
+    <link rel="stylesheet" href="~/css/ListFlight.css">
     <style>
         body {
+            margin-top: 9%;
             background: #f8f9fa;
             position: relative;
             padding-top: 69px;
@@ -54,7 +57,7 @@
 
         /*Search*/
         .search-form-container {
-            gap: 10px;
+            gap: 20px;
             display: flex;
             flex-wrap: nowrap;
             width: 100%;
@@ -65,11 +68,11 @@
             }
 
             .search-form-container .input-group-text {
-                border-radius: 4px 0 0 4px;
+                border-radius: 4px;
             }
 
             .search-form-container .form-control {
-                border-radius: 0 4px 4px 0;
+                border-radius: 4px;
                 flex: 1;
             }
 
@@ -139,47 +142,63 @@
 
     <partial name="~/Views/Common/_Header.cshtml" />
 
-    <div class="container my-4">
+    <div class="container my-4 listFlightBody">
         <!-- Search Section -->
-        <div class="row mb-4">
-            <div class="col">
+        <div class="row mb-4 searchSection">
+            <div class="header">
+                <h5 id="flightSearchModalLabel">
+                    <i class="fas fa-plane-departure"></i> <span data-vn="Tìm kiếm chuyến bay" data-en="Flight Search" data-zh="航班搜索">Tìm kiếm chuyến bay</span>
+                </h5>
+            </div>
+            <div class="col searchBody">
                 <div class="input-group search-form-container">
-                    <div class="d-flex align-items-center">
-                        <span class="input-group-text">Từ</span>
-                        <select class="form-control" id="departureSelect">
-                            <option value="" selected>-- Chọn điểm đi --</option>
-                            <option value="2">Hồ Chí Minh (SGN)</option>
-                            <option value="1">Hà Nội (HAN)</option>
-                            <option value="3">Đà Nẵng (DNG)</option>
-                            <option value="5">Nha Trang (CRA)</option>
-                            <option value="4">Phú Quốc (PQA)</option>
-                        </select>
+                    <div class="w-100" style="margin-bottom:1vw">
+                        <div class="align-items-center mb-3">
+                            <label for="departure" class="form-label">
+                                <i class="fas fa-plane-departure"></i> <span data-vn="Điểm khởi hành" data-en="Departure" data-zh="出发地">Điểm khởi hành</span>
+                            </label>
+                            <select class="form-select" id="departureSelect">
+                                <option value="" selected>-- Chọn điểm đi --</option>
+                                <option value="2">Hồ Chí Minh (SGN)</option>
+                                <option value="1">Hà Nội (HAN)</option>
+                                <option value="3">Đà Nẵng (DNG)</option>
+                                <option value="5">Nha Trang (CRA)</option>
+                                <option value="4">Phú Quốc (PQA)</option>
+                            </select>
+                        </div>
+
+                        <div class="align-items-center">
+                            <label for="departure" class="form-label">
+                                <i class="fas fa-plane-departure"></i> <span data-vn="Điểm đến" data-en="Departure" data-zh="出发地">Điểm khởi hành</span>
+                            </label>
+                            <select class="form-select" id="arrivalSelect">
+                                <option value="" selected>-- Chọn điểm đến --</option>
+                                <option value="2">Hồ Chí Minh (SGN)</option>
+                                <option value="1">Hà Nội (HAN)</option>
+                                <option value="3">Đà Nẵng (DNG)</option>
+                                <option value="5">Nha Trang (CRA)</option>
+                                <option value="4">Phú Quốc (PQA)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="w-100">
+                        <div class="align-items-center mb-3">
+                            <label for="departureDate" class="form-label">
+                                <i class="fas fa-calendar-alt"></i> <span data-vn="Ngày khởi hành" data-en="Departure Date" data-zh="出发日期">Ngày khởi hành</span>
+                            </label>
+                            <input type="date" name="departure-date" class="form-control departure-date" value="">
+                        </div>
+
+                        <div class="align-items-center">
+                            <label for="departureDate" class="form-label">
+                                <i class="fas fa-calendar-alt"></i> <span data-vn="Ngày về" data-en="Departure Date" data-zh="出发日期">Ngày khởi hành</span>
+                            </label>
+                            <input type="date" class="form-control">
+                        </div>
                     </div>
 
-                    <div class="d-flex align-items-center">
-                        <span class="input-group-text">Đến</span>
-                        <select class="form-control" id="arrivalSelect">
-                            <option value="" selected>-- Chọn điểm đến --</option>
-                            <option value="2">Hồ Chí Minh (SGN)</option>
-                            <option value="1">Hà Nội (HAN)</option>
-                            <option value="3">Đà Nẵng (DNG)</option>
-                            <option value="5">Nha Trang (CRA)</option>
-                            <option value="4">Phú Quốc (PQA)</option>
-                        </select>
-                    </div>
-
-                    <div class="d-flex align-items-center">
-                        <span class="input-group-text">Ngày đi</span>
-                        <input type="date" name="departure-date" class="form-control departure-date" value="">
-                    </div>
-
-                    <div class="d-flex align-items-center">
-                        <span class="input-group-text">Ngày về</span>
-                        <input type="date" class="form-control">
-                    </div>
-
-                    <button class="btn btn-primary" onclick="handleSearchFlight(event)">Tìm chuyến bay</button>
                 </div>
+                <button class="btn btn-primary mt-2" onclick="handleSearchFlight(event)">Tìm chuyến bay</button>
             </div>
         </div>
 

@@ -1,6 +1,6 @@
 ﻿async function SubmitFlightInfo(e) {
     e.preventDefault();
-    const labels = ['DepartureDate', 'NumAdult', 'NumChild', 'NumInfant']
+    const labels = ['From', 'To', 'DepartureDate', 'NumAdult', 'NumChild', 'NumInfant']
     try {
         const res = await fetch(`http://${host}:5077/api/Home`, {
             method: "POST",

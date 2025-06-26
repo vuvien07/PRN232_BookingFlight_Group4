@@ -1,0 +1,18 @@
+﻿.listFlightBody .searchSection {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+    .listFlightBody .searchSection .header {
+        background: linear-gradient(135deg, #006994, #40E0D0);
+        color: white;
+        border-radius: 20px 20px 0 0;
+        border: none;
+        padding: 1vw;
+    }
+    .listFlightBody .searchSection .searchBody {
+        padding: 20px;
+        background-color: white;
+        border-radius: 0 0 20px 20px;
+    }

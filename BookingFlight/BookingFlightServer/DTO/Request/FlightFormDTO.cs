@@ -1,10 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BookingFlightServer.Validations;
+using System.ComponentModel.DataAnnotations;
 
 namespace BookingFlightServer.DTO.Request
 {
 	public class FlightFormDTO
 	{
+		[Required(ErrorMessage = "Vui lòng chọn điểm đi")]
+		[CompareStringWithOther("To")]
 		public string From { get; set; }
+		[Required(ErrorMessage = "Vui lòng chọn điểm đến")]
+		[CompareStringWithOther("From")]
 		public string To { get; set; }
 		[Required(ErrorMessage = "Vui lòng nhập ngày đi")]
 		public string? DepartureDate { get; set; }
