@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using BookingFlightServer.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace BookingFlightServer.Entities;
+namespace BookingFlightServer.Data;
 
 public partial class BookingFlightContext : DbContext
 {

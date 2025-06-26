@@ -1,4 +1,5 @@
-﻿using BookingFlightServer.DTO.Request;
+﻿using BookingFlightServer.Data;
+using BookingFlightServer.DTO.Request;
 using BookingFlightServer.Entities;
 using Microsoft.EntityFrameworkCore;
 
