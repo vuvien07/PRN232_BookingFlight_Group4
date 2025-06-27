@@ -17,10 +17,11 @@ namespace BookingFlightServer.Controllers
 		}
 
 		[HttpGet("get")]
+        [Authorize]
         public IActionResult GetUsernameAndRoleInToken([FromHeader(Name ="X-Access-Token")] string token)
         {
             var decodedToken = _jwtService.DecodeJwtToken(token);
-			return Ok(new { username, role });
+			return Ok(decodedToken);
         }
     }
 }
