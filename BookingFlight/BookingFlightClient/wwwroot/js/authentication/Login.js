@@ -34,12 +34,12 @@ async function LoginToSystem(e) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "SessionId": localStorage.getItem("token")
             },
             body: JSON.stringify({
                 "Username": document.querySelector('input[name="Username"]').value,
                 "Password": document.querySelector('input[name="Password"]').value
-            })
+            }),
+            credentials: "include"
         });
         if (!res.ok) {
             const result = await res.json();
@@ -51,18 +51,20 @@ async function LoginToSystem(e) {
             }
             if (result.message) {
                 await showSnackbar(result.message, "error");
-            }        } else {
-            let json = await res.json();
-            localStorage.setItem("token", json.token);
-            let parseToken = parseJwtToken(json.token);
+            }
+        } else {
+            window.location.href = "/Home?isLoggingIn=true";
+
+            //localStorage.setItem("token", json.token);
+            //let parseToken = parseJwtToken(json.token);
             
-            // Get role information using enhanced function
-            const roleInfo = getRoleInfo(parseToken);
+            //// Get role information using enhanced function
+            //const roleInfo = getRoleInfo(parseToken);
             
-            console.log('Login successful - Role Info:', roleInfo);
+            //console.log('Login successful - Role Info:', roleInfo);
             
-            // First call AfterLogin to update session
-            await updateSessionAndRedirect(roleInfo);
+            //// First call AfterLogin to update session
+            //await updateSessionAndRedirect(roleInfo);
         }
     } catch (error) {
         console.log(error);
