@@ -5,6 +5,7 @@ namespace BookingFlightServer.Services
 	public interface IAccountService
 	{
 		Task<Account?> findByUsernameAndPassword(string? username, string? password);
+		Task<Account?> FindByRefreshTokenAsync(string refreshToken);
 		Task UpdateAccountAsync(Account account);
         Task<bool> IsUsernameExistsAsync(string username);
         Task<bool> IsEmailExistsAsync(string email);

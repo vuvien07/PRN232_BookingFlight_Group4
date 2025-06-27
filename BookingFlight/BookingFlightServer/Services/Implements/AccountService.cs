@@ -173,5 +173,10 @@ namespace BookingFlightServer.Services.Implements
                 return false;
             }
         }
+
+		public async Task<Account?> FindByRefreshTokenAsync(string refreshToken)
+		{
+			return await _accountRepository.FindByRefreshToken(refreshToken);
+		}
 	}
 }
