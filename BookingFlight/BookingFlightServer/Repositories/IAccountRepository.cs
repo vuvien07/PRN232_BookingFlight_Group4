@@ -10,6 +10,7 @@ namespace Repositories
     public interface IAccountRepository
     {
         Task<Account?> findByUsernameAndPassword(string? username, string? password);
+		Task<Account?> FindByRefreshToken(string refreshToken);
 		Task UpdateAccountAsync(Account account);
         Task<bool> IsUsernameExistsAsync(string username);
         Task<bool> IsEmailExistsAsync(string email);

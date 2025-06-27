@@ -5,51 +5,48 @@ using Repositories;
 
 namespace BookingFlightServer.Repositories.Implements
 {
-    public class AccountRepository : IAccountRepository
+    public class AccountRepository : BaseRepository<Account>, IAccountRepository
     {
-        private BookingFlightContext _flightContext;
+		public AccountRepository(BookingFlightContext repositoryDbContext) : base(repositoryDbContext)
+		{
+		}
 
-        public AccountRepository(BookingFlightContext flightContext)
+		public async Task<Account?> findByUsernameAndPassword(string? username, string password)
         {
-            _flightContext = flightContext;
-        }
-        public async Task<Account?> findByUsernameAndPassword(string? username, string password)
-        {
-            var findAccount = await _flightContext.Accounts.Include(account => account.Role)
-              .FirstOrDefaultAsync(account =>
+            var findAccount = await GetByCondition(
+                 account =>
                   account.Username != null && account.Password != null &&
                   username != null && password != null &&
                   account.Username.Equals(username.Trim()) && account.Password.Equals(password.Trim()) &&
-                  account.StatusId == 1); // Only active accounts can login
+                  account.StatusId == 1, (account => account.Include(account => account.Role))
+                );
             return findAccount;
         }
 
         public async Task UpdateAccountAsync(Account account)
         {
-            _flightContext.Accounts.Update(account);
-            await _flightContext.SaveChangesAsync();
+            await Update(account);
         }
 
         public async Task<bool> IsUsernameExistsAsync(string username)
         {
-            return await _flightContext.Accounts.AnyAsync(a => a.Username == username);
+            return await _repositoryDbContext.Accounts.AnyAsync(a => a.Username == username);
         }
 
         public async Task<bool> IsEmailExistsAsync(string email)
         {
-            return await _flightContext.Customers.AnyAsync(c => c.Email == email);
+            return await _repositoryDbContext.Customers.AnyAsync(c => c.Email == email);
         }
 
         public async Task<Account> CreateAccountAsync(Account account)
         {
-            _flightContext.Accounts.Add(account);
-            await _flightContext.SaveChangesAsync();
+            await Create(account);
             return account;
         }
         public async Task<Customer> CreateCustomerAsync(Customer customer)
         {
-            _flightContext.Customers.Add(customer);
-            await _flightContext.SaveChangesAsync();
+            _repositoryDbContext.Customers.Add(customer);
+            await _repositoryDbContext.SaveChangesAsync();
             return customer;
         }
 
@@ -57,7 +54,7 @@ namespace BookingFlightServer.Repositories.Implements
         public async Task<Account?> FindByEmailAsync(string email)
         {
             // Email is stored in Customer table, not Account table
-            var customer = await _flightContext.Customers
+            var customer = await _repositoryDbContext.Customers
                 .Include(c => c.Account)
                 .FirstOrDefaultAsync(c => c.Email == email);
             return customer?.Account;
@@ -107,11 +104,11 @@ namespace BookingFlightServer.Repositories.Implements
 
         public async Task UpdatePasswordAsync(int accountId, string newPassword)
         {
-            var account = await _flightContext.Accounts.FindAsync(accountId);
+            var account = await _repositoryDbContext.Accounts.FindAsync(accountId);
             if (account != null)
             {
                 account.Password = newPassword; // Plain text as requested
-                await _flightContext.SaveChangesAsync();
+                await _repositoryDbContext.SaveChangesAsync();
             }
         }
 
@@ -158,12 +155,17 @@ namespace BookingFlightServer.Repositories.Implements
 
         public async Task ActivateAccountAsync(int accountId)
         {
-            var account = await _flightContext.Accounts.FindAsync(accountId);
+            var account = await _repositoryDbContext.Accounts.FindAsync(accountId);
             if (account != null)
             {
                 account.StatusId = 1; // Active status
-                await _flightContext.SaveChangesAsync();
+                await _repositoryDbContext.SaveChangesAsync();
             }
         }
-    }
+
+		public async Task<Account?> FindByRefreshToken(string refreshToken)
+		{
+			return await GetByCondition(account => account.RefreshToken != null && account.RefreshToken.Equals(refreshToken));
+		}
+	}
 }
