@@ -1,4 +1,5 @@
-﻿using BookingFlightServer.DTO.Request;
+﻿using Azure.Core;
+using BookingFlightServer.DTO.Request;
 using BookingFlightServer.DTO.Shared;
 using BookingFlightServer.Entities;
 using BookingFlightServer.Services;
@@ -38,7 +39,43 @@ namespace BookingFlightServer.Controllers
 			account.RefreshToken = refreshToken;
 			account.RefreshTokenExpiryTime = dateTime;
 			await _accountService.UpdateAccountAsync(account);
-			return Ok(new { token = token, refreshToken = refreshToken });
+			var accessTokenCookie = new CookieOptions
+			{
+				HttpOnly = true,
+				Secure = true,
+				SameSite = SameSiteMode.Strict,
+				Expires = DateTime.Now.AddMinutes(Convert.ToDouble(_jwtService.GetTokenExpirationTime())),
+				Path = "/"
+			};
+
+			var refreshTokenCookie = new CookieOptions
+			{
+				HttpOnly = true,
+				Secure = true,
+				SameSite = SameSiteMode.Strict,
+				Expires = DateTime.Now.AddDays(7),
+				Path = "/"
+			};
+
+			Response.Cookies.Append("X-Access-Token", token, accessTokenCookie);
+			Response.Cookies.Append("X-Refresh-Token", refreshToken, refreshTokenCookie);
+			return Ok(new { message = "Login success" });
+		}
+
+		[HttpPost("refresh-token")]
+		public async Task<IActionResult> RefreshToken([FromHeader(Name = "Authorization")] string token)
+		{
+			Account? account = await _accountService.FindByRefreshTokenAsync(token);
+			if(account == null || account.RefreshTokenExpiryTime < DateTime.Now)
+			{
+				return Unauthorized(new { message = "Invalid refresh token" });
+			}
+			string newToken = _jwtService.CreateJwtToken(Mapper.Map<Account, AccountDTO>(account) ?? new AccountDTO());
+			DateTime dateTime = DateTime.Now.AddMinutes(Convert.ToDouble(_jwtService.GetTokenExpirationTime()));
+			account.RefreshTokenExpiryTime = dateTime;
+			await _accountService.UpdateAccountAsync(account);
+			return Ok(new { token = newToken });
+
 		}
     }
 }
