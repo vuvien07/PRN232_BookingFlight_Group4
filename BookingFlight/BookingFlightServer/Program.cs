@@ -19,9 +19,9 @@ namespace BookingFlightServer
 			builder.Services.AddAllRepositories(typeof(Program).Assembly);
 			var app = builder.Build();
 			app.UseCors("AllowFrontEndClient");
+			app.UseMiddleware<CookieToHeaderMiddleware>();
 			app.UseAuthentication();
 			app.UseAuthorization();
-			app.UseMiddleware<CookieToHeaderMiddleware>();
 			app.UseMiddleware<ExceptionHandlerMiddleware>();
 			app.UseStaticFiles();
 

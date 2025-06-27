@@ -8,5 +8,6 @@ namespace BookingFlightServer.Services
 		string CreateRefreshToken();
 		double GetTokenExpirationTime();
 		string CreateJwtDTOToken<T>(T t);
+		Dictionary<string, object> DecodeJwtToken(string token);
 	}
 }

@@ -58,7 +58,7 @@ namespace BookingFlightServer.Services.Implements
 					}
 					else if (typeof(System.Collections.IEnumerable).IsAssignableFrom(declareType) && declareType != typeof(string))
 					{
-						sb.Append("[]"); 
+						sb.Append("[]");
 					}
 					else if (declareType.IsValueType)
 					{
@@ -82,7 +82,7 @@ namespace BookingFlightServer.Services.Implements
 					else if (value is System.Collections.IList list && !(value is string))
 					{
 						sb.Append("[");
-						if(list.Count > 0)
+						if (list.Count > 0)
 						{
 							List<string> items = new List<string>();
 							foreach (var item in list)
@@ -153,6 +153,20 @@ namespace BookingFlightServer.Services.Implements
 		public double GetTokenExpirationTime()
 		{
 			return Convert.ToDouble(_configuration["Jwt:RefreshTokenExpiration_In_Minutes"]);
+		}
+
+		public Dictionary<string, object> DecodeJwtToken(string token)
+		{
+			var handler = new JwtSecurityTokenHandler();
+			var jsonToken = handler.ReadToken(token);
+			var tokenSecurity = jsonToken as JwtSecurityToken;
+
+			if (tokenSecurity == null)
+			{
+				throw new ArgumentException("Invalid JWT token.");
+			}
+
+			return tokenSecurity.Claims.ToDictionary(claim => claim.Type, claim => (object)claim.Value);
 		}
 	}
 }
