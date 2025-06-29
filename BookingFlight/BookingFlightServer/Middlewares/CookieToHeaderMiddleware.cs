@@ -16,6 +16,10 @@
 				context.Request.Headers["X-Access-Token"] = token;
 				context.Request.Headers["Authorization"] = $"Bearer {token}";
 			}
+			if (context.Request.Cookies.TryGetValue("X-Refresh-Token", out var refreshToken))
+			{
+				context.Request.Headers["X-Refresh-Token"] = refreshToken;
+			}
 
 			await _next(context);
 		}
