@@ -48,4 +48,6 @@ public partial class Ticket
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
     public virtual Status Status { get; set; } = null!;
+
+    public virtual ICollection<TicketItem> TicketItems { get; set; } = new List<TicketItem>();
 }

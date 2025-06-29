@@ -19,5 +19,7 @@ public partial class Item
 
     public virtual Status? Status { get; set; }
 
+    public virtual ICollection<TicketItem> TicketItems { get; set; } = new List<TicketItem>();
+
     public virtual ICollection<Service> Services { get; set; } = new List<Service>();
 }
