@@ -7,10 +7,6 @@ namespace BookingFlightServer.Data;
 
 public partial class BookingFlightContext : DbContext
 {
-    public BookingFlightContext()
-    {
-    }
-
     public BookingFlightContext(DbContextOptions<BookingFlightContext> options)
         : base(options)
     {
@@ -48,10 +44,6 @@ public partial class BookingFlightContext : DbContext
 
     public virtual DbSet<Payment> Payments { get; set; }
 
-    public virtual DbSet<PermissionApi> PermissionApis { get; set; }
-
-    public virtual DbSet<PermissionPage> PermissionPages { get; set; }
-
     public virtual DbSet<Plane> Planes { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
@@ -66,18 +58,11 @@ public partial class BookingFlightContext : DbContext
 
     public virtual DbSet<Ticket> Tickets { get; set; }
 
+    public virtual DbSet<TicketItem> TicketItems { get; set; }
+
     public virtual DbSet<UserLog> UserLogs { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-		var config = new ConfigurationBuilder().AddJsonFile($"{Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json")}").Build();
-		if (!optionsBuilder.IsConfigured)
-		{
-			optionsBuilder.UseSqlServer(config.GetConnectionString("DBContext"));
-		}
-	}
-
-	protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
         {
@@ -574,32 +559,6 @@ public partial class BookingFlightContext : DbContext
                 .HasConstraintName("FK__Payment__ticket___1EA48E88");
         });
 
-        modelBuilder.Entity<PermissionApi>(entity =>
-        {
-            entity.ToTable("PermissionAPI");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Name)
-                .HasMaxLength(255)
-                .HasColumnName("name");
-            entity.Property(e => e.Url)
-                .HasMaxLength(255)
-                .HasColumnName("url");
-        });
-
-        modelBuilder.Entity<PermissionPage>(entity =>
-        {
-            entity.ToTable("PermissionPage");
-
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Name)
-                .HasMaxLength(255)
-                .HasColumnName("name");
-            entity.Property(e => e.Url)
-                .HasMaxLength(255)
-                .HasColumnName("url");
-        });
-
         modelBuilder.Entity<Plane>(entity =>
         {
             entity.HasKey(e => e.PlaneId).HasName("PK__Plane__4D11D7FDEB6E940B");
@@ -645,44 +604,6 @@ public partial class BookingFlightContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("role_name");
-
-            entity.HasMany(d => d.PermissionApis).WithMany(p => p.Roles)
-                .UsingEntity<Dictionary<string, object>>(
-                    "RolePermissionApi",
-                    r => r.HasOne<PermissionApi>().WithMany()
-                        .HasForeignKey("PermissionApiId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_RolePermissionAPI_PermissionAPI"),
-                    l => l.HasOne<Role>().WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_RolePermissionAPI_Role"),
-                    j =>
-                    {
-                        j.HasKey("RoleId", "PermissionApiId");
-                        j.ToTable("RolePermissionAPI");
-                        j.IndexerProperty<int>("RoleId").HasColumnName("role_id");
-                        j.IndexerProperty<int>("PermissionApiId").HasColumnName("permission_api_id");
-                    });
-
-            entity.HasMany(d => d.PermissionPages).WithMany(p => p.Roles)
-                .UsingEntity<Dictionary<string, object>>(
-                    "RolePermissionPage",
-                    r => r.HasOne<PermissionPage>().WithMany()
-                        .HasForeignKey("PermissionPageId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_RolePermissionPage_PermissionPage"),
-                    l => l.HasOne<Role>().WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_RolePermissionPage_Role"),
-                    j =>
-                    {
-                        j.HasKey("RoleId", "PermissionPageId");
-                        j.ToTable("RolePermissionPage");
-                        j.IndexerProperty<int>("RoleId").HasColumnName("role_id");
-                        j.IndexerProperty<int>("PermissionPageId").HasColumnName("permission_page_id");
-                    });
         });
 
         modelBuilder.Entity<Seat>(entity =>
@@ -868,6 +789,27 @@ public partial class BookingFlightContext : DbContext
                 .HasForeignKey(d => d.StatusId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Ticket__status_i__2CF2ADDF");
+        });
+
+        modelBuilder.Entity<TicketItem>(entity =>
+        {
+            entity.HasKey(e => new { e.TicketId, e.ItemId });
+
+            entity.ToTable("Ticket_Item");
+
+            entity.Property(e => e.TicketId).HasColumnName("ticket_id");
+            entity.Property(e => e.ItemId).HasColumnName("item_id");
+            entity.Property(e => e.Quantity).HasColumnName("quantity");
+
+            entity.HasOne(d => d.Item).WithMany(p => p.TicketItems)
+                .HasForeignKey(d => d.ItemId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Ticket_Item_Items");
+
+            entity.HasOne(d => d.Ticket).WithMany(p => p.TicketItems)
+                .HasForeignKey(d => d.TicketId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Ticket_Item_Ticket");
         });
 
         modelBuilder.Entity<UserLog>(entity =>
