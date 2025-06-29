@@ -54,8 +54,8 @@ namespace BookingFlightClient
 					};
 
 				});
-
-			builder.Services.AddControllersWithViews();
+            builder.Services.AddHttpClient();
+            builder.Services.AddControllersWithViews();
 			var app = builder.Build();
 			app.UseSession();
 			app.UseStaticFiles();
