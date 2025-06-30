@@ -155,7 +155,18 @@
                             linkClass += " active";
                         }
                         
-                        if (item.IsLogout == true)
+                        // Safely check if IsLogout property exists and is true
+                        var isLogout = false;
+                        try
+                        {
+                            isLogout = item.IsLogout == true;
+                        }
+                        catch
+                        {
+                            // Property doesn't exist, default to false
+                        }
+                        
+                        if (isLogout)
                         {
                             linkClass += " logout-link";
                         }
@@ -164,9 +175,21 @@
                             <a href="@item.Url" class="@linkClass">
                                 <span class="nav-icon"><i class="@item.Icon"></i></span>
                                 <span class="nav-text">@item.Title</span>
-                                @if (!string.IsNullOrEmpty(item.Badge))
+                                @{
+                                    // Safely check if Badge property exists and has value
+                                    string? badgeValue = null;
+                                    try
+                                    {
+                                        badgeValue = item.Badge;
+                                    }
+                                    catch
+                                    {
+                                        // Property doesn't exist, default to null
+                                    }
+                                }
+                                @if (!string.IsNullOrEmpty(badgeValue))
                                 {
-                                    <span class="nav-badge">@item.Badge</span>
+                                    <span class="nav-badge">@badgeValue</span>
                                 }
                             </a>
                         </li>

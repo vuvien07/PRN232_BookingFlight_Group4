@@ -1,4 +1,11 @@
-﻿document.addEventListener("DOMContentLoaded", function () {
+﻿// Define host variable
+const host = window.location.hostname;
+
+console.log('Login.js file loading...');
+console.log('Host variable set to:', host);
+
+document.addEventListener("DOMContentLoaded", function () {
+    console.log('Login.js DOMContentLoaded event fired');
     // Xử lý sự kiện change trên checkbox có class 'rememberMe'
     document.addEventListener("change", function (event) {
         if (event.target && event.target.classList.contains("rememberMe")) {
@@ -25,24 +32,53 @@
 });
 
 async function LoginToSystem(e) {
+    console.log('LoginToSystem function called with event:', e);
     try {
         e.preventDefault();
+        
+        console.log('Login attempt started...');
+        console.log('Host:', host);
+        console.log('API URL:', `http://${host}:5077/api/login`);
+        
         let labels = [
             'Username',
             'Password',]
+            
+        const username = document.querySelector('input[name="Username"]').value;
+        const password = document.querySelector('input[name="Password"]').value;
+        
+        console.log('Username:', username);
+        console.log('Password length:', password.length);
+        
         const res = await fetch(`http://${host}:5077/api/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                "Username": document.querySelector('input[name="Username"]').value,
-                "Password": document.querySelector('input[name="Password"]').value
+                "Username": username,
+                "Password": password
             }),
             credentials: "include"
         });
+        
+        console.log('Response status:', res.status);
+        console.log('Response headers:', Object.fromEntries(res.headers));
+        
         if (!res.ok) {
-            const result = await res.json();
+            console.log('Login failed with status:', res.status);
+            let result;
+            try {
+                result = await res.json();
+                console.log('Error response:', result);
+            } catch (jsonError) {
+                console.error('Failed to parse error response as JSON:', jsonError);
+                const textResponse = await res.text();
+                console.log('Raw error response:', textResponse);
+                await showSnackbar("Server error occurred", "error");
+                return;
+            }
+            
             if (result.errors) {
                 let errors = result.errors;
                 for (let i = 0; i < labels.length; i++) {
@@ -53,21 +89,78 @@ async function LoginToSystem(e) {
                 await showSnackbar(result.message, "error");
             }
         } else {
-            window.location.href = "/Home?isLoggingIn=true";
-
-            //localStorage.setItem("token", json.token);
-            //let parseToken = parseJwtToken(json.token);
+            // Expecting token in response
+            const json = await res.json();
+            console.log('Login response:', json); // Debug log
             
-            //// Get role information using enhanced function
-            //const roleInfo = getRoleInfo(parseToken);
-            
-            //console.log('Login successful - Role Info:', roleInfo);
-            
-            //// First call AfterLogin to update session
-            //await updateSessionAndRedirect(roleInfo);
+            if (json.token) {
+                // Store token first
+                localStorage.setItem("token", json.token);
+                
+                // Parse token to get user info
+                let parseToken = parseJwtToken(json.token);
+                console.log('Parsed token:', parseToken); // Debug log
+                
+                // Get role info
+                const roleInfo = getRoleInfo(parseToken);
+                console.log('Role info:', roleInfo); // Debug log
+                
+                // Show success message first
+                await showSnackbar("Đăng nhập thành công!", "success");
+                
+                // Small delay to ensure localStorage is written
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Refresh header authentication UI immediately
+                if (window.refreshAuthentication) {
+                    console.log('Refreshing header authentication...');
+                    window.refreshAuthentication();
+                } else {
+                    console.warn('refreshAuthentication function not available');
+                }
+                
+                // Wait a moment for UI update before redirect
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                // Debug: Check role info
+                console.log('About to redirect - roleId:', roleInfo.roleId, 'type:', typeof roleInfo.roleId);
+                console.log('About to redirect - roleName:', roleInfo.roleName);
+                console.log('Is admin check:', roleInfo.roleId == 1, roleInfo.roleId === 1, roleInfo.roleId === "1");
+                console.log('Role name check:', roleInfo.roleName?.toLowerCase() === 'admin');
+                
+                // Direct redirect based on role - Admin has roleId = 1
+                if (roleInfo.roleId == 1 || roleInfo.roleId === 1 || roleInfo.roleId === "1") {
+                    console.log('Admin user detected (roleId = 1), redirecting to dashboard');
+                    window.location.replace("/Admin/Dashboard?isLoggingIn=true");
+                } else if (roleInfo.roleName && roleInfo.roleName.toLowerCase() === 'admin') {
+                    console.log('Admin user detected by role name, redirecting to dashboard');
+                    window.location.replace("/Admin/Dashboard?isLoggingIn=true");
+                } else {
+                    console.log('Regular user detected, redirecting to home');
+                    window.location.replace("/Home?isLoggingIn=true");
+                }
+            } else {
+                // Fallback: redirect to home if no token
+                console.warn('No token received, redirecting to home');
+                window.location.href = "/Home?isLoggingIn=true";
+            }
         }
     } catch (error) {
-        console.log(error);
+        console.error('Login error:', error);
+        console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+        });
+        
+        // Show user-friendly error message
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            await showSnackbar("Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.", "error");
+        } else if (error.name === 'TypeError' && error.message.includes('NetworkError')) {
+            await showSnackbar("Lỗi mạng. Vui lòng thử lại.", "error");
+        } else {
+            await showSnackbar("Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.", "error");
+        }
     }
 }
 
@@ -171,7 +264,7 @@ if (!document.getElementById('snackbar-styles')) {
     document.head.appendChild(style);
 }
 
-// Function to redirect user based on role
+// Function to redirect user based on role (legacy function - kept for compatibility)
 function redirectBasedOnRole(roleId, roleName) {
     // Convert roleId to number if it's a string
     const numericRoleId = parseInt(roleId);
@@ -193,12 +286,14 @@ function redirectBasedOnRole(roleId, roleName) {
             break;
         default:
             // Fallback for unknown roles
-            console.warn('Unknown roleId:', numericRoleId, 'redirecting to home');
+            console.warn('Unknown roleId:', numericRoleId, 'redirecting based on role name');
             
             // Try to check by role name as fallback
             if (roleName && roleName.toLowerCase() === 'admin') {
+                console.log('Admin detected by role name, redirecting to dashboard');
                 window.location.href = "/Admin/Dashboard?isLoggingIn=true";
             } else {
+                console.log('Defaulting to home page');
                 window.location.href = "/Home?isLoggingIn=true";
             }
             break;
@@ -207,13 +302,27 @@ function redirectBasedOnRole(roleId, roleName) {
 
 // Enhanced role mapping for better role handling
 function getRoleInfo(parseToken) {
+    console.log('Getting role info from token:', parseToken);
+    
+    // Log all possible role-related fields
+    console.log('All token fields:');
+    Object.keys(parseToken).forEach(key => {
+        console.log(`  ${key}:`, parseToken[key]);
+    });
+    
+    // Extract role name from token
     const role = parseToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+    
+    // Extract role ID from token - JWT service adds "RoleId" claim
     const roleId = parseToken["RoleId"] || 
                   parseToken["roleid"] || 
                   parseToken["role_id"] ||
+                  parseToken["RoleID"] ||
                   parseToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/roleId"];
     
-    // Role mapping based on common role names
+    console.log('Extracted role:', role, 'roleId:', roleId, 'type of roleId:', typeof roleId);
+    
+    // Role mapping based on common role names (fallback)
     const roleMapping = {
         'admin': 1,
         'administrator': 1,
@@ -223,58 +332,41 @@ function getRoleInfo(parseToken) {
         'user': 4
     };
     
-    // If no roleId found, try to infer from role name
+    // Use extracted roleId first, fall back to role name mapping
     let finalRoleId = roleId;
     if (!finalRoleId && role) {
         finalRoleId = roleMapping[role.toLowerCase()] || 4; // Default to customer
     }
     
-    return {
+    // Convert to number if it's a string
+    if (finalRoleId && typeof finalRoleId === 'string') {
+        finalRoleId = parseInt(finalRoleId);
+    }
+    
+    const result = {
         roleId: finalRoleId,
         roleName: role,
         isAdmin: finalRoleId == 1 || (role && role.toLowerCase() === 'admin')
     };
+    
+    console.log('Final role info:', result);
+    return result;
 }
 
-// Function to force session update and then redirect
-async function updateSessionAndRedirect(roleInfo) {
-    try {
-        // Call AfterLogin to update session
-        const updateResponse = await fetch(`http://${host}:5189/api/AfterLogin?role=${roleInfo.roleName}`, {
-            method: 'GET',
-            credentials: 'include', // Include cookies/session
-            headers: {
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-        
-        if (!updateResponse.ok) {
-            throw new Error(`Session update failed: ${updateResponse.status}`);
-        }
-        
-        const result = await updateResponse.json();
-        console.log('Session updated successfully:', result);
-        
-        // Wait for session to be persisted
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Increased wait time
-        
-        // For debugging - check current session state
-        console.log('Redirecting user with roleId:', roleInfo.roleId, 'roleName:', roleInfo.roleName);
-        
-        // Force a page reload to ensure session is read properly
-        if (roleInfo.roleId == 1 || roleInfo.roleName?.toLowerCase() === 'admin') {
-            console.log('Redirecting to Admin Dashboard');
-            window.location.replace("/Admin/Dashboard?isLoggingIn=true");
-        } else {
-            console.log('Redirecting to Home');
-            window.location.replace("/Home?isLoggingIn=true");
-        }
-        
-    } catch (error) {
-        console.error('Error updating session:', error);
-        // Fallback redirect with role info in URL for debugging
-        const roleParam = roleInfo.roleName ? `&role=${roleInfo.roleName}` : '';
-        window.location.href = `/Home?isLoggingIn=true${roleParam}`;
-    }
-}
+// Make sure LoginToSystem is available globally
+console.log('Making LoginToSystem available globally...');
+window.LoginToSystem = LoginToSystem;
+console.log('LoginToSystem is now available as:', typeof window.LoginToSystem);
+
+// Also expose other functions that might be needed
+window.parseJwtToken = parseJwtToken;
+window.showSnackbar = showSnackbar;
+window.getRoleInfo = getRoleInfo;
+
+console.log('Login.js file loaded completely');
+console.log('All exposed functions:', {
+    LoginToSystem: typeof window.LoginToSystem,
+    parseJwtToken: typeof window.parseJwtToken,
+    showSnackbar: typeof window.showSnackbar,
+    getRoleInfo: typeof window.getRoleInfo
+});

@@ -346,6 +346,15 @@ document.addEventListener('click', function(e) {
     }
 });
 
+// Function to refresh authentication UI after login/logout
+function refreshAuthentication() {
+    console.log('Refreshing authentication UI...');
+    initializeAuthentication();
+}
+
+// Make refreshAuthentication globally available
+window.refreshAuthentication = refreshAuthentication;
+
 // Initialize authentication UI when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Header DOM loaded, initializing authentication...');
@@ -477,6 +486,15 @@ function initializeAuthentication() {
         }
     }
 }
+
+// Function to refresh authentication UI after login/logout
+function refreshAuthentication() {
+    console.log('Refreshing authentication UI...');
+    initializeAuthentication();
+}
+
+// Make refreshAuthentication globally available
+window.refreshAuthentication = refreshAuthentication;
 
 // Helper function to get role display name
 function getRoleDisplayName(role, lang) {
