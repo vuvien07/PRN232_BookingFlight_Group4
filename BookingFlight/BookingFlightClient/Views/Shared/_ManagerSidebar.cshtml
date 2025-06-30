@@ -1,0 +1,122 @@
+<!-- Manager Sidebar -->
+<nav class="manager-sidebar" id="managerSidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-plane"></i>
+            <span> @(ViewBag.UserRole == 4 ? "Manager Panel" : ViewBag.UserRole == 2 ? "Supporter Panel" : "User") </span>
+        </div>
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+    
+    <div class="sidebar-content">
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="user-details">
+                <span class="username">@(ViewBag.RoleName ?? "User")</span>
+                <span class="role">@(ViewBag.UserRole == 4 ? "Manager" : ViewBag.UserRole == 2 ? "Supporter" : "User")</span>
+            </div>
+        </div>
+        
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="/Manager/Dashboard" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Dashboard" ? "active" : "")">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            
+            @if (ViewBag.UserRole == 4)
+            {
+                <!-- Manager specific menu items -->
+                <li class="nav-item">
+                    <a href="/Manager/Services" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Services" ? "active" : "")">
+                        <i class="fas fa-cogs"></i>
+                        <span>Services</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Manager/ManageItems" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ManageItems" ? "active" : "")">
+                        <i class="fas fa-boxes"></i>
+                        <span>Manage Items</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Manager/Reports" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Reports" ? "active" : "")">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Manager/Analytics" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Analytics" ? "active" : "")">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Manager/UserManagement" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "UserManagement" ? "active" : "")">
+                        <i class="fas fa-users"></i>
+                        <span>User Management</span>
+                    </a>
+                </li>
+            }
+            else if (ViewBag.UserRole == 2)
+            {
+                <!-- Supporter specific menu items -->
+                <li class="nav-item">
+                    <a href="/Manager/Services" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Services" ? "active" : "")">
+                        <i class="fas fa-headset"></i>
+                        <span>Support Tickets</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Flight" class="nav-link">
+                        <i class="fas fa-plane"></i>
+                        <span>Flight Info</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Manager/CustomerSupport" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "CustomerSupport" ? "active" : "")">
+                        <i class="fas fa-hands-helping"></i>
+                        <span>Customer Support</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/Manager/KnowledgeBase" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "KnowledgeBase" ? "active" : "")">
+                        <i class="fas fa-book"></i>
+                        <span>Knowledge Base</span>
+                    </a>
+                </li>
+            }
+            
+            <!-- Common menu items for both roles -->
+            <li class="nav-item">
+                <a href="/Manager/Profile" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Profile" ? "active" : "")">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a href="/Manager/Settings" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Settings" ? "active" : "")">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="sidebar-footer">
+        <a href="/Home" class="nav-link">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" onclick="logout()" class="nav-link logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+</nav>

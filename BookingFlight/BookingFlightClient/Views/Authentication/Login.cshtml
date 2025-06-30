@@ -242,8 +242,12 @@
                                 const roleId = parseToken["RoleId"];
                                 console.log('Role ID:', roleId);
                                 
+                                // Redirect based on role - database mapping: 1=Admin, 2=Supporter, 3=Customer, 4=Manager
                                 if (roleId == 1) {
                                     window.location.href = "/Admin/Dashboard";
+                                } else if (roleId == 4 || roleId == 2) {
+                                    // Manager (4) and Supporter (2) go to Manager Dashboard
+                                    window.location.href = "/Manager/Dashboard";
                                 } else {
                                     window.location.href = "/Home";
                                 }
@@ -272,28 +276,33 @@
                     button.disabled = true;
                     
                     console.log('Login button clicked, calling original function...');
-                    
-                    // Set timeout to prevent infinite loading
-                    const timeoutId = setTimeout(() => {
-                        console.warn('Login timeout - restoring button state');
-                        button.classList.remove('btn-loading');
-                        button.disabled = false;
-                    }, 30000); // 30 second timeout
+                    console.log('Original function type:', typeof originalLoginFunction);
                     
                     // Call original login function with proper error handling
-                    Promise.resolve(originalLoginFunction(event))
-                        .then(() => {
-                            console.log('Login function completed successfully');
-                        })
-                        .catch((error) => {
-                            console.error('Login function failed:', error);
-                        })
-                        .finally(() => {
-                            console.log('Restoring button state');
-                            clearTimeout(timeoutId);
-                            button.classList.remove('btn-loading');
-                            button.disabled = false;
-                        });
+                    try {
+                        const result = originalLoginFunction(event);
+                        
+                        // If it's a Promise, handle it
+                        if (result && typeof result.then === 'function') {
+                            result
+                                .then(() => {
+                                    console.log('Login function completed successfully - redirect should happen');
+                                    // Don't restore button state if login succeeded - redirect will happen
+                                })
+                                .catch((error) => {
+                                    console.error('Login function failed:', error);
+                                    // Only restore button state on error
+                                    button.classList.remove('btn-loading');
+                                    button.disabled = false;
+                                });
+                        } else {
+                            console.log('Login function completed synchronously');
+                        }
+                    } catch (error) {
+                        console.error('Login function error:', error);
+                        button.classList.remove('btn-loading');
+                        button.disabled = false;
+                    }
                 };
             }
             

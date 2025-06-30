@@ -32,13 +32,21 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 async function LoginToSystem(e) {
+    console.log('=== LoginToSystem function called ===');
+    console.log('Event object:', e);
+    console.log('Event type:', e ? e.type : 'no event');
+    
     console.log('LoginToSystem function called with event:', e);
     try {
         e.preventDefault();
         
         console.log('Login attempt started...');
         console.log('Host:', host);
-        console.log('API URL:', `http://${host}:5077/api/login`);
+        
+        // Determine the correct protocol and API URL
+        const protocol = window.location.protocol; // 'http:' or 'https:'
+        const apiUrl = `${protocol}//${host}:5077/api/login`;
+        console.log('API URL:', apiUrl);
         
         let labels = [
             'Username',
@@ -50,7 +58,7 @@ async function LoginToSystem(e) {
         console.log('Username:', username);
         console.log('Password length:', password.length);
         
-        const res = await fetch(`http://${host}:5077/api/login`, {
+        const res = await fetch(apiUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -97,6 +105,9 @@ async function LoginToSystem(e) {
                 // Store token first
                 localStorage.setItem("token", json.token);
                 
+                // Also store token in cookie for server-side authentication
+                document.cookie = `X-Access-Token=${json.token}; path=/; max-age=86400`; // 24 hours
+                
                 // Parse token to get user info
                 let parseToken = parseJwtToken(json.token);
                 console.log('Parsed token:', parseToken); // Debug log
@@ -126,18 +137,32 @@ async function LoginToSystem(e) {
                 console.log('About to redirect - roleId:', roleInfo.roleId, 'type:', typeof roleInfo.roleId);
                 console.log('About to redirect - roleName:', roleInfo.roleName);
                 console.log('Is admin check:', roleInfo.roleId == 1, roleInfo.roleId === 1, roleInfo.roleId === "1");
-                console.log('Role name check:', roleInfo.roleName?.toLowerCase() === 'admin');
+                console.log('Is manager check (roleId=4):', roleInfo.roleId == 4, roleInfo.roleId === 4, roleInfo.roleId === "4");
+                console.log('Is supporter check (roleId=2):', roleInfo.roleId == 2, roleInfo.roleId === 2, roleInfo.roleId === "2");
+                console.log('Role name check:', roleInfo.roleName?.toLowerCase());
+                console.log('Token RoleId field:', parseToken["RoleId"]);
+                console.log('Token role field:', parseToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]);
                 
-                // Direct redirect based on role - Admin has roleId = 1
+                // Direct redirect based on role (CORRECTED based on actual database)
+                // Database mapping: 1=Admin, 2=Supporter, 3=Customer, 4=Manager
                 if (roleInfo.roleId == 1 || roleInfo.roleId === 1 || roleInfo.roleId === "1") {
-                    console.log('Admin user detected (roleId = 1), redirecting to dashboard');
-                    window.location.replace("/Admin/Dashboard?isLoggingIn=true");
+                    console.log('Admin user detected (roleId = 1), redirecting to admin dashboard');
+                    window.location.href = "/Admin/Dashboard?isLoggingIn=true";
                 } else if (roleInfo.roleName && roleInfo.roleName.toLowerCase() === 'admin') {
-                    console.log('Admin user detected by role name, redirecting to dashboard');
-                    window.location.replace("/Admin/Dashboard?isLoggingIn=true");
+                    console.log('Admin user detected by role name, redirecting to admin dashboard');
+                    window.location.href = "/Admin/Dashboard?isLoggingIn=true";
+                } else if (roleInfo.roleId == 4 || roleInfo.roleId === 4 || roleInfo.roleId === "4") {
+                    console.log('Manager user detected (roleId = 4), redirecting to manager dashboard');
+                    window.location.href = "/Manager/Dashboard?isLoggingIn=true";
+                } else if (roleInfo.roleId == 2 || roleInfo.roleId === 2 || roleInfo.roleId === "2") {
+                    console.log('Supporter user detected (roleId = 2), redirecting to manager dashboard');
+                    window.location.href = "/Manager/Dashboard?isLoggingIn=true";
+                } else if (roleInfo.roleName && (roleInfo.roleName.toLowerCase() === 'manager' || roleInfo.roleName.toLowerCase() === 'supporter')) {
+                    console.log('Manager/Supporter user detected by role name, redirecting to manager dashboard');
+                    window.location.href = "/Manager/Dashboard?isLoggingIn=true";
                 } else {
                     console.log('Regular user detected, redirecting to home');
-                    window.location.replace("/Home?isLoggingIn=true");
+                    window.location.href = "/Home?isLoggingIn=true";
                 }
             } else {
                 // Fallback: redirect to home if no token
@@ -277,10 +302,19 @@ function redirectBasedOnRole(roleId, roleName) {
             console.log('Redirecting admin to dashboard');
             window.location.href = "/Admin/Dashboard?isLoggingIn=true";
             break;
-        case 2:
-        case 3:
         case 4:
-            // Other roles (Manager, Staff, Customer) - redirect to Home
+            // Manager (roleId = 4) - redirect to Manager Dashboard
+            console.log('Redirecting manager to manager dashboard');
+            window.location.href = "/Manager/Dashboard?isLoggingIn=true";
+            break;
+        case 2:
+            // Supporter (roleId = 2) - redirect to Manager Dashboard (shared with manager)
+            console.log('Redirecting supporter to manager dashboard');
+            window.location.href = "/Manager/Dashboard?isLoggingIn=true";
+            break;
+        case 3:
+        case 5:
+            // Other roles (Customer, etc.) - redirect to Home
             console.log('Redirecting user to home');
             window.location.href = "/Home?isLoggingIn=true";
             break;
@@ -292,6 +326,9 @@ function redirectBasedOnRole(roleId, roleName) {
             if (roleName && roleName.toLowerCase() === 'admin') {
                 console.log('Admin detected by role name, redirecting to dashboard');
                 window.location.href = "/Admin/Dashboard?isLoggingIn=true";
+            } else if (roleName && (roleName.toLowerCase() === 'manager' || roleName.toLowerCase() === 'supporter' || roleName.toLowerCase() === 'supporterd')) {
+                console.log('Manager/Supporter detected by role name, redirecting to manager dashboard');
+                window.location.href = "/Manager/Dashboard?isLoggingIn=true";
             } else {
                 console.log('Defaulting to home page');
                 window.location.href = "/Home?isLoggingIn=true";
@@ -321,21 +358,26 @@ function getRoleInfo(parseToken) {
                   parseToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/roleId"];
     
     console.log('Extracted role:', role, 'roleId:', roleId, 'type of roleId:', typeof roleId);
+    console.log('Available fields in token:', Object.keys(parseToken));
+    console.log('Specific RoleId field value:', parseToken["RoleId"]);
     
-    // Role mapping based on common role names (fallback)
+    // Role mapping based on actual database structure
+    // Database mapping: 1=Admin, 2=Supporter, 3=Customer, 4=Manager
     const roleMapping = {
         'admin': 1,
         'administrator': 1,
-        'manager': 2,
-        'staff': 3,
-        'customer': 4,
-        'user': 4
+        'supporter': 2,      // Role ID 2 is Supporter
+        'supporterd': 2,     // Handle the typo in backend Constants
+        'customer': 3,       // Role ID 3 is Customer
+        'user': 3,
+        'manager': 4,        // Role ID 4 is Manager
+        'staff': 3           // Default staff to customer role
     };
     
     // Use extracted roleId first, fall back to role name mapping
     let finalRoleId = roleId;
     if (!finalRoleId && role) {
-        finalRoleId = roleMapping[role.toLowerCase()] || 4; // Default to customer
+        finalRoleId = roleMapping[role.toLowerCase()] || 3; // Default to customer (role 3) if not found
     }
     
     // Convert to number if it's a string

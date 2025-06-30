@@ -355,6 +355,14 @@ function refreshAuthentication() {
 // Make refreshAuthentication globally available
 window.refreshAuthentication = refreshAuthentication;
 
+// Test function to force logout and redirect to login for testing
+window.testLogout = function() {
+    console.log('Test logout - clearing token and redirecting to login');
+    localStorage.removeItem('token');
+    document.cookie = "X-Access-Token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    window.location.href = '/Authentication/Login';
+};
+
 // Initialize authentication UI when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Header DOM loaded, initializing authentication...');
@@ -419,8 +427,47 @@ function initializeAuthentication() {
                            'User';
             
             const role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || 'Guest';
+            const roleId = decodedToken['RoleId'] || decodedToken['roleid'] || decodedToken['role_id'];
             
-            console.log('Username:', username, 'Role:', role);
+            // Auto-redirect Manager and Supporter to Manager Dashboard if they're on Home page
+            const currentPath = window.location.pathname.toLowerCase();
+            const isHomePage = currentPath === '/' || currentPath === '/home' || currentPath.startsWith('/home/');
+            
+            console.log('Username:', username, 'Role:', role, 'RoleId:', roleId);
+            console.log('Current path:', currentPath, 'Is home page:', isHomePage);
+            console.log('Should redirect check - roleId type:', typeof roleId, 'roleId value:', roleId);
+            console.log('Role checks:', {
+                'roleId == 4': roleId == 4,
+                'roleId === "4"': roleId === '4',
+                'roleId === 4': roleId === 4,
+                'roleId == 2': roleId == 2,
+                'roleId === "2"': roleId === '2',
+                'roleId === 2': roleId === 2,
+                'role manager': role && role.toLowerCase() === 'manager',
+                'role supporter': role && role.toLowerCase() === 'supporter'
+            });
+            
+            if (isHomePage) {
+                // Temporarily disable auto-redirect to test login redirect
+                console.log('Auto-redirect temporarily disabled for testing');
+                /*
+                // Check if user should be redirected to Manager Dashboard
+                const shouldRedirectToManager = (
+                    (roleId == 4 || roleId === '4' || roleId === 4) || // Manager
+                    (roleId == 2 || roleId === '2' || roleId === 2) || // Supporter
+                    (role && role.toLowerCase() === 'manager') ||
+                    (role && role.toLowerCase() === 'supporter')
+                );
+                
+                if (shouldRedirectToManager) {
+                    console.log(`User with role ${role} (ID: ${roleId}) should be redirected to Manager Dashboard`);
+                    setTimeout(() => {
+                        window.location.href = '/Manager/Dashboard';
+                    }, 200); // Reduced delay for better UX
+                    return; // Exit early to prevent UI setup
+                }
+                */
+            }
             
             const headerDropdown = document.getElementById('headerDropdownMenu');
             if (headerDropdown) {

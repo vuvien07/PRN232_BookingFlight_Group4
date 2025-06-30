@@ -1,0 +1,324 @@
+@{
+    ViewData["Title"] = "Services";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+<div class="services-management">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3>@(ViewBag.UserRole == 4 ? "Service Management" : "Support Tickets")</h3>
+            <p class="text-muted">@(ViewBag.UserRole == 4 ? "Manage and monitor all system services" : "Handle customer support requests and tickets")</p>
+        </div>
+        <div>
+            @if (ViewBag.UserRole == 4)
+            {
+                <button class="btn btn-primary" onclick="addNewService()">
+                    <i class="fas fa-plus me-2"></i>Add Service
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-primary" onclick="createNewTicket()">
+                    <i class="fas fa-ticket-alt me-2"></i>New Ticket
+                </button>
+            }
+        </div>
+    </div>
+
+    @if (ViewBag.UserRole == 4)
+    {
+        <!-- Manager Services View (Role ID = 4) -->
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="card service-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="service-icon bg-success">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <span class="badge bg-success">Running</span>
+                        </div>
+                        <h5 class="card-title">Database Service</h5>
+                        <p class="card-text text-muted">Main database service for flight booking system</p>
+                        <div class="service-stats">
+                            <small class="text-muted">Uptime: 99.8% | CPU: 45%</small>
+                        </div>
+                        <div class="service-actions mt-3">
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-cog"></i> Configure
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning">
+                                <i class="fas fa-pause"></i> Pause
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4">
+                <div class="card service-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="service-icon bg-primary">
+                                <i class="fas fa-cloud"></i>
+                            </div>
+                            <span class="badge bg-primary">Running</span>
+                        </div>
+                        <h5 class="card-title">API Gateway</h5>
+                        <p class="card-text text-muted">Central API gateway for all booking requests</p>
+                        <div class="service-stats">
+                            <small class="text-muted">Uptime: 99.9% | CPU: 32%</small>
+                        </div>
+                        <div class="service-actions mt-3">
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-cog"></i> Configure
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning">
+                                <i class="fas fa-pause"></i> Pause
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4">
+                <div class="card service-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="service-icon bg-warning">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <span class="badge bg-warning">Maintenance</span>
+                        </div>
+                        <h5 class="card-title">Email Service</h5>
+                        <p class="card-text text-muted">Email notification and communication service</p>
+                        <div class="service-stats">
+                            <small class="text-muted">Uptime: 98.5% | CPU: 15%</small>
+                        </div>
+                        <div class="service-actions mt-3">
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-cog"></i> Configure
+                            </button>
+                            <button class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-play"></i> Start
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Supporter Tickets View -->
+        <div class="tickets-container">
+            <div class="filter-bar mb-4">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" placeholder="Search tickets...">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex gap-2 justify-content-end">
+                            <select class="form-select">
+                                <option value="">All Status</option>
+                                <option value="open">Open</option>
+                                <option value="pending">Pending</option>
+                                <option value="resolved">Resolved</option>
+                            </select>
+                            <select class="form-select">
+                                <option value="">All Priority</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tickets-list">
+                <div class="card ticket-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h6 class="ticket-title">#1234 - Flight Booking Issue</h6>
+                                <p class="text-muted mb-2">Customer unable to complete booking for flight VN123</p>
+                                <div class="ticket-meta">
+                                    <span class="badge bg-danger me-2">High Priority</span>
+                                    <span class="badge bg-warning">Open</span>
+                                    <small class="text-muted ms-3">
+                                        <i class="fas fa-user me-1"></i>John Doe
+                                        <i class="fas fa-clock ms-3 me-1"></i>2 hours ago
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="ticket-actions">
+                                <button class="btn btn-sm btn-primary">
+                                    <i class="fas fa-reply"></i> Reply
+                                </button>
+                                <button class="btn btn-sm btn-success">
+                                    <i class="fas fa-check"></i> Resolve
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card ticket-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h6 class="ticket-title">#1235 - Refund Request</h6>
+                                <p class="text-muted mb-2">Customer requesting refund for cancelled flight</p>
+                                <div class="ticket-meta">
+                                    <span class="badge bg-info me-2">Medium Priority</span>
+                                    <span class="badge bg-primary">In Progress</span>
+                                    <small class="text-muted ms-3">
+                                        <i class="fas fa-user me-1"></i>Jane Smith
+                                        <i class="fas fa-clock ms-3 me-1"></i>5 hours ago
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="ticket-actions">
+                                <button class="btn btn-sm btn-primary">
+                                    <i class="fas fa-reply"></i> Reply
+                                </button>
+                                <button class="btn btn-sm btn-success">
+                                    <i class="fas fa-check"></i> Resolve
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card ticket-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h6 class="ticket-title">#1236 - Flight Information Query</h6>
+                                <p class="text-muted mb-2">Customer needs information about flight delays</p>
+                                <div class="ticket-meta">
+                                    <span class="badge bg-secondary me-2">Low Priority</span>
+                                    <span class="badge bg-success">Resolved</span>
+                                    <small class="text-muted ms-3">
+                                        <i class="fas fa-user me-1"></i>Mike Johnson
+                                        <i class="fas fa-clock ms-3 me-1"></i>1 day ago
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="ticket-actions">
+                                <button class="btn btn-sm btn-outline-secondary" disabled>
+                                    <i class="fas fa-check"></i> Resolved
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function addNewService() {
+            showToast('Add New Service functionality coming soon!', 'info');
+        }
+        
+        function createNewTicket() {
+            showToast('Create New Ticket functionality coming soon!', 'info');
+        }
+        
+        // Service management functions
+        function configureService(serviceId) {
+            showToast(`Configuring service ${serviceId}...`, 'info');
+        }
+        
+        function pauseService(serviceId) {
+            if (confirm('Are you sure you want to pause this service?')) {
+                showToast(`Service ${serviceId} paused`, 'warning');
+            }
+        }
+        
+        function startService(serviceId) {
+            showToast(`Service ${serviceId} started`, 'success');
+        }
+        
+        // Ticket management functions
+        function replyToTicket(ticketId) {
+            showToast(`Opening reply for ticket ${ticketId}...`, 'info');
+        }
+        
+        function resolveTicket(ticketId) {
+            if (confirm('Mark this ticket as resolved?')) {
+                showToast(`Ticket ${ticketId} marked as resolved`, 'success');
+            }
+        }
+    </script>
+    
+    <style>
+        .service-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .service-stats {
+            padding: 10px 0;
+            border-top: 1px solid #eee;
+        }
+        
+        .service-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .ticket-card {
+            margin-bottom: 15px;
+            transition: transform 0.2s ease;
+        }
+        
+        .ticket-card:hover {
+            transform: translateX(5px);
+        }
+        
+        .ticket-title {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .ticket-meta {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .ticket-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .filter-bar .form-select {
+            max-width: 150px;
+        }
+    </style>
+}
