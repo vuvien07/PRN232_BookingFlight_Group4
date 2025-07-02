@@ -8,7 +8,7 @@ namespace BookingFlightServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(Roles = Constants.RoleAdmin)]
+    [Authorize(Roles = Constants.RoleAdmin)]
     public class ManageAccountController : ControllerBase
     {
         private readonly IManageAccountService manageAccountService;
