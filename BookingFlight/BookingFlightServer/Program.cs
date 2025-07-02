@@ -1,5 +1,6 @@
 using BookingFlightServer.Data;
 using BookingFlightServer.Middlewares;
+using BookingFlightServer.UnitOfWork;
 using BookingFlightServer.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -44,8 +45,11 @@ namespace BookingFlightServer
     });
             });
             ConfigureServices(builder.Services, builder.Configuration);
+			builder.Services.AddHttpContextAccessor();
+			builder.Services.AddAutoMapper(typeof(Program).Assembly);
 			builder.Services.AddAllServices(typeof(Program).Assembly);
 			builder.Services.AddAllRepositories(typeof(Program).Assembly);
+			builder.Services.AddScoped<ITransactionDbManager, TransactionDbManager>();
 			var app = builder.Build();
             if (app.Environment.IsDevelopment())
             {
