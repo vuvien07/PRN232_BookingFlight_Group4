@@ -129,7 +129,8 @@ namespace BookingFlightServer.Services.Implements
 			Claim[] claims = new Claim[]
 			{
 				new Claim(ClaimTypes.Name, accountDTO.Username.ToString()),
-				new Claim(ClaimTypes.Role, accountDTO?.Role?.RoleName.ToString() ?? string.Empty)
+				new Claim(ClaimTypes.Role, accountDTO?.Role?.RoleName.ToString() ?? string.Empty),
+				new Claim("RoleId", accountDTO?.Role?.RoleId.ToString() ?? "0")
 			};
 			SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? string.Empty));
 			SigningCredentials credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

@@ -85,7 +85,7 @@ namespace BookingFlightServer
 				options.AddPolicy("AllowFrontEndClient",
 					builder =>
 					{
-						builder.WithOrigins("http://localhost:5001")
+						builder.WithOrigins("http://localhost:5001", "https://localhost:5001", "http://127.0.0.1:5001", "https://127.0.0.1:5001")
 						.AllowCredentials()
 							   .AllowAnyMethod()
 							   .AllowAnyHeader();
