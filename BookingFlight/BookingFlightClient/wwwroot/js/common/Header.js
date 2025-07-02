@@ -9,11 +9,11 @@ window.onload = () => {
 };
 
 // Make toggleLanguage global
-window.toggleLanguage = function() {
+window.toggleLanguage = function () {
     console.log('toggleLanguage called');
     const dropdown = document.getElementById('languageDropdown');
     const selector = document.querySelector('.language-selector');
-    
+
     if (dropdown && selector) {
         dropdown.classList.toggle('show');
         selector.classList.toggle('active');
@@ -25,28 +25,29 @@ window.toggleLanguage = function() {
 
 function switchLanguage(lang) {
     console.log('Header switchLanguage called with:', lang);
-    
+
     // Use LanguageUtils if available
     if (window.LanguageUtils) {
         console.log('Using LanguageUtils for language switching');
         window.LanguageUtils.switchLanguage(lang);
         currentLang = lang;
-        
+
         // Update current language display
         const currentLangSpan = document.getElementById('currentLang');
         if (currentLangSpan) {
             currentLangSpan.textContent = lang.toUpperCase();
         }
-        
+
         // Update lang options active state
         updateLanguageOptionsState(lang);
-        
+
         // Close dropdown
         closeLanguageDropdown();
-    } else {        console.log('LanguageUtils not available, using fallback');
+    } else {
+        console.log('LanguageUtils not available, using fallback');
         // Fallback implementation
         currentLang = lang;
-        
+
         // Update current language display
         const currentLangSpan = document.getElementById('currentLang');
         if (currentLangSpan) {
@@ -55,10 +56,10 @@ function switchLanguage(lang) {
         } else {
             console.error('currentLang element not found');
         }
-          // Update all text elements with language data attributes
+        // Update all text elements with language data attributes
         const elements = document.querySelectorAll('[data-vn][data-en], [data-vn][data-en][data-zh]');
         console.log('Found elements with language data:', elements.length);
-        
+
         elements.forEach((element, index) => {
             const text = element.getAttribute(`data-${lang}`);
             if (text && text.trim()) {
@@ -68,7 +69,7 @@ function switchLanguage(lang) {
                 console.log(`Element ${index}:`, oldText, '->', text);
             }
         });
-        
+
         // Update placeholder attributes for input elements
         const inputElements = document.querySelectorAll('input[placeholder]');
         console.log('Found input elements:', inputElements.length);
@@ -79,7 +80,7 @@ function switchLanguage(lang) {
                 console.log('Updated placeholder for input:', placeholderText);
             }
         });
-          // Update select option text
+        // Update select option text
         const selectOptions = document.querySelectorAll('option[data-vn][data-en], option[data-vn][data-en][data-zh]');
         console.log('Found select options:', selectOptions.length);
         selectOptions.forEach(option => {
@@ -88,16 +89,16 @@ function switchLanguage(lang) {
                 option.textContent = text;
             }
         });
-        
+
         // Update lang options active state
         updateLanguageOptionsState(lang);
-        
+
         // Update document language attribute
         document.documentElement.lang = lang === 'vn' ? 'vi' : 'en';
-        
+
         // Close dropdown
         closeLanguageDropdown();
-        
+
         // Save language preference
         try {
             localStorage.setItem('preferred-language', lang);
@@ -105,10 +106,10 @@ function switchLanguage(lang) {
         } catch (error) {
             console.error('Failed to save language preference:', error);
         }
-        
+
         // Trigger custom event
-        window.dispatchEvent(new CustomEvent('languageChanged', { 
-            detail: { language: lang } 
+        window.dispatchEvent(new CustomEvent('languageChanged', {
+            detail: { language: lang }
         }));
     }
 }
@@ -128,28 +129,28 @@ function closeLanguageDropdown() {
 }
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('DOM loaded, initializing language selector...');
-    
+
     // Test if elements exist
     const dropdown = document.getElementById('languageDropdown');
     const selector = document.querySelector('.language-selector');
     const currentLangSpan = document.getElementById('currentLang');
-    
+
     console.log('Elements found:');
     console.log('- dropdown:', dropdown);
     console.log('- selector:', selector);
     console.log('- currentLangSpan:', currentLangSpan);
-    
+
     // Initialize language options click handlers
     const langOptions = document.querySelectorAll('.lang-option');
     console.log('Found language options:', langOptions.length);
-    
+
     langOptions.forEach((option, index) => {
         const lang = option.getAttribute('data-lang');
         console.log(`Language option ${index}:`, lang);
-        
-        option.addEventListener('click', function(e) {
+
+        option.addEventListener('click', function (e) {
             e.stopPropagation();
             console.log('Language option clicked:', lang);
             if (lang) {
@@ -157,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Load saved language preference (default to Vietnamese)
     let savedLang;
     try {
@@ -167,10 +168,10 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Failed to load saved language:', error);
         savedLang = 'vn';
     }
-    
+
     // Apply the saved language immediately
     switchLanguage(savedLang);
-    
+
     // Test the toggle function
     console.log('Testing toggleLanguage function...');
     if (typeof window.toggleLanguage === 'function') {
@@ -192,7 +193,7 @@ function updateLanguageOptionsState(activeLang) {
 }
 
 // Close dropdown when clicking outside
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     if (!e.target.closest('.language-selector')) {
         console.log('Click outside language selector, closing dropdown');
         closeLanguageDropdown();
@@ -200,7 +201,7 @@ document.addEventListener('click', function(e) {
 });
 
 // Handle escape key to close dropdown
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
         console.log('Escape key pressed, closing dropdown');
         closeLanguageDropdown();
@@ -208,11 +209,11 @@ document.addEventListener('keydown', function(e) {
 });
 
 // Expose utility functions globally
-window.getCurrentLanguage = function() {
+window.getCurrentLanguage = function () {
     return currentLang;
 };
 
-window.getAvailableLanguages = function() {
+window.getAvailableLanguages = function () {
     return {
         'vn': { code: 'VN', name: 'Tiếng Việt', flag: 'vn' },
         'en': { code: 'EN', name: 'English', flag: 'us' },
@@ -222,24 +223,24 @@ window.getAvailableLanguages = function() {
 
 // Header scroll effect
 let lastScrollTop = 0;
-window.addEventListener('scroll', function() {
+window.addEventListener('scroll', function () {
     const header = document.querySelector('.main-header');
     if (!header) return;
-    
+
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    
+
     if (scrollTop > lastScrollTop && scrollTop > 100) {
         header.style.transform = 'translateY(-100%)';
     } else {
         header.style.transform = 'translateY(0)';
     }
-    
+
     if (scrollTop > 50) {
         header.classList.add('scrolled');
     } else {
         header.classList.remove('scrolled');
     }
-    
+
     lastScrollTop = scrollTop;
 });
 
@@ -260,8 +261,17 @@ function signup() {
     window.location.href = '/Register';
 }
 
-function logout() {
-    window.location.href = '/Home?isLogout=true';
+async function logout() {
+    try {
+        const res = await fetch(`http://${host}:5077/api/Token/removeToken`, { method: 'GET', credentials: 'include' });
+        if (res.ok) {
+            showSnackbar(await res.text(), 'error');
+            window.location.href = '/Home?isLogout=true';
+        }
+    } catch (error) {
+        console.error('Error logging out:', error);
+        showSnackbar('Có lỗi xảy ra khi đăng xuất', 'error');
+    }
 }
 
 function goToProfile() {
@@ -272,7 +282,7 @@ function parseJwtToken(token) {
     try {
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
         return JSON.parse(jsonPayload);
@@ -287,13 +297,13 @@ function showSnackbar(message, type = 'info') {
     const snackbar = document.createElement('div');
     snackbar.className = `snackbar snackbar-${type}`;
     snackbar.textContent = message;
-    
+
     // Add to DOM
     document.body.appendChild(snackbar);
-    
+
     // Show snackbar
     setTimeout(() => snackbar.classList.add('show'), 100);
-    
+
     // Hide and remove snackbar
     setTimeout(() => {
         snackbar.classList.remove('show');
@@ -305,7 +315,7 @@ function showSnackbar(message, type = 'info') {
 function toggleUserMenu() {
     const dropdown = document.getElementById('userDropdownMenu');
     const userBtn = document.querySelector('.user-btn');
-    
+
     if (dropdown && userBtn) {
         dropdown.classList.toggle('show');
         userBtn.classList.toggle('active');
@@ -315,7 +325,7 @@ function toggleUserMenu() {
 function closeUserMenu() {
     const dropdown = document.getElementById('userDropdownMenu');
     const userBtn = document.querySelector('.user-btn');
-    
+
     if (dropdown) {
         dropdown.classList.remove('show');
     }
@@ -338,7 +348,7 @@ function goToSettings() {
 }
 
 // Close user menu when clicking outside
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     if (!e.target.closest('.user-dropdown')) {
         closeUserMenu();
     }
@@ -354,7 +364,7 @@ function refreshAuthentication() {
 window.refreshAuthentication = refreshAuthentication;
 
 // Test function to force logout and redirect to login for testing
-window.testLogout = function() {
+window.testLogout = function () {
     console.log('Test logout - clearing token and redirecting to login');
     localStorage.removeItem('token');
     document.cookie = "X-Access-Token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
@@ -364,14 +374,14 @@ window.testLogout = function() {
 // Initialize authentication UI when DOM is ready
 document.addEventListener('DOMContentLoaded', async function () {
     console.log('Header DOM loaded, initializing authentication...');
-    
+
     // Check if header dropdown menu exists
     const headerDropdown = document.getElementById('headerDropdownMenu');
     if (!headerDropdown) {
         console.error('Header dropdown menu not found!');
         return;
     }
-    
+
     // Initialize authentication UI
     await initializeAuthentication();
 });
@@ -382,12 +392,12 @@ async function initializeAuthentication() {
 
     if (!decodedToken) {
         // User is not logged in - show simple login button
-        if(params.get('isLogout')) {
+        if (params.get('isLogout')) {
             showSnackbar("Đăng xuất thành công", "success");
             const newUrl = `${window.location.pathname}`;
             window.history.replaceState({}, '', newUrl);
         }
-        
+
         const headerDropdown = document.getElementById('headerDropdownMenu');
         if (headerDropdown) {
             headerDropdown.innerHTML = `
@@ -396,7 +406,7 @@ async function initializeAuthentication() {
                     <span data-vn="Đăng nhập" data-en="Login" data-zh="登录">Đăng nhập</span>
                 </a>
             `;
-            
+
             // Apply current language to new elements
             if (window.LanguageUtils) {
                 const currentLang = window.LanguageUtils.getCurrentLanguage();
@@ -412,19 +422,19 @@ async function initializeAuthentication() {
         }
         if (decodedToken) {
             // Get username from token
-            const username = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || 
-                           decodedToken['sub'] || 
-                           decodedToken['username'] || 
-                           decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/name'] ||
-                           'User';
-            
+            const username = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ||
+                decodedToken['sub'] ||
+                decodedToken['username'] ||
+                decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/name'] ||
+                'User';
+
             const role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || 'Guest';
             const roleId = decodedToken['RoleId'] || decodedToken['roleid'] || decodedToken['role_id'];
-            
+
             // Auto-redirect Manager and Supporter to Manager Dashboard if they're on Home page
             const currentPath = window.location.pathname.toLowerCase();
             const isHomePage = currentPath === '/' || currentPath === '/home' || currentPath.startsWith('/home/');
-            
+
             console.log('Username:', username, 'Role:', role, 'RoleId:', roleId);
             console.log('Current path:', currentPath, 'Is home page:', isHomePage);
             console.log('Should redirect check - roleId type:', typeof roleId, 'roleId value:', roleId);
@@ -438,7 +448,7 @@ async function initializeAuthentication() {
                 'role manager': role && role.toLowerCase() === 'manager',
                 'role supporter': role && role.toLowerCase() === 'supporter'
             });
-            
+
             if (isHomePage) {
                 // Temporarily disable auto-redirect to test login redirect
                 console.log('Auto-redirect temporarily disabled for testing');
@@ -460,7 +470,7 @@ async function initializeAuthentication() {
                 }
                 */
             }
-            
+
             const headerDropdown = document.getElementById('headerDropdownMenu');
             if (headerDropdown) {
                 headerDropdown.innerHTML = `
@@ -510,7 +520,7 @@ async function initializeAuthentication() {
                         </div>
                     </div>
                 `;
-                
+
                 // Apply current language to new elements
                 if (window.LanguageUtils) {
                     const currentLang = window.LanguageUtils.getCurrentLanguage();
@@ -550,7 +560,7 @@ function getRoleDisplayName(role, lang) {
         },
         'Manager': {
             vn: 'Quản lý',
-            en: 'Manager', 
+            en: 'Manager',
             zh: '经理'
         },
         'Staff': {
@@ -564,6 +574,6 @@ function getRoleDisplayName(role, lang) {
             zh: '客人'
         }
     };
-    
+
     return roleMap[role] ? roleMap[role][lang] : role;
 }

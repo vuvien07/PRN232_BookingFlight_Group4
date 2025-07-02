@@ -1,10 +1,4 @@
-﻿// Define host variable
-const host = window.location.hostname;
-
-console.log('Login.js file loading...');
-console.log('Host variable set to:', host);
-
-document.addEventListener("DOMContentLoaded", function () {
+﻿document.addEventListener("DOMContentLoaded", function () {
     console.log('Login.js DOMContentLoaded event fired');
     // Xử lý sự kiện change trên checkbox có class 'rememberMe'
     document.addEventListener("change", function (event) {
@@ -75,18 +69,7 @@ async function LoginToSystem(e) {
         
         if (!res.ok) {
             console.log('Login failed with status:', res.status);
-            let result;
-            try {
-                result = await res.json();
-                console.log('Error response:', result);
-            } catch (jsonError) {
-                console.error('Failed to parse error response as JSON:', jsonError);
-                const textResponse = await res.text();
-                console.log('Raw error response:', textResponse);
-                await showSnackbar("Server error occurred", "error");
-                return;
-            }
-            
+            let result = await res.json();
             if (result.errors) {
                 let errors = result.errors;
                 for (let i = 0; i < labels.length; i++) {
@@ -97,30 +80,13 @@ async function LoginToSystem(e) {
                 await showSnackbar(result.message, "error");
             }
         } else {
-            // Expecting token in response
             const json = await res.json();
-            console.log('Login response:', json); // Debug log
+            const decodedToken = await fetch(`http://${host}:5077/api/Token/get`, { method: 'GET', credentials: 'include' }).then(res => res.json()).catch(() => null);
             
-            if (json.token) {
-                // Store token first
-                localStorage.setItem("token", json.token);
-                
-                // Also store token in cookie for server-side authentication
-                document.cookie = `X-Access-Token=${json.token}; path=/; max-age=86400`; // 24 hours
-                
-                // Parse token to get user info
-                let parseToken = parseJwtToken(json.token);
-                console.log('Parsed token:', parseToken); // Debug log
-                
-                // Get role info
-                const roleInfo = getRoleInfo(parseToken);
+            if (decodedToken) {
+                console.log('Decoded token:', decodedToken);
+                const roleInfo = getRoleInfo(decodedToken);
                 console.log('Role info:', roleInfo); // Debug log
-                
-                // Show success message first
-                await showSnackbar("Đăng nhập thành công!", "success");
-                
-                // Small delay to ensure localStorage is written
-                await new Promise(resolve => setTimeout(resolve, 100));
                 
                 // Refresh header authentication UI immediately
                 if (window.refreshAuthentication) {
@@ -140,8 +106,8 @@ async function LoginToSystem(e) {
                 console.log('Is manager check (roleId=4):', roleInfo.roleId == 4, roleInfo.roleId === 4, roleInfo.roleId === "4");
                 console.log('Is supporter check (roleId=2):', roleInfo.roleId == 2, roleInfo.roleId === 2, roleInfo.roleId === "2");
                 console.log('Role name check:', roleInfo.roleName?.toLowerCase());
-                console.log('Token RoleId field:', parseToken["RoleId"]);
-                console.log('Token role field:', parseToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]);
+                console.log('Token RoleId field:', decodedToken["RoleId"]);
+                console.log('Token role field:', decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]);
                 
                 // Direct redirect based on role (CORRECTED based on actual database)
                 // Database mapping: 1=Admin, 2=Supporter, 3=Customer, 4=Manager
@@ -210,83 +176,6 @@ function parseJwtToken(token) {
         console.error('Error parsing JWT token:', e);
         return null;
     }
-}
-
-function showSnackbar(message, type = 'info') {
-    // Create snackbar element if it doesn't exist
-    let snackbar = document.getElementById('snackbar');
-    if (!snackbar) {
-        snackbar = document.createElement('div');
-        snackbar.id = 'snackbar';
-        snackbar.className = 'snackbar';
-        document.body.appendChild(snackbar);
-    }
-    
-    // Set message and type
-    snackbar.textContent = message;
-    snackbar.className = `snackbar snackbar-${type}`;
-    
-    // Show snackbar
-    snackbar.classList.add('show');
-    
-    // Hide snackbar after 3 seconds
-    setTimeout(() => {
-        snackbar.classList.remove('show');
-    }, 3000);
-}
-
-// Add basic snackbar styles if not already present
-if (!document.getElementById('snackbar-styles')) {
-    const style = document.createElement('style');
-    style.id = 'snackbar-styles';
-    style.textContent = `
-        .snackbar {
-            visibility: hidden;
-            min-width: 250px;
-            margin-left: -125px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 2px;
-            padding: 16px;
-            position: fixed;
-            z-index: 1001;
-            left: 50%;
-            bottom: 30px;
-            font-size: 14px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transition: all 0.3s ease;
-        }
-        
-        .snackbar.show {
-            visibility: visible;
-            animation: fadein 0.5s, fadeout 0.5s 2.5s;
-        }
-        
-        .snackbar-success {
-            background: linear-gradient(135deg, #10b981, #059669);
-        }
-        
-        .snackbar-error {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-        }
-        
-        .snackbar-info {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-        }
-        
-        @keyframes fadein {
-            from {bottom: 0; opacity: 0;}
-            to {bottom: 30px; opacity: 1;}
-        }
-        
-        @keyframes fadeout {
-            from {bottom: 30px; opacity: 1;}
-            to {bottom: 0; opacity: 0;}
-        }
-    `;
-    document.head.appendChild(style);
 }
 
 // Function to redirect user based on role (legacy function - kept for compatibility)
