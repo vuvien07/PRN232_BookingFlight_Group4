@@ -261,8 +261,6 @@ function signup() {
 }
 
 function logout() {
-    localStorage.removeItem('token');
-    document.cookie = "X-Access-Token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
     window.location.href = '/Home?isLogout=true';
 }
 
@@ -347,7 +345,7 @@ document.addEventListener('click', function(e) {
 });
 
 // Initialize authentication UI when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function () {
     console.log('Header DOM loaded, initializing authentication...');
     
     // Check if header dropdown menu exists
@@ -358,16 +356,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Initialize authentication UI
-    initializeAuthentication();
+    await initializeAuthentication();
 });
 
-function initializeAuthentication() {
-    const token = localStorage.getItem('token');
+async function initializeAuthentication() {
     const params = new URLSearchParams(window.location.search);
-    
-    console.log('Initializing authentication, token:', token ? 'exists' : 'not found');
-    
-    if (!token) {
+    const decodedToken = await fetch(`http://${host}:5077/api/Token/get`, { method: 'GET', credentials: 'include' }).then(res => res.json()).catch(() => null);
+
+    if (!decodedToken) {
         // User is not logged in - show simple login button
         if(params.get('isLogout')) {
             showSnackbar("Đăng xuất thành công", "success");
@@ -397,10 +393,6 @@ function initializeAuthentication() {
             const newUrl = `${window.location.pathname}`;
             window.history.replaceState({}, '', newUrl);
         }
-        
-        let decodedToken = parseJwtToken(token);
-        console.log('Decoded token:', decodedToken);
-        
         if (decodedToken) {
             // Get username from token
             const username = decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || 

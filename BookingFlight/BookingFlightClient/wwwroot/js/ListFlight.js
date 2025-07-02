@@ -186,7 +186,11 @@ const getFormattedDate = (date) => {
         'Tháng 10', 'Tháng 11', 'Tháng 12'
     ];
 
-    return `${days[date.getDay()]}<br>${date.getDate()}<br>${months[date.getMonth()]}`;
+    return `
+        <span class="dow">${days[date.getDay()]}</span>
+        <span class="date">${date.getDate()}</span>
+        <span class="month">${months[date.getMonth()]}</span>
+    `;
 };
 
 
@@ -198,6 +202,7 @@ const createDateButtons = () => {
         const date = new Date(startDate);
         date.setDate(startDate.getDate() + i);
         const button = document.createElement('button');
+        button.className = 'date-btn';
         button.innerHTML = getFormattedDate(date);
         button.dataset.index = i;
 
@@ -249,29 +254,33 @@ async function showFlightDetail(flight, flightCard) {
     }
     if (!flightCard) return;
 
-    let detailSection = document.getElementsByClassName('flight-detail-section flight-id-' + flight.flightId)[0];
+    let detailSection = document.getElementsByClassName('flight-detail-section flight-id-' + flight.flightId + ' flight-detail-clean')[0];
     if (!detailSection) {
         detailSection = document.createElement('div');
-        detailSection.className = 'flight-detail-section flight-id-' + flight.flightId;
+        detailSection.className = 'flight-detail-section flight-id-' + flight.flightId + ' flight-detail-clean';
         detailSection.style.marginTop = '10px';
         detailSection.style.display = 'none';
         let total = 0;
         let contentHtml = ``;
         let firstPrice = 0;
         contentHtml += `
-                        <div class="alert alert-info">
-                        <strong class="mb-1">Chi tiết chuyến bay:</strong><br>
+                        <div class="flight-detail-header">
+                            <strong>Chi tiết chuyến bay <sup style="color:red">*</sup></strong>
+                        </div>
                         `;
+        contentHtml += `<div class="flight-detail-body">`;
         if (flight.seatRankList.details.length > 0) {
-            contentHtml += `<span style="display: inline-block" class="mt-2">Hạng ghế: </span>`;
-            contentHtml += `<select class="form-select mb-2 seatRankSelect` + flight.flightId + `" style="display: inline-block; width: auto;" onchange="handleChangeSeatRank(event, '` + encodeURIComponent(JSON.stringify(flight)) + `')">`;
+            contentHtml += `<div class="seat-rank-group mb-3">`;
+            contentHtml += ` <span class="seat-rank-label">Hạng ghế:</span>`;
+            contentHtml += `<select class="form-select seatRankSelect` + flight.flightId + `" style="display: inline-block; width: auto;" onchange="handleChangeSeatRank(event, '` + encodeURIComponent(JSON.stringify(flight)) + `')">`;
             flight.seatRankList.details.forEach((seatRank, index) => {
                 if (index === 0) firstPrice = seatRank.price;
                 contentHtml += `<option value="` + seatRank.classId + `-` + seatRank.price + `">` + seatRank.className + ` - ` + seatRank.price + ` VND</option>`
             });
             contentHtml += `</select><br>`
+            contentHtml += `</div>`;
         }
-        contentHtml += `<table class="table text-center">`;
+        contentHtml += `<table class="flight-detail-table">`;
         contentHtml += `<thead>`;
         contentHtml += `<tr>`;
         contentHtml += `<th scope="col">Loại hành khách</th>`;
@@ -320,7 +329,10 @@ async function showFlightDetail(flight, flightCard) {
         }
         contentHtml += `</tbody>`;
         contentHtml += `</table>`;
-        contentHtml += `<span class="total-price-text` + flight.flightId + `" style="font-weight: bold">Tổng cộng: ` + total + ` VND </span><br>`
+        contentHtml += `<div class="flight-detail-total">`;
+        contentHtml += `<span class="total-price-text` + flight.flightId + `">Tổng cộng: ` + total + ` VND </span><br>`
+        contentHtml += `</div>`;
+        contentHtml += `</div>`;
         contentHtml += `</div>`;
         detailSection.innerHTML = contentHtml;
 
@@ -413,34 +425,34 @@ document.addEventListener('DOMContentLoaded', function () {
             };
 
             const jsonData = {
-                    flight: flight,
-                    seatPrice: parseFloat(seatPriceStr),
-                    classSeatId: parseInt(classSeatIdStr),
-                    preorderFlights: [
-                        {
-                            name: 'Adult',
-                            quantity: parseInt(searchFlightModel?.NumAdult),
-                            totalPrice: getTextValue(`.total-adult-price-${flight.flightId}`),
-                            seatPrice: getTextValue(`.seat-adult-price-${flight.flightId}`),
-                            tax: parseFloat(document.querySelector(`.adult-tax-${flight.flightId}`)?.textContent.replace('%', '')) / 100,
-                            totalFlightPrice: getTextValue(`.adult-flight-price-${flight.flightId}`)
-                        },
-                        {
-                            name: 'Child',
-                            quantity: parseInt(searchFlightModel?.NumChild),
-                            totalPrice: getTextValue(`.total-child-price-${flight.flightId}`),
-                            seatPrice: getTextValue(`.seat-child-price-${flight.flightId}`),
-                            tax: document.querySelector(`.child-tax-${flight.flightId}`) ? parseFloat(document.querySelector(`.child-tax-${flight.flightId}`).textContent.replace('%', '')) / 100 : 0,
-                            totalFlightPrice: getTextValue(`.child-flight-price-${flight.flightId}`)
-                        },
-                        {
-                            name: 'Baby',
-                            quantity: parseInt(searchFlightModel?.NumInfant),
-                            totalPrice: getTextValue(`.total-baby-price-${flight.flightId}`),
-                            tax: document.querySelector('.baby-tax-' + flight.flightId) ? parseFloat(document.querySelector('.baby-tax-' + flight.flightId)?.textContent?.replace('%', '')) / 100 : 0,
-                            totalFlightPrice: 0
-                        }
-                    ]
+                flight: flight,
+                seatPrice: parseFloat(seatPriceStr),
+                classSeatId: parseInt(classSeatIdStr),
+                preorderFlights: [
+                    {
+                        name: 'Adult',
+                        quantity: parseInt(searchFlightModel?.NumAdult),
+                        totalPrice: getTextValue(`.total-adult-price-${flight.flightId}`),
+                        seatPrice: getTextValue(`.seat-adult-price-${flight.flightId}`),
+                        tax: parseFloat(document.querySelector(`.adult-tax-${flight.flightId}`)?.textContent.replace('%', '')) / 100,
+                        totalFlightPrice: getTextValue(`.adult-flight-price-${flight.flightId}`)
+                    },
+                    {
+                        name: 'Child',
+                        quantity: parseInt(searchFlightModel?.NumChild),
+                        totalPrice: getTextValue(`.total-child-price-${flight.flightId}`),
+                        seatPrice: getTextValue(`.seat-child-price-${flight.flightId}`),
+                        tax: document.querySelector(`.child-tax-${flight.flightId}`) ? parseFloat(document.querySelector(`.child-tax-${flight.flightId}`).textContent.replace('%', '')) / 100 : 0,
+                        totalFlightPrice: getTextValue(`.child-flight-price-${flight.flightId}`)
+                    },
+                    {
+                        name: 'Baby',
+                        quantity: parseInt(searchFlightModel?.NumInfant),
+                        totalPrice: getTextValue(`.total-baby-price-${flight.flightId}`),
+                        tax: document.querySelector('.baby-tax-' + flight.flightId) ? parseFloat(document.querySelector('.baby-tax-' + flight.flightId)?.textContent?.replace('%', '')) / 100 : 0,
+                        totalFlightPrice: 0
+                    }
+                ]
             };
             searchFlightModel.NumChild = parseInt(searchFlightModel.NumChild);
             searchFlightModel.NumAdult = parseInt(searchFlightModel.NumAdult);
@@ -558,7 +570,7 @@ function handleChangeSeatRank(event, jsonFlight) {
             total += (flight.basePrice * form?.NumInfant * flight.tax / 4);
             $(`.total-baby-price-` + flight.flightId).text((flight.basePrice * form?.NumInfant * flight.tax / 4) + ' VND');
         }
-        let text = `- Tổng cộng: ` + total + ` VND`;
+        let text = `Tổng cộng: ` + total + ` VND`;
         seatPrice = parseFloat(value.split('-')[1]);
         $(`.total-price-text` + flight.flightId).html(text);
     }
