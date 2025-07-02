@@ -59,7 +59,7 @@ namespace BookingFlightServer.Controllers
 
 			Response.Cookies.Append("X-Access-Token", token, accessTokenCookie);
 			Response.Cookies.Append("X-Refresh-Token", refreshToken, refreshTokenCookie);
-			return Ok(new { message = "Login success", token = token });
+			return Ok(new { message = "Login success" });
 		}
 
 		[HttpGet("refresh-token")]

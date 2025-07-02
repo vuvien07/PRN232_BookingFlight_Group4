@@ -28,5 +28,18 @@ namespace BookingFlightServer.Controllers
 			var decodedToken = _jwtService.DecodeJwtToken(token);
 			return Ok(decodedToken);
 		}
+		[HttpGet("removeToken")]
+		[Authorize]
+		public IActionResult RemoveToken()
+		{
+			string? token = Request.Cookies["X-Access-Token"];
+			if (string.IsNullOrEmpty(token))
+			{
+				return Unauthorized("Missing access token");
+			}
+			Response.Cookies.Delete("X-Access-Token");
+			Response.Cookies.Delete("X-Refresh-Token");
+			return Ok("Remove token success");
+		}
 	}
 }
