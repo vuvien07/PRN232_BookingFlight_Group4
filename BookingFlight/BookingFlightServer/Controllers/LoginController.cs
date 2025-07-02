@@ -59,12 +59,16 @@ namespace BookingFlightServer.Controllers
 
 			Response.Cookies.Append("X-Access-Token", token, accessTokenCookie);
 			Response.Cookies.Append("X-Refresh-Token", refreshToken, refreshTokenCookie);
-			return Ok(new { message = "Login success", token = token });
+			return Ok(new { message = "Login success" });
 		}
 
-		[HttpPost("refresh-token")]
-		public async Task<IActionResult> RefreshToken([FromHeader(Name = "Authorization")] string token)
+		[HttpGet("refresh-token")]
+		public async Task<IActionResult> RefreshToken()
 		{
+			if (!Request.Cookies.TryGetValue("X-Refresh-Token", out var token))
+			{
+				return Unauthorized(new { message = "Missing refresh token" });
+			}
 			Account? account = await _accountService.FindByRefreshTokenAsync(token);
 			if(account == null || account.RefreshTokenExpiryTime < DateTime.Now)
 			{
@@ -72,10 +76,17 @@ namespace BookingFlightServer.Controllers
 			}
 			string newToken = _jwtService.CreateJwtToken(Mapper.Map<Account, AccountDTO>(account) ?? new AccountDTO());
 			DateTime dateTime = DateTime.Now.AddMinutes(Convert.ToDouble(_jwtService.GetTokenExpirationTime()));
-			account.RefreshTokenExpiryTime = dateTime;
 			await _accountService.UpdateAccountAsync(account);
-			return Ok(new { token = newToken });
-
+			var newAccessTokenCookie = new CookieOptions
+			{
+				HttpOnly = true,
+				Secure = true,
+				SameSite = SameSiteMode.Strict,
+				Expires = DateTime.Now.AddMinutes(Convert.ToDouble(_jwtService.GetTokenExpirationTime())),
+				Path = "/"
+			};
+			Response.Cookies.Append("X-Access-Token", newToken, newAccessTokenCookie);
+			return Ok("Refresh token success");
 		}
     }
 }

@@ -4,22 +4,25 @@ using BookingFlightServer.Services;
 using BookingFlightServer.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections;
 
 namespace BookingFlightServer.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CheckoutFlightController : ControllerBase
-    {
-        private readonly IFlightService _flightService;
+	[Route("api/[controller]")]
+	[ApiController]
+	public class CheckoutFlightController : ControllerBase
+	{
+		private readonly IFlightService _flightService;
 		private readonly IJwtService _jwtService;
 		private readonly ICheckoutFlightService _checkoutFlightService;
+		private readonly ITicketService _ticketService;
 
-		public CheckoutFlightController(IFlightService flightService, IJwtService jwtService, ICheckoutFlightService checkoutFlightService)
+		public CheckoutFlightController(IFlightService flightService, IJwtService jwtService, ICheckoutFlightService checkoutFlightService, ITicketService ticketService)
 		{
 			_flightService = flightService;
 			_jwtService = jwtService;
 			_checkoutFlightService = checkoutFlightService;
+			_ticketService = ticketService;
 		}
 
 		[HttpPost("validate")]
@@ -43,8 +46,10 @@ namespace BookingFlightServer.Controllers
 					totalTax += preorderFlight.TotalPrice * preorderFlight.Quantity;
 				}
 			}
-			flightCheckoutRequestDTO.Services?.ForEach(service => {
-				service.Items?.ForEach(item => {
+			flightCheckoutRequestDTO.Services?.ForEach(service =>
+			{
+				service.Items?.ForEach(item =>
+				{
 					totalServicePrice += item.Quantity > 0 ? (service.ServiceId != 2 ? item.Price * item.Quantity : item.Price) : 0;
 				});
 			});
@@ -84,8 +89,10 @@ namespace BookingFlightServer.Controllers
 					totalTax += preorderFlight.TotalPrice * preorderFlight.Quantity;
 				}
 			}
-			flightCheckoutRequestDTO.Services?.ForEach(service => {
-				service.Items?.ForEach(item => {
+			flightCheckoutRequestDTO.Services?.ForEach(service =>
+			{
+				service.Items?.ForEach(item =>
+				{
 					totalServicePrice += item.Quantity > 0 ? (service.ServiceId != 2 ? item.Price * item.Quantity : item.Price) : 0;
 				});
 			});
@@ -124,6 +131,18 @@ namespace BookingFlightServer.Controllers
 			}
 			string token = _jwtService.CreateJwtDTOToken(flightCheckoutRequestDTO);
 			return Ok(new { token = token });
+		}
+
+		[HttpPost("saveInfo")]
+		public async Task<IActionResult> SaveFlightCheckoutInfo([FromBody] FlightCheckoutRequestDTO flightCheckoutRequestDTO)
+		{
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(UtilHelper.GetModelStateErrors(ModelState));
+			}
+			bool result = await _checkoutFlightService.IsSavedPassengerInformation(flightCheckoutRequestDTO);
+			if (!result) throw new AppException("Save passenger information failed.");
+			return Ok();
 		}
 	}
 }

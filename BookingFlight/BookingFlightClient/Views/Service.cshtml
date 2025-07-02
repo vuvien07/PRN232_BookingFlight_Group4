@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flight Service</title>
     <link href="~/css/common/Footer.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/common/Header.css">
     <style>
         body {
             background: #f8f9fa;
@@ -14,31 +15,93 @@
         }
 
         .service-card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 4px 24px rgba(0, 105, 148, 0.07);
+            transition: box-shadow 0.2s, transform 0.2s;
             cursor: pointer;
-            transition: all 0.3s ease;
+            border: 1px solid #e3e6ea;
         }
 
             .service-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+                box-shadow: 0 8px 32px rgba(0, 105, 148, 0.13);
+                transform: translateY(-4px) scale(1.01);
             }
 
-        .service-icon {
-            width: 40px;
-            height: 40px;
-            margin-right: 15px;
+        .service-icon-wrapper {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #006994, #40E0D0);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
+        .service-icon {
+            width: 36px;
+            height: 36px;
+            object-fit: cover;
+            border-radius: 50%;
+            background: #fff;
+        }
+
+        .service-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #006994;
+        }
+
+        .service-desc {
+            color: #555;
+            font-size: 0.98rem;
+        }
+
+        .service-detail-link {
+            font-size: 0.98rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+            .service-detail-link:hover {
+                color: #40E0D0;
+                text-decoration: underline;
+            }
 
         .price {
             color: #f60;
-            font-weight: bold;
-            font-size: 1.1em;
+            font-weight: 700;
+            font-size: 1.08em;
         }
+
+        .service-item-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e3e6ea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            transition: box-shadow 0.2s;
+        }
+
+            .service-item-card:hover {
+                box-shadow: 0 6px 24px rgba(0,105,148,0.08);
+                transform: translateY(-4px) scale(1.01);
+                cursor: pointer;
+            }
+
+        .btn-select-item {
+            min-width: 80px;
+        }
+
+        .btn-primary.btn-select-item {
+            background: #40E0D0;
+            border: none;
+        }
+
+            .btn-primary.btn-select-item:hover {
+                background: #006994;
+            }
 
         .summary-card {
             background: white;
@@ -169,7 +232,7 @@
 <body>
     <partial name="~/Views/Common/_Header.cshtml" />
 
-    <div class="container my-4">
+    <div class="container" style="margin-top: 7vw">
         <div class="row d-flex">
             <!-- Services Column -->
             <div class="col-md-8">
@@ -180,10 +243,11 @@
             </div>
             <!-- Summary Column -->
             <div class="col-md-4">
-                <div class="summary-card" id="summary-card">
+                <div class="summary-card shadow-sm" id="summary-card">
                 </div>
             </div>
         </div>
+    </div>
 
 
         <partial name="~/Views/Common/_Footer.cshtml" />

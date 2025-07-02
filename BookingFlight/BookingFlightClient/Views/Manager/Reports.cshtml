@@ -1,0 +1,366 @@
+@{
+    ViewData["Title"] = "Reports";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+<div class="reports-management">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3>Reports & Analytics</h3>
+            <p class="text-muted">Generate and view system reports and analytics</p>
+        </div>
+        <div>
+            <button class="btn btn-primary" onclick="generateNewReport()">
+                <i class="fas fa-plus me-2"></i>Generate Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h3 class="mb-0">24</h3>
+                            <p class="mb-0">Reports Generated</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h3 class="mb-0">156</h3>
+                            <p class="mb-0">Downloads</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h3 class="mb-0">3</h3>
+                            <p class="mb-0">Pending Reports</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h3 class="mb-0">12</h3>
+                            <p class="mb-0">This Month</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Types -->
+    <div class="row mb-4">
+        <div class="col-lg-4 mb-4">
+            <div class="card report-type-card">
+                <div class="card-body text-center">
+                    <div class="report-icon bg-primary mb-3">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h5>Performance Reports</h5>
+                    <p class="text-muted">System performance and efficiency metrics</p>
+                    <button class="btn btn-outline-primary" onclick="generateReport('performance')">
+                        <i class="fas fa-play me-2"></i>Generate
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card report-type-card">
+                <div class="card-body text-center">
+                    <div class="report-icon bg-success mb-3">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h5>User Activity Reports</h5>
+                    <p class="text-muted">User engagement and activity analysis</p>
+                    <button class="btn btn-outline-success" onclick="generateReport('user-activity')">
+                        <i class="fas fa-play me-2"></i>Generate
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="card report-type-card">
+                <div class="card-body text-center">
+                    <div class="report-icon bg-warning mb-3">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <h5>System Health Reports</h5>
+                    <p class="text-muted">System health and maintenance status</p>
+                    <button class="btn btn-outline-warning" onclick="generateReport('system-health')">
+                        <i class="fas fa-play me-2"></i>Generate
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Reports -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-history me-2"></i>Recent Reports
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Report Name</th>
+                            <th>Type</th>
+                            <th>Generated By</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong>Monthly Performance Report</strong>
+                                <br>
+                                <small class="text-muted">November 2024 system performance analysis</small>
+                            </td>
+                            <td><span class="badge bg-primary">Performance</span></td>
+                            <td>System Manager</td>
+                            <td>Nov 20, 2024<br><small class="text-muted">2:30 PM</small></td>
+                            <td><span class="badge bg-success">Completed</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewReport('report-1')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" onclick="downloadReport('report-1')">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="shareReport('report-1')">
+                                    <i class="fas fa-share"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>User Activity Analysis</strong>
+                                <br>
+                                <small class="text-muted">Weekly user engagement metrics</small>
+                            </td>
+                            <td><span class="badge bg-success">User Activity</span></td>
+                            <td>Data Analyst</td>
+                            <td>Nov 18, 2024<br><small class="text-muted">10:15 AM</small></td>
+                            <td><span class="badge bg-success">Completed</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewReport('report-2')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" onclick="downloadReport('report-2')">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="shareReport('report-2')">
+                                    <i class="fas fa-share"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>System Health Check</strong>
+                                <br>
+                                <small class="text-muted">Daily system health monitoring</small>
+                            </td>
+                            <td><span class="badge bg-warning">System Health</span></td>
+                            <td>System Manager</td>
+                            <td>Nov 17, 2024<br><small class="text-muted">8:00 AM</small></td>
+                            <td><span class="badge bg-warning">Processing</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary" disabled>
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Security Audit Report</strong>
+                                <br>
+                                <small class="text-muted">Monthly security assessment</small>
+                            </td>
+                            <td><span class="badge bg-danger">Security</span></td>
+                            <td>Security Officer</td>
+                            <td>Nov 15, 2024<br><small class="text-muted">4:45 PM</small></td>
+                            <td><span class="badge bg-success">Completed</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewReport('report-4')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" onclick="downloadReport('report-4')">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="shareReport('report-4')">
+                                    <i class="fas fa-share"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Flight Operations Summary</strong>
+                                <br>
+                                <small class="text-muted">Weekly flight operations overview</small>
+                            </td>
+                            <td><span class="badge bg-info">Operations</span></td>
+                            <td>Operations Manager</td>
+                            <td>Nov 12, 2024<br><small class="text-muted">11:30 AM</small></td>
+                            <td><span class="badge bg-success">Completed</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewReport('report-5')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" onclick="downloadReport('report-5')">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="shareReport('report-5')">
+                                    <i class="fas fa-share"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function generateNewReport() {
+            showToast('Opening report generation wizard...', 'info');
+        }
+        
+        function generateReport(type) {
+            showToast(`Generating ${type} report...`, 'info');
+            
+            // Simulate report generation
+            setTimeout(() => {
+                showToast(`${type} report generated successfully!`, 'success');
+            }, 2000);
+        }
+        
+        function viewReport(reportId) {
+            showToast(`Opening report ${reportId}...`, 'info');
+        }
+        
+        function downloadReport(reportId) {
+            showToast(`Downloading report ${reportId}...`, 'success');
+        }
+        
+        function shareReport(reportId) {
+            showToast(`Sharing report ${reportId}...`, 'info');
+        }
+        
+        // Initialize charts or additional functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add any chart initialization or additional JavaScript here
+            console.log('Reports page initialized');
+        });
+    </script>
+    
+    <style>
+        .stat-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .report-type-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+        
+        .report-type-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .report-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin: 0 auto;
+        }
+        
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .table td {
+            vertical-align: middle;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+        
+        .btn-group-sm .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            border-radius: 0.2rem;
+        }
+    </style>
+}

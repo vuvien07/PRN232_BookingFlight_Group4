@@ -86,8 +86,6 @@ function updateServiceSection() {
 }
 function updateInvoice(data) {
     document.getElementById('summary-card').innerHTML = `
-     <h5 class="mb-4">Chi tiết giá</h5>
-
                     <div class="summary-item">
                         <span>Giá vé</span>
                         <span class="price flight-price">${data.totalFlightPrice?.toLocaleString("vi-VN")} VND</span>
@@ -115,7 +113,7 @@ function updateInvoice(data) {
                     <div class="divider"></div>
 
                     <div class="summary-item">
-                        <strong>Tổng tiền</strong>
+                        <strong>Tổng tiền<sup class="text-danger font-weight-bold">*</sup></strong>
                         <span class="price amount-total">${data.totalPrice?.toLocaleString("vi-VN")} VND</span>
                     </div>`;
 

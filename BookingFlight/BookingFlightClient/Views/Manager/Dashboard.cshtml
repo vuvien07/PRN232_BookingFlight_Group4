@@ -1,0 +1,368 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+<div class="dashboard-overview">
+    <!-- Welcome Section -->
+    <div class="welcome-section mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="welcome-title">Welcome back, @(ViewBag.UserRole == 4 ? "Manager" : "Supporter")!</h2>
+                <p class="welcome-subtitle">Here's what's happening with your system today.</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="current-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="currentDate"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Cards -->
+    <div class="dashboard-cards">
+        @if (ViewBag.UserRole == 4)
+        {
+            <!-- Manager Dashboard Cards -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div>
+                        <h6 class="card-title">Total Services</h6>
+                        <div class="card-value">24</div>
+                        <p class="card-description">Active services running</p>
+                    </div>
+                    <div class="card-icon primary">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div>
+                        <h6 class="card-title">Managed Items</h6>
+                        <div class="card-value">156</div>
+                        <p class="card-description">Items under management</p>
+                    </div>
+                    <div class="card-icon secondary">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div>
+                        <h6 class="card-title">Monthly Reports</h6>
+                        <div class="card-value">12</div>
+                        <p class="card-description">Reports generated this month</p>
+                    </div>
+                    <div class="card-icon success">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div>
+                        <h6 class="card-title">System Health</h6>
+                        <div class="card-value">98%</div>
+                        <p class="card-description">Overall system performance</p>
+                    </div>
+                    <div class="card-icon warning">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- Supporter Dashboard Cards -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div>
+                        <h6 class="card-title">Open Tickets</h6>
+                        <div class="card-value">8</div>
+                        <p class="card-description">Tickets awaiting response</p>
+                    </div>
+                    <div class="card-icon primary">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div>
+                        <h6 class="card-title">Resolved Today</h6>
+                        <div class="card-value">15</div>
+                        <p class="card-description">Tickets resolved today</p>
+                    </div>
+                    <div class="card-icon success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div>
+                        <h6 class="card-title">Flight Inquiries</h6>
+                        <div class="card-value">32</div>
+                        <p class="card-description">Flight-related support requests</p>
+                    </div>
+                    <div class="card-icon secondary">
+                        <i class="fas fa-plane"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div>
+                        <h6 class="card-title">Response Time</h6>
+                        <div class="card-value">2.5h</div>
+                        <p class="card-description">Average response time</p>
+                    </div>
+                    <div class="card-icon warning">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Recent Activity Section -->
+    <div class="row mt-4">
+        <div class="col-lg-8">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clock me-2"></i>Recent Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="activity-list">
+                        @if (ViewBag.UserRole == 4)
+                        {
+                            <div class="activity-item">
+                                <div class="activity-icon bg-primary">
+                                    <i class="fas fa-cog"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h6>Service Configuration Updated</h6>
+                                    <p class="text-muted">Updated backup service configuration</p>
+                                    <small class="text-muted">2 hours ago</small>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon bg-success">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h6>Monthly Report Generated</h6>
+                                    <p class="text-muted">System performance report for November</p>
+                                    <small class="text-muted">5 hours ago</small>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon bg-warning">
+                                    <i class="fas fa-box"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h6>New Items Added</h6>
+                                    <p class="text-muted">5 new items added to inventory</p>
+                                    <small class="text-muted">1 day ago</small>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="activity-item">
+                                <div class="activity-icon bg-primary">
+                                    <i class="fas fa-ticket-alt"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h6>Support Ticket Resolved</h6>
+                                    <p class="text-muted">Ticket #1234 - Flight booking issue</p>
+                                    <small class="text-muted">30 minutes ago</small>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon bg-success">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h6>Customer Assistance</h6>
+                                    <p class="text-muted">Helped customer with flight change request</p>
+                                    <small class="text-muted">1 hour ago</small>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon bg-info">
+                                    <i class="fas fa-plane"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h6>Flight Information Updated</h6>
+                                    <p class="text-muted">Updated flight VN123 departure time</p>
+                                    <small class="text-muted">2 hours ago</small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-tasks me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="quick-actions">
+                        @if (ViewBag.UserRole == 4)
+                        {
+                            <a href="/Manager/Services" class="btn btn-outline-primary btn-block mb-2">
+                                <i class="fas fa-cogs me-2"></i>Manage Services
+                            </a>
+                            <a href="/Manager/ManageItems" class="btn btn-outline-secondary btn-block mb-2">
+                                <i class="fas fa-boxes me-2"></i>Manage Items
+                            </a>
+                            <a href="/Manager/Reports" class="btn btn-outline-success btn-block mb-2">
+                                <i class="fas fa-chart-bar me-2"></i>View Reports
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="/Manager/Services" class="btn btn-outline-primary btn-block mb-2">
+                                <i class="fas fa-headset me-2"></i>Support Tickets
+                            </a>
+                            <a href="/Flight" class="btn btn-outline-secondary btn-block mb-2">
+                                <i class="fas fa-plane me-2"></i>Flight Information
+                            </a>
+                            <a href="/Manager/Profile" class="btn btn-outline-info btn-block mb-2">
+                                <i class="fas fa-user me-2"></i>Update Profile
+                            </a>
+                        }
+                        <a href="/Home" class="btn btn-outline-dark btn-block">
+                            <i class="fas fa-home me-2"></i>Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Set current date
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        // Add custom dashboard interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate cards on load
+            const cards = document.querySelectorAll('.dashboard-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.5s ease';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 100);
+            });
+        });
+    </script>
+    
+    <style>
+        .welcome-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .welcome-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .welcome-subtitle {
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+        
+        .current-date {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .activity-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .activity-content h6 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .activity-content p {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .quick-actions .btn {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: left;
+            white-space: nowrap;
+        }
+        
+        .btn-block {
+            width: 100%;
+        }
+    </style>
+}

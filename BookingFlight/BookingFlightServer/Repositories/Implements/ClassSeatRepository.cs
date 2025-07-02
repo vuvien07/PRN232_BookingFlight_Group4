@@ -1,9 +1,10 @@
 ﻿using BookingFlightServer.Data;
+using BookingFlightServer.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookingFlightServer.Repositories.Implements
 {
-	public class ClassSeatRepository:IClassSeatRepository
+	public class ClassSeatRepository : IClassSeatRepository
 	{
 		private BookingFlightContext _flightContext;
 
@@ -70,6 +71,17 @@ namespace BookingFlightServer.Repositories.Implements
 							 cs.Price
 						 }).Distinct();
 			return await query.Select(flight => (dynamic)flight).ToListAsync();
+		}
+
+		public async Task<ClassSeat?> GetClassSeatByIdAsync(int id)
+		{
+			return await _flightContext.ClassSeats.FindAsync(id);
+		}
+
+		public async Task UpdateClassSeatAsync(ClassSeat classSeat)
+		{
+			_flightContext.ClassSeats.Update(classSeat);
+			await _flightContext.SaveChangesAsync();
 		}
 	}
 }

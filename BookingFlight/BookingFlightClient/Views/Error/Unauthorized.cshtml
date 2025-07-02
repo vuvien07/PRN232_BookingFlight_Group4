@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-vn="Không có quyền truy cập - CloudNine" data-en="Access Denied - CloudNine" data-zh="访问被拒绝 - CloudNine">Không có quyền truy cập - CloudNine</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -39,21 +40,26 @@
             overflow: hidden;
         }
 
-        .unauthorized-content::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c);
-            background-size: 300% 300%;
-            animation: gradientShift 3s ease infinite;
-        }
+            .unauthorized-content::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c);
+                background-size: 300% 300%;
+                animation: gradientShift 3s ease infinite;
+            }
 
         @@keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
         }
 
         .error-icon {
@@ -64,9 +70,17 @@
         }
 
         @@keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-10px);
+            }
+
+            60% {
+                transform: translateY(-5px);
+            }
         }
 
         .error-code {
@@ -116,11 +130,11 @@
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
 
-        .btn-primary-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
-            color: white;
-        }
+            .btn-primary-custom:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+                color: white;
+            }
 
         .btn-secondary-custom {
             background: transparent;
@@ -136,11 +150,11 @@
             transition: all 0.3s ease;
         }
 
-        .btn-secondary-custom:hover {
-            background: #667eea;
-            color: white;
-            transform: translateY(-2px);
-        }
+            .btn-secondary-custom:hover {
+                background: #667eea;
+                color: white;
+                transform: translateY(-2px);
+            }
 
         .floating-shapes {
             position: absolute;
@@ -159,42 +173,50 @@
             animation: float 6s ease-in-out infinite;
         }
 
-        .shape:nth-child(1) {
-            width: 80px;
-            height: 80px;
-            top: 10%;
-            left: 10%;
-            animation-delay: 0s;
-        }
+            .shape:nth-child(1) {
+                width: 80px;
+                height: 80px;
+                top: 10%;
+                left: 10%;
+                animation-delay: 0s;
+            }
 
-        .shape:nth-child(2) {
-            width: 120px;
-            height: 120px;
-            top: 20%;
-            right: 10%;
-            animation-delay: 2s;
-        }
+            .shape:nth-child(2) {
+                width: 120px;
+                height: 120px;
+                top: 20%;
+                right: 10%;
+                animation-delay: 2s;
+            }
 
-        .shape:nth-child(3) {
-            width: 60px;
-            height: 60px;
-            bottom: 20%;
-            left: 20%;
-            animation-delay: 4s;
-        }
+            .shape:nth-child(3) {
+                width: 60px;
+                height: 60px;
+                bottom: 20%;
+                left: 20%;
+                animation-delay: 4s;
+            }
 
-        .shape:nth-child(4) {
-            width: 100px;
-            height: 100px;
-            bottom: 10%;
-            right: 20%;
-            animation-delay: 1s;
-        }
+            .shape:nth-child(4) {
+                width: 100px;
+                height: 100px;
+                bottom: 10%;
+                right: 20%;
+                animation-delay: 1s;
+            }
 
         @@keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-20px) rotate(120deg); }
-            66% { transform: translateY(20px) rotate(240deg); }
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            33% {
+                transform: translateY(-20px) rotate(120deg);
+            }
+
+            66% {
+                transform: translateY(20px) rotate(240deg);
+            }
         }
 
         .logo-link {
@@ -218,20 +240,20 @@
                 padding: 40px 20px;
                 margin: 20px;
             }
-            
+
             .error-code {
                 font-size: 48px;
             }
-            
+
             .error-title {
                 font-size: 24px;
             }
-            
+
             .action-buttons {
                 flex-direction: column;
                 align-items: center;
             }
-            
+
             .btn-primary-custom,
             .btn-secondary-custom {
                 width: 100%;
@@ -274,8 +296,8 @@
 
             <!-- Error Description -->
             <p class="error-description">
-                <span data-vn="Xin lỗi, bạn không có quyền truy cập vào trang này. Vui lòng đăng nhập hoặc liên hệ với quản trị viên để được hỗ trợ." 
-                      data-en="Sorry, you don't have permission to access this page. Please login or contact the administrator for assistance." 
+                <span data-vn="Xin lỗi, bạn không có quyền truy cập vào trang này. Vui lòng đăng nhập hoặc liên hệ với quản trị viên để được hỗ trợ."
+                      data-en="Sorry, you don't have permission to access this page. Please login or contact the administrator for assistance."
                       data-zh="抱歉，您无权访问此页面。请登录或联系管理员获取帮助。">
                     Xin lỗi, bạn không có quyền truy cập vào trang này. Vui lòng đăng nhập hoặc liên hệ với quản trị viên để được hỗ trợ.
                 </span>
@@ -315,7 +337,24 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/common/LanguageUtils.js" asp-append-version="true"></script>
-      <script>
+    <script>
+        window.addEventListener('load', async function() {
+        const params = new URLSearchParams(window.location.search);
+        const returnUrl = params.get('returnUrl') || '/Home';
+            await fetch('http://localhost:5077/api/login/refresh-token', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response =>{
+                if(!response.ok){
+                     params.delete('returnUrl');
+        const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+        window.history.replaceState({}, '', newUrl);
+                }else{
+                    window.location.href = returnUrl;
+                }
+            });
+        });
         // Initialize language functionality
         document.addEventListener('DOMContentLoaded', function() {
             // Add click effect to buttons
@@ -328,7 +367,7 @@
                     const size = Math.max(rect.height, rect.width);
                     const x = e.clientX - rect.left - size / 2;
                     const y = e.clientY - rect.top - size / 2;
-                    
+
                     ripple.style.width = ripple.style.height = size + 'px';
                     ripple.style.left = x + 'px';
                     ripple.style.top = y + 'px';
@@ -338,11 +377,11 @@
                     ripple.style.transform = 'scale(0)';
                     ripple.style.animation = 'ripple 0.6s linear';
                     ripple.style.pointerEvents = 'none';
-                    
+
                     this.style.position = 'relative';
                     this.style.overflow = 'hidden';
                     this.appendChild(ripple);
-                    
+
                     setTimeout(() => {
                         ripple.remove();
                     }, 600);

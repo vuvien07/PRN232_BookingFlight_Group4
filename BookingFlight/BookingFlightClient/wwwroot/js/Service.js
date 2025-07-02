@@ -40,74 +40,78 @@ function updateServiceList(data) {
     let contentHtml = ``;
     data.forEach(service => {
         contentHtml += `
-        <div class="service-card">
-                <div class="d-flex align-items-start">
-                    <img src="${window.location.origin}/images/anh-bien.jpg" alt="Baggage" class="service-icon">
-                    <div class="flex-grow-1">
-                        <h5>${service.serviceName}
-                        </h5>
-                        <p class="mb-2">${service.detail}</p>
-                        <p class="mb-2 selected-item-notice-${service.serviceId}"></p>
-                        <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-primary" data-bs-toggle="modal"
-                                      data-bs-target="#serviceModal${service.serviceId}">Xem chi tiết ></span>
-                            <span class="price price-item-service"></span>
-                        </div>
-                    </div>
+    <div class="service-card mb-4 p-3">
+        <div class="d-flex align-items-center">
+            <div class="service-icon-wrapper me-3">
+                <img src="${window.location.origin}/images/anh-bien.jpg" alt="Baggage" class="service-icon">
+            </div>
+            <div class="flex-grow-1">
+                <h5 class="service-title mb-1">${service.serviceName}</h5>
+                <p class="service-desc mb-2">${service.detail}</p>
+                <p class="mb-2 selected-item-notice-${service.serviceId}"></p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-primary service-detail-link" data-bs-toggle="modal"
+                          data-bs-target="#serviceModal${service.serviceId}">Xem chi tiết &gt;</span>
+                    <span class="price price-item-service"></span>
                 </div>
             </div>
+        </div> 
+    </div>
 
-            <div class="modal fade right" id="serviceModal${service.serviceId}" tabindex="-1"
-                 aria-labelledby="alertModalLabel"
-                 aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
-                    <div class="modal-content border-0 shadow-lg">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Chọn mặt hàng cho dịch
-                                vụ ${service.serviceName}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
+    <div class="modal fade right" id="serviceModal${service.serviceId}" tabindex="-1"
+         aria-labelledby="alertModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Chọn mặt hàng cho dịch vụ ${service.serviceName}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center align-middle py-4">
+                ${service?.items?.map(item => `
+                <div class="card d-flex flex-row align-items-center mb-3 service-item-card p-2">
+                    <div class="card-img w-25 service-item-img me-3">
+                        <img class="card-img-top" src="${window.location.origin}/images/anh-bien.jpg" alt="#" style="object-fit:cover; border-radius:12px;">
+                    </div>
+                    <div class="card-body text-start p-0">
+                        <h6 class="card-title mb-1">${item.itemName}</h6>
+                        <p class="card-text mb-1">${item.detail}</p>
+                        <span class="price price-item-service">Giá: ${item.price} VND</span><br/>
+                        ${service.serviceId === 1 || service.serviceId === 3 ? `
+                        <div class="d-flex align-items-center mt-1">
+                            <label class="form-label price price-item-service mb-0 me-2">Số lượng:</label>
+                            <input class="form-control input-quantity-${item.itemId}" type="number" placeholder="Số lượng" min="1" style="width:15vw;">
                         </div>
-                        <div class="modal-body text-center align-middle py-4">
-                        ${service?.items?.map(item => `
-                        <div class="card d-flex mb-2 service-card flex-row">
-                                <div class="card-img w-50">
-                                    <img class="card-img-top" src="${window.location.origin}/images/anh-bien.jpg" alt="#">
-                                </div>
-                                <div class="card-body text-start">
-                                    <h5 class="card-title">${item.itemName}</h5>
-                                    <p class="card-text">${item.detail}</p>
-                                    <span class="price price-item-service">Giá: ${item.price} VND</span><br/>
-                                    ${service.serviceId === 1 || service.serviceId === 3 ? `
-                                    <div class="d-flex align-items-center">
-                                    <label class="form-label price price-item-service">Số lượng: </label>
-                                    <input class="w-75 form-control input-quantity-${item.itemId}" type="number" placeholder="Số lượng" min="1" >
-                                    </div>
-                                    ` : ''}
-                                    <button class="btn btn-outline-dark ms-0 btn-select-item selectItemButton${item.itemId}"
-                                            data-item='${JSON.stringify(item).replace(/"/g, "&quot;")}'
-                    data-service-id="${service.serviceId}" onclick="selectItem(event)">Chọn
-                                    </button>
-                                    <button class="btn btn-outline-dark ms-0 btn-primary btn-select-item selectedItemButton${item.itemId}" style="display: none"  data-service-id="${service.serviceId}"
-                                     data-item-id="${item.itemId}"
+                        ` : ''}
+                        <div class="mt-2">
+                            <button class="btn btn-outline-dark btn-sm btn-select-item selectItemButton${item.itemId}"
+                                    data-item='${JSON.stringify(item).replace(/"/g, "&quot;")}'
+                                    data-service-id="${service.serviceId}" onclick="selectItem(event)">Chọn
+                            </button>
+                            <button class="btn btn-primary btn-sm btn-select-item selectedItemButton${item.itemId}" style="display: none"
+                                    data-service-id="${service.serviceId}"
+                                    data-item-id="${item.itemId}"
                                     onclick="cancelSelectItem(event)">Đã chọn
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('')}
-                         </div>
+                            </button>
+                        </div>
                     </div>
                 </div>
+                `).join('')}
+                 </div>
             </div>
-        `;
+        </div>
+    </div>
+    `;
     });
+
 
     document.querySelector('.service-list').innerHTML = contentHtml;
 }
 
 function updatePrice(data) {
     let contentHtml = `
-     <h5 class="mb-4">Chi tiết giá</h5>
+     <h5 class="mb-4">Chi tiết giá<sup style="color: red">*</sup></h5>
 
                     <div class="summary-item">
                         <span>Giá vé</span>
@@ -125,7 +129,7 @@ function updatePrice(data) {
                     </div>
 
                     <div class="summary-item">
-                        <span>Ghế ngồi:</span>
+                        <span>Ghế ngồi</span>
                         <span class="price seat-price">${data.totalSeatPrice?.toLocaleString("vi-VN")} VND</span>
                     </div>
 
@@ -137,7 +141,7 @@ function updatePrice(data) {
                     <div class="divider"></div>
 
                     <div class="summary-item">
-                        <strong>Tổng tiền</strong>
+                        <strong>Tổng tiền<sup style="color: red">*</sup></strong>
                         <span class="price price-total">${data.totalPrice?.toLocaleString("vi-VN")} VND</span>
                     </div>
 
@@ -195,7 +199,7 @@ async function selectItem(event) {
             document.querySelector('.selectItemButton' + item.itemId).style.display = 'none';
             document.querySelector('.selectedItemButton' + item.itemId).style.display = 'block';
             input.setAttribute('disabled', true);
-            let text = 'Mặt hàng đã chọn :<br>';
+            let text = 'Mặt hàng đã chọn:<sup style="color: red">*</sup><br>';
             service.items.forEach(item => {
                 text += item.quantity > 0 ? (item?.itemName + ' - ' + (service.serviceId !== 2 ? 'Số lượng: ' + item?.quantity + ' - ' : '') + item?.price.toLocaleString() + ' VND<br>') : '';
             });
@@ -231,7 +235,10 @@ async function cancelSelectItem(event) {
         document.querySelector('.selectedItemButton' + itemId).style.display = 'none';
         input.removeAttribute('disabled');
         input.value = '';
-        let text = 'Mặt hàng đã chọn :<br>';
+        let text = '';
+        if (service.items?.filter(i => i.quantity > 0)?.length > 0) {
+             text = 'Mặt hàng đã chọn :<br>';
+        }
         service.items.forEach(item => {
             text += item.quantity > 0 ? (item?.itemName + ' - ' + (service.serviceId !== 2 ? 'Số lượng: ' + item?.quantity + ' - ' : '') + item?.price.toLocaleString() + ' VND<br>') : '';
         });

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -10,13 +11,14 @@ namespace BookingFlightClient
 		public static void Main(string[] args)
 		{
 			var builder = WebApplication.CreateBuilder(args);
+			builder.Services.AddHttpClient();
 			builder.Services.AddSession(options =>
 			{
 				options.Cookie.HttpOnly = true;
 				options.Cookie.IsEssential = true;
 			});
 			builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
-				options =>
+			 options =>
 				{
 					options.Events = new JwtBearerEvents
 					{
@@ -32,12 +34,12 @@ namespace BookingFlightClient
 						OnChallenge = context =>
 					   {
 						   context.HandleResponse();
-						   context.Response.Redirect("/Unauthorized");
+						   context.Response.Redirect("/Unauthorized?returnUrl=" + context.HttpContext.Request.Path);
 						   return Task.CompletedTask;
 					   },
 						OnForbidden = context =>
 						{
-							context.Response.Redirect("/Unauthorized");
+							context.Response.Redirect("/Unauthorized?returnUrl=" + context.HttpContext.Request.Path);
 							return Task.CompletedTask;
 						}
 					};

@@ -39,7 +39,8 @@ namespace BookingFlightServer.Proxies.Services.Implements
 
 		public VnPayTransactionResponseDTO paymentExecute(IQueryCollection collection)
 		{
-			throw new NotImplementedException();
+			var pay = new VnPayHelper();
+			return pay.GetPaymentResponseModel(collection, _configuration["VnPay:vnp_HashSecret"] ?? throw new ArgumentNullException());
 		}
 	}
 }
