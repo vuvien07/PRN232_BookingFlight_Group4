@@ -12,10 +12,12 @@ namespace BookingFlightServer.Controllers
     public class ManagerController : ControllerBase
     {
         private readonly IServiceService _serviceService;
+        private readonly IItemService _itemService;
         
-        public ManagerController(IServiceService serviceService)
+        public ManagerController(IServiceService serviceService, IItemService itemService)
         {
             _serviceService = serviceService;
+            _itemService = itemService;
         }
 
         [HttpPost("services/list")]
@@ -87,15 +89,20 @@ namespace BookingFlightServer.Controllers
         }
 
         [HttpPost("services")]
+        [AllowAnonymous] // Temporary for testing
         public async Task<IActionResult> CreateService([FromBody] ServiceCreateRequestDTO request)
         {
             try
             {
+                Console.WriteLine($"Received service creation request: {System.Text.Json.JsonSerializer.Serialize(request)}");
                 var service = await _serviceService.CreateService(request);
+                Console.WriteLine($"Service created successfully: {service.ServiceId}");
                 return Ok(new { success = true, data = service, message = "Service created successfully" });
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Error creating service: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 return BadRequest(new { success = false, message = ex.Message });
             }
         }
@@ -149,6 +156,75 @@ namespace BookingFlightServer.Controllers
             }
             catch (Exception ex)
             {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet("items")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> GetActiveItems()
+        {
+            try
+            {
+                var items = await _itemService.GetActiveItems();
+                return Ok(new { success = true, data = items });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost("items/list")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> GetItems([FromBody] ItemListRequestDTO request)
+        {
+            try
+            {
+                var items = await _itemService.GetItemsByFilter(request);
+                var totalCount = await _itemService.GetTotalItemsCount(request);
+                var totalPages = Math.Ceiling((double)totalCount / request.PageSize);
+
+                return Ok(new
+                {
+                    success = true,
+                    data = items,
+                    pagination = new
+                    {
+                        currentPage = request.Page,
+                        pageSize = request.PageSize,
+                        totalCount = totalCount,
+                        totalPages = totalPages
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost("items")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> CreateItem([FromBody] ItemCreateRequestDTO request)
+        {
+            try
+            {
+                Console.WriteLine($"Received item creation request: {System.Text.Json.JsonSerializer.Serialize(request)}");
+                
+                if (string.IsNullOrEmpty(request?.ItemName))
+                {
+                    return BadRequest(new { success = false, message = "Item name is required" });
+                }
+                
+                var item = await _itemService.CreateItem(request);
+                Console.WriteLine($"Item created successfully: {item.ItemId}");
+                return Ok(new { success = true, data = item, message = "Item created successfully" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating item: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 return BadRequest(new { success = false, message = ex.Message });
             }
         }

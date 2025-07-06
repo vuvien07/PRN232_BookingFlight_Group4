@@ -201,6 +201,9 @@ function displayServices(services) {
     const containerDiv = document.getElementById('servicesContainer');
     const noServicesDiv = document.getElementById('noServicesMessage');
     
+    console.log('displayServices called with:', services);
+    console.log('Container div:', containerDiv);
+    
     // Hide loading
     if (loadingDiv) loadingDiv.style.display = 'none';
     
@@ -214,7 +217,9 @@ function displayServices(services) {
     // Show services container
     if (containerDiv) {
         containerDiv.style.display = 'block';
-        containerDiv.innerHTML = services.map(service => createServiceCard(service)).join('');
+        const serviceCardsHtml = services.map(service => createServiceCard(service)).join('');
+        console.log('Generated HTML:', serviceCardsHtml);
+        containerDiv.innerHTML = serviceCardsHtml;
     }
     
     if (noServicesDiv) noServicesDiv.style.display = 'none';
@@ -227,22 +232,13 @@ function createServiceCard(service) {
     return `
         <div class="col-md-4 mb-4">
             <div class="card service-card h-100">
-                <div class="card-body">
+                <div class="card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <h5 class="card-title">${escapeHtml(service.serviceName || 'Unnamed Service')}</h5>
                         <span class="badge ${statusClass}">${statusText}</span>
                     </div>
                     
-                    <p class="card-text text-muted mb-3">
-                        ${escapeHtml(service.detail || 'No description available')}
-                    </p>
-                    
-                    <div class="service-info mb-3">
-                        <small class="text-muted">
-                            <i class="fas fa-calendar me-1"></i>
-                            Created: ${formatDate(service.createdDate)}
-                        </small>
-                        <br>
+                    <div class="service-info mb-3 flex-grow-1">
                         <small class="text-muted">
                             <i class="fas fa-user me-1"></i>
                             Manager: ${escapeHtml(service.managerName || 'Not assigned')}
@@ -259,7 +255,7 @@ function createServiceCard(service) {
                         </small>
                     </div>
                     
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-center align-items-center mt-auto">
                         <div class="btn-group btn-group-sm">
                             <button class="btn btn-outline-primary" onclick="editService(${service.serviceId})">
                                 <i class="fas fa-edit"></i>
@@ -375,9 +371,8 @@ function showErrorState(message) {
 
 // Service management functions
 function addNewService() {
-    // TODO: Implement add service modal/form
-    console.log('Add new service clicked');
-    alert('Add Service functionality will be implemented');
+    // Navigate to Add Service page
+    window.location.href = '/Manager/AddService';
 }
 
 function editService(serviceId) {

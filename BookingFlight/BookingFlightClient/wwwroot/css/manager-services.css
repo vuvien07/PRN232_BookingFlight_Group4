@@ -12,31 +12,41 @@
     text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Ensure Bootstrap grid works correctly - remove conflicting styles */
-.services-container .row {
+/* Ensure 3 services per row layout */
+#servicesContainer {
+    width: 100%;
+    max-width: 100%;
+}
+
+#servicesContainer .col-md-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+    margin-bottom: 1.5rem;
+}
+
+/* Additional styles to ensure proper 3-column grid */
+.services-management .row {
     display: flex;
     flex-wrap: wrap;
     margin-right: -15px;
     margin-left: -15px;
 }
 
-.services-container .col-md-4 {
-    flex: 0 0 33.333333%;
-    max-width: 33.333333%;
+.services-management .row > * {
     padding-right: 15px;
     padding-left: 15px;
-    margin-bottom: 1.5rem;
 }
 
-@media (max-width: 991.98px) {
-    .services-container .col-md-4 {
-        flex: 0 0 50%;
-        max-width: 50%;
+/* Force exact 3 columns */
+@media (min-width: 768px) {
+    #servicesContainer > .col-md-4:nth-child(3n+1) {
+        clear: left;
     }
 }
 
+/* 1 column on mobile only */
 @media (max-width: 767.98px) {
-    .services-container .col-md-4 {
+    #servicesContainer .col-md-4 {
         flex: 0 0 100%;
         max-width: 100%;
     }
@@ -161,6 +171,7 @@
     overflow: hidden;
     position: relative;
     height: 100%;
+    min-height: 300px;
 }
 
 .service-card:hover {
@@ -186,12 +197,12 @@
 }
 
 .service-info {
-    background: linear-gradient(90deg, rgba(0,123,255,0.05), rgba(0,123,255,0.1), rgba(0,123,255,0.05));
+    background: rgba(248, 249, 250, 0.6);
     border-radius: 8px;
     padding: 1rem;
     margin-top: 1rem;
-    border-top: 2px solid #e9ecef;
-    text-align: center;
+    border: 1px solid #e9ecef;
+    text-align: left;
 }
 
 .service-info small {
@@ -205,6 +216,10 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     border-radius: 25px;
     overflow: hidden;
+}
+
+.service-card .card-body > .d-flex {
+    justify-content: center !important;
 }
 
 .service-card .btn-group .btn {
@@ -319,9 +334,9 @@
 
 .service-stats {
     padding: 1rem 0;
-    border-top: 2px solid #e9ecef;
+    border-top: 1px solid #e9ecef;
     margin-top: 1rem;
-    background: linear-gradient(90deg, rgba(0,123,255,0.05), rgba(0,123,255,0.1), rgba(0,123,255,0.05));
+    background: rgba(248, 249, 250, 0.8);
     border-radius: 8px;
     text-align: center;
 }

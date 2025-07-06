@@ -32,6 +32,7 @@ namespace BookingFlightServer.DTO.Manager
         public string? Detail { get; set; }
         public int ManagerId { get; set; }
         public int? StatusId { get; set; }
+        public List<int>? ItemIds { get; set; } = new List<int>();
     }
 
     public class ServiceUpdateRequestDTO

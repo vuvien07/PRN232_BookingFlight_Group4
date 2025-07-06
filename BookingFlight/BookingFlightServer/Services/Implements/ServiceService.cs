@@ -60,6 +60,22 @@ namespace BookingFlightServer.Services.Implements
             };
 
             var createdService = await _serviceRepository.CreateService(service);
+
+            // Add items to service if provided
+            if (request.ItemIds != null && request.ItemIds.Any())
+            {
+                foreach (var itemId in request.ItemIds)
+                {
+                    // Add to Service_Item table
+                    var item = await _context.Items.FindAsync(itemId);
+                    if (item != null)
+                    {
+                        createdService.Items.Add(item);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+
             var serviceWithIncludes = await _serviceRepository.GetServiceById(createdService.ServiceId);
             return MapToDTO(serviceWithIncludes!);
         }
