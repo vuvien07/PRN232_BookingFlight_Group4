@@ -1,0 +1,243 @@
+@{
+    ViewData["Title"] = "Add Service";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/manager-add-service.css" />
+
+<div class="add-service-container">
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h3><i class="fas fa-plus-circle me-2"></i>Thêm Dịch Vụ Mới</h3>
+                <p class="text-muted">Tạo dịch vụ mới để quản lý trong hệ thống</p>
+            </div>
+            <div>
+                <a href="/Manager/Services" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="add-service-form-container">
+        <form id="addServiceForm">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card form-card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông Tin Dịch Vụ</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-4">
+                                <label for="serviceName" class="form-label">Tên Dịch Vụ <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="serviceName" name="serviceName" required>
+                                <div class="invalid-feedback">
+                                    Vui lòng nhập tên dịch vụ
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="serviceDetail" class="form-label">Mô Tả Chi Tiết</label>
+                                <textarea class="form-control" id="serviceDetail" name="serviceDetail" rows="4" 
+                                          placeholder="Nhập mô tả chi tiết về dịch vụ..."></textarea>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label class="form-label">Chọn Items Cho Dịch Vụ</label>
+                                <div class="items-selection-container">
+                                    <div class="items-header d-flex justify-content-between align-items-center mb-3">
+                                        <span class="text-muted">Chọn items có sẵn hoặc tạo mới</span>
+                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="showAddItemModal()">
+                                            <i class="fas fa-plus me-1"></i>Thêm Item Mới
+                                        </button>
+                                    </div>
+                                    
+                                    <div id="itemsLoading" class="text-center py-3">
+                                        <div class="spinner-border spinner-border-sm" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <span class="ms-2">Đang tải danh sách items...</span>
+                                    </div>
+                                    <div id="itemsList" class="items-list" style="display: none;">
+                                        <!-- Items will be loaded here -->
+                                    </div>
+                                    <div id="noItemsMessage" class="alert alert-info" style="display: none;">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Không có items nào có sẵn.
+                                        <button type="button" class="btn btn-outline-primary btn-sm ms-2" onclick="showAddItemModal()">
+                                            <i class="fas fa-plus me-1"></i>Tạo Item Đầu Tiên
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Selected Items Preview -->
+                                    <div id="selectedItemsPreview" class="selected-items-preview" style="display: none;">
+                                        <div class="selected-items-count">
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            <span id="selectedCount">0</span> items đã chọn
+                                        </div>
+                                        <div id="selectedItemsTags" class="selected-items-tags">
+                                            <!-- Selected item tags will appear here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="serviceStatus" class="form-label">Trạng Thái</label>
+                                <div class="alert alert-success d-flex align-items-center" role="alert">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <span>Hoạt động (Mặc định)</span>
+                                </div>
+                                <input type="hidden" id="serviceStatus" name="serviceStatus" value="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card preview-card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-eye me-2"></i>Xem Trước</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="service-preview">
+                                <h6 class="preview-title" id="previewTitle">Tên Dịch Vụ</h6>
+                                <p class="preview-description" id="previewDescription">Mô tả sẽ hiển thị ở đây...</p>
+                                <div class="preview-status">
+                                    <span class="badge bg-success" id="previewStatus">Hoạt động</span>
+                                </div>
+                                <div class="preview-meta">
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i>Manager: @(ViewBag.UserRole == 4 ? "Bạn" : "Chưa xác định")
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card action-card mt-3">
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-save me-2"></i>Tạo Dịch Vụ
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                    <i class="fas fa-undo me-2"></i>Đặt Lại
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Đang tạo dịch vụ...</p>
+        </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addItemModalLabel">
+                        <i class="fas fa-plus-circle me-2"></i>Thêm Item Mới
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addItemForm">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="itemName" class="form-label">Tên Item <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="itemName" name="itemName" required
+                                           placeholder="Ví dụ: Set cơm Nhật, Hành lý 15kg...">
+                                    <div class="invalid-feedback">
+                                        Vui lòng nhập tên item
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="itemDetail" class="form-label">Mô Tả Chi Tiết</label>
+                                    <textarea class="form-control" id="itemDetail" name="itemDetail" rows="3"
+                                              placeholder="Mô tả chi tiết về item..."></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="itemPrice" class="form-label">Giá <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="itemPrice" name="itemPrice" 
+                                               min="0" required placeholder="0">
+                                        <span class="input-group-text">VND</span>
+                                    </div>
+                                    <div class="invalid-feedback">
+                                        Vui lòng nhập giá hợp lệ
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="itemImage" class="form-label">Hình Ảnh</label>
+                                    <div class="input-group">
+                                        <input type="file" class="form-control" id="itemImage" name="itemImage" 
+                                               accept="image/*">
+                                        <button class="btn btn-outline-secondary" type="button" id="previewImageBtn">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text">
+                                        Chọn file hình ảnh (JPG, PNG, GIF) hoặc để trống để sử dụng ảnh mặc định
+                                    </div>
+                                    <div class="image-preview mt-2" id="imagePreview" style="display: none;">
+                                        <img id="previewImg" src="" alt="Preview" style="max-width: 100px; max-height: 100px; border-radius: 4px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Xem Trước Item</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="item-preview">
+                                            <div class="preview-item-image mb-2">
+                                                <img id="previewItemImage" src="/images/default.jpg" alt="Item Image" 
+                                                     style="width: 100%; height: 100px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                                            </div>
+                                            <h6 class="preview-item-name" id="previewItemName">Tên Item</h6>
+                                            <p class="preview-item-detail" id="previewItemDetail">Mô tả chi tiết...</p>
+                                            <div class="preview-item-price">
+                                                <strong id="previewItemPrice">0 VND</strong>
+                                            </div>
+                                            <span class="badge bg-success mt-2">Active</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Hủy
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="submitAddItem()">
+                        <i class="fas fa-save me-1"></i>Tạo Item
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/manager-add-service.js"></script>
+}
