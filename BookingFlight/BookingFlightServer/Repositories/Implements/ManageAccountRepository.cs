@@ -16,8 +16,25 @@ namespace BookingFlightServer.Repositories.Implements
         {
             var accounts = await bookingFlightContext.Accounts.Include(a => a.Role)
                                                         .Include(a => a.Status)
+                                                        .Include(a => a.Customer)
                                                         .ToListAsync();
             return accounts == null ? null : accounts;
+        }
+
+        public async Task<Account?> GetAccountByUsernameAsync(string username)
+        {
+            var account = await bookingFlightContext.Accounts
+                .Include(a => a.Role)
+                .Include(a => a.Status)
+                .Include(a => a.Customer)
+                .FirstOrDefaultAsync(a => a.Username == username);
+            return account;
+        }
+
+        public async Task UpdateAccountAsync(Account account)
+        {
+            bookingFlightContext.Accounts.Update(account);
+            await bookingFlightContext.SaveChangesAsync();
         }
     }
 }

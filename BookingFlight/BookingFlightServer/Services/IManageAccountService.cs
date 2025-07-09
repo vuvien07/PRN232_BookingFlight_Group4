@@ -6,5 +6,6 @@ namespace BookingFlightServer.Services
     public interface IManageAccountService
     {
         Task<List<ResponseAccountDTO>?> GetAccountsAsync();
+        Task<bool> UpdateAccountAsync(string username, ResponseAccountDTO updateData);
     }
 }

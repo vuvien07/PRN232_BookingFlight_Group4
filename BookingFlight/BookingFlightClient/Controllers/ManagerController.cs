@@ -2,6 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using BookingFlightClient.Models;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using BookingFlightClient.Models.DTO;
 
 namespace BookingFlightClient.Controllers
 {
@@ -89,12 +93,6 @@ namespace BookingFlightClient.Controllers
         }
 
         public IActionResult Reports()
-        {
-            SetUserRole();
-            return View();
-        }
-
-        public IActionResult Profile()
         {
             SetUserRole();
             return View();

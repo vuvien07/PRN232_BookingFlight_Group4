@@ -275,7 +275,7 @@ async function logout() {
 }
 
 function goToProfile() {
-    window.location.href = '/Profile';
+    window.location.href = '/ManageAccount/Profile';
 }
 
 function parseJwtToken(token) {
