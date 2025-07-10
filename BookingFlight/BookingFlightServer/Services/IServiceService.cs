@@ -10,8 +10,10 @@ namespace BookingFlightServer.Services
         Task<List<DTO.Manager.ServiceDTO>> GetServicesByFilter(ServiceListRequestDTO request);
         Task<int> GetTotalServicesCount(ServiceListRequestDTO request);
         Task<DTO.Manager.ServiceDTO?> GetServiceById(int serviceId);
+        Task<ServiceDetailsDTO?> GetServiceDetails(int serviceId);
         Task<DTO.Manager.ServiceDTO> CreateService(ServiceCreateRequestDTO request);
         Task<DTO.Manager.ServiceDTO> UpdateService(ServiceUpdateRequestDTO request);
+        Task<ServiceDetailsDTO> UpdateServiceAdvanced(ServiceUpdateAdvancedRequestDTO request);
         Task<bool> DeleteService(int serviceId);
         Task<List<StatusDTO>> GetServiceStatuses();
     }

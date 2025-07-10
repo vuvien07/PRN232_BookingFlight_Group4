@@ -74,7 +74,7 @@ async function submitAddItem() {
         const itemData = getAddItemFormData();
         console.log('Creating item:', itemData);
         
-        const response = await fetch('/api/manager/items', {
+        const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.ITEMS.CREATE), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

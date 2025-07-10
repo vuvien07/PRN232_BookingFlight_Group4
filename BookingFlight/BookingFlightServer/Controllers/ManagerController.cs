@@ -88,6 +88,26 @@ namespace BookingFlightServer.Controllers
             }
         }
 
+        [HttpGet("services/{id}/details")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> GetServiceDetails(int id)
+        {
+            try
+            {
+                var serviceDetails = await _serviceService.GetServiceDetails(id);
+                if (serviceDetails == null)
+                {
+                    return NotFound(new { success = false, message = "Service not found" });
+                }
+
+                return Ok(new { success = true, data = serviceDetails });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
         [HttpPost("services")]
         [AllowAnonymous] // Temporary for testing
         public async Task<IActionResult> CreateService([FromBody] ServiceCreateRequestDTO request)
@@ -119,6 +139,25 @@ namespace BookingFlightServer.Controllers
 
                 var service = await _serviceService.UpdateService(request);
                 return Ok(new { success = true, data = service, message = "Service updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPut("services/{id}/advanced")]
+        public async Task<IActionResult> UpdateServiceAdvanced(int id, [FromBody] ServiceUpdateAdvancedRequestDTO request)
+        {
+            try
+            {
+                if (id != request.ServiceId)
+                {
+                    return BadRequest(new { success = false, message = "Service ID mismatch" });
+                }
+
+                var serviceDetails = await _serviceService.UpdateServiceAdvanced(request);
+                return Ok(new { success = true, data = serviceDetails, message = "Service updated successfully" });
             }
             catch (Exception ex)
             {

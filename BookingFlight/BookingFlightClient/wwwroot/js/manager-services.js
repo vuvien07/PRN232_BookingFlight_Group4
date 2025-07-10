@@ -83,17 +83,25 @@ async function loadServices() {
         console.log('Request data:', requestData);
         
         // Make API call
-        const response = await fetch('/api/manager/services/list', {
+        const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.SERVICES.LIST), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${getAuthToken()}`
             },
+            credentials: 'include',
             body: JSON.stringify(requestData)
         });
         
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            if (response.status === 401) {
+                showErrorState('Authentication required. Please login again.');
+                setTimeout(() => {
+                    window.location.href = '/Authentication/Login';
+                }, 2000);
+                return;
+            }
+            throw new Error(`Server responded with status ${response.status}`);
         }
         
         const result = await response.json();
@@ -108,7 +116,12 @@ async function loadServices() {
         
     } catch (error) {
         console.error('Error loading services:', error);
-        showErrorState(error.message);
+        
+        if (error.message.includes('Failed to fetch') || error.message.includes('ERR_')) {
+            showErrorState('Không thể kết nối tới server. Vui lòng kiểm tra xem API server có đang chạy không.');
+        } else {
+            showErrorState(error.message);
+        }
     }
 }
 
@@ -239,6 +252,9 @@ function createServiceCard(service) {
                     </div>
                     
                     <div class="service-info mb-3 flex-grow-1">
+                        <p class="card-text text-muted mb-3">
+                            ${escapeHtml(service.detail || 'No description available')}
+                        </p>
                         <small class="text-muted">
                             <i class="fas fa-user me-1"></i>
                             Manager: ${escapeHtml(service.managerName || 'Not assigned')}
@@ -257,13 +273,13 @@ function createServiceCard(service) {
                     
                     <div class="d-flex justify-content-center align-items-center mt-auto">
                         <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-primary" onclick="editService(${service.serviceId})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-outline-info" onclick="viewService(${service.serviceId})">
+                            <button class="btn btn-outline-info" onclick="viewServiceDetails(${service.serviceId})" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn btn-outline-danger" onclick="deleteService(${service.serviceId})">
+                            <button class="btn btn-outline-primary" onclick="editService(${service.serviceId})" title="Edit Service">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="deleteService(${service.serviceId})" title="Delete Service">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -382,9 +398,13 @@ function editService(serviceId) {
 }
 
 function viewService(serviceId) {
-    // TODO: Implement view service modal/details
-    console.log('View service:', serviceId);
-    alert(`View Service ${serviceId} functionality will be implemented`);
+    // Navigate to service details page
+    window.location.href = `/Manager/ServiceDetails?id=${serviceId}`;
+}
+
+function viewServiceDetails(serviceId) {
+    // Navigate to service details page
+    window.location.href = `/Manager/ServiceDetails?id=${serviceId}`;
 }
 
 function deleteService(serviceId) {
@@ -404,10 +424,16 @@ function createNewTicket() {
 
 // Utility functions
 function getAuthToken() {
-    // Try to get JWT token from localStorage, sessionStorage, or cookies
+    // Try to get JWT token from cookies first, then localStorage, sessionStorage
+    const cookieToken = getCookie('X-Access-Token');
+    if (cookieToken) {
+        return cookieToken;
+    }
+    
     return localStorage.getItem('authToken') || 
            sessionStorage.getItem('authToken') || 
-           getCookie('authToken') || '';
+           localStorage.getItem('token') || 
+           sessionStorage.getItem('token') || '';
 }
 
 function getCookie(name) {
@@ -443,6 +469,7 @@ window.loadServices = loadServices;
 window.addNewService = addNewService;
 window.editService = editService;
 window.viewService = viewService;
+window.viewServiceDetails = viewServiceDetails;
 window.deleteService = deleteService;
 window.createNewTicket = createNewTicket;
 window.changePage = changePage;

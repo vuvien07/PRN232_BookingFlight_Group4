@@ -24,15 +24,23 @@ function initializeAddService() {
 
 async function loadServiceStatuses() {
     try {
-        const response = await fetch('/api/manager/services/statuses', {
+        const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.SERVICES.STATUSES), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${getAuthToken()}`
-            }
+            },
+            credentials: 'include'
         });
         
         if (!response.ok) {
+            if (response.status === 401) {
+                showError('Authentication required. Please login again.');
+                setTimeout(() => {
+                    window.location.href = '/Authentication/Login';
+                }, 2000);
+                return;
+            }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
@@ -214,12 +222,13 @@ async function submitForm() {
         const token = getAuthToken();
         console.log('Using auth token:', token ? 'Token present' : 'No token found');
         
-        const response = await fetch('/api/manager/services', {
+        const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.SERVICES.CREATE), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
+            credentials: 'include',
             body: JSON.stringify(formData)
         });
         
@@ -227,6 +236,13 @@ async function submitForm() {
         console.log('Response headers:', response.headers);
         
         if (!response.ok) {
+            if (response.status === 401) {
+                showError('Authentication required. Please login again.');
+                setTimeout(() => {
+                    window.location.href = '/Authentication/Login';
+                }, 2000);
+                return;
+            }
             const errorText = await response.text();
             console.error('Error response:', errorText);
             throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
@@ -378,15 +394,24 @@ async function loadAvailableItems() {
         if (itemsList) itemsList.style.display = 'none';
         if (noItemsMessage) noItemsMessage.style.display = 'none';
         
-        const response = await fetch('/api/manager/items', {
+        // Use the GET endpoint for active items
+        const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.ITEMS.ACTIVE), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${getAuthToken()}`
-            }
+            },
+            credentials: 'include'
         });
         
         if (!response.ok) {
+            if (response.status === 401) {
+                showError('Authentication required. Please login again.');
+                setTimeout(() => {
+                    window.location.href = '/Authentication/Login';
+                }, 2000);
+                return;
+            }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
@@ -533,9 +558,16 @@ function formatPrice(price) {
 
 // Utility functions
 function getAuthToken() {
+    // Try to get JWT token from cookies first, then localStorage, sessionStorage
+    const cookieToken = getCookie('X-Access-Token');
+    if (cookieToken) {
+        return cookieToken;
+    }
+    
     return localStorage.getItem('authToken') || 
            sessionStorage.getItem('authToken') || 
-           getCookie('authToken') || '';
+           localStorage.getItem('token') || 
+           sessionStorage.getItem('token') || '';
 }
 
 function getCookie(name) {
@@ -549,6 +581,11 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function showError(message) {
+    console.error('Error:', message);
+    alert(message); // Simple error display - you can enhance this
 }
 
 // Modal functions
@@ -686,18 +723,26 @@ async function submitAddItem() {
     console.log('Submitting item data:', itemData);
     
     try {
-        const response = await fetch('/api/manager/items', {
+        const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.ITEMS.CREATE), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${getAuthToken()}`
             },
+            credentials: 'include',
             body: JSON.stringify(itemData)
         });
         
         console.log('Response status:', response.status);
         
         if (!response.ok) {
+            if (response.status === 401) {
+                showError('Authentication required. Please login again.');
+                setTimeout(() => {
+                    window.location.href = '/Authentication/Login';
+                }, 2000);
+                return;
+            }
             const errorText = await response.text();
             console.error('Error response:', errorText);
             throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
