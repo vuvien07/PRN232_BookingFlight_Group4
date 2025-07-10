@@ -1,0 +1,378 @@
+@{
+    ViewData["Title"] = "Chi tiết dịch vụ";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/manager-services.css" />
+
+<div class="service-details-container">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/Manager/Services" class="text-decoration-none">
+                            <i class="fas fa-cogs me-1"></i>Quản lý dịch vụ
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Chi tiết dịch vụ</li>
+                </ol>
+            </nav>
+            <h3 class="mb-0">Chi tiết dịch vụ</h3>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary" onclick="editService()">
+                <i class="fas fa-edit me-2"></i>Chỉnh sửa
+            </button>
+            <button class="btn btn-outline-danger" onclick="deleteService()">
+                <i class="fas fa-trash me-2"></i>Xóa
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading spinner -->
+    <div id="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Đang tải...</span>
+        </div>
+    </div>
+
+    <!-- Service Details -->
+    <div id="serviceDetailsContent" style="display: none;">
+        <!-- Service Information and Statistics in one row -->
+        <div class="row g-4 mb-4">
+            <!-- Service Information Card -->
+            <div class="col-md-8">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-info-circle me-2 text-primary"></i>Thông tin dịch vụ
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label text-muted">Tên dịch vụ</label>
+                                <p class="fw-bold mb-0" id="serviceName">-</p>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-muted">Mô tả chi tiết</label>
+                                <p class="mb-0" id="serviceDetail">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">Trạng thái</label>
+                                <p class="mb-0">
+                                    <span class="badge" id="serviceStatus">-</span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">Người quản lý</label>
+                                <p class="mb-0" id="managerName">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">Số lượng items</label>
+                                <p class="mb-0" id="itemCount">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">Số chuyến bay</label>
+                                <p class="mb-0" id="flightCount">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Card -->
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-bar me-2 text-success"></i>Thống kê
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <i class="fas fa-box-open fa-2x text-primary mb-2"></i>
+                                    <h4 class="mb-0" id="totalItems">0</h4>
+                                    <small class="text-muted">Tổng số items</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <i class="fas fa-plane fa-2x text-success mb-2"></i>
+                                    <h4 class="mb-0" id="totalFlights">0</h4>
+                                    <small class="text-muted">Chuyến bay</small>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <i class="fas fa-dollar-sign fa-2x text-warning mb-2"></i>
+                                    <h4 class="mb-0" id="totalValue">0</h4>
+                                    <small class="text-muted">Tổng giá trị</small>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <i class="fas fa-star fa-2x text-info mb-2"></i>
+                                    <h4 class="mb-0" id="avgPrice">0</h4>
+                                    <small class="text-muted">Giá trung bình</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Items -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-list me-2 text-primary"></i>Danh sách items trong dịch vụ
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="serviceItemsTable">
+                            <!-- Items will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="alert alert-danger" style="display: none;">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span id="errorText"></span>
+    </div>
+</div>
+
+<script>
+    let serviceId = @ViewBag.ServiceId;
+    let serviceData = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadServiceDetails();
+    });
+
+    function loadServiceDetails() {
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('serviceDetailsContent').style.display = 'none';
+        document.getElementById('errorMessage').style.display = 'none';
+
+        // Get auth token
+        const authToken = localStorage.getItem('authToken') || getCookie('X-Access-Token');
+
+        fetch('/api/manager/services/' + serviceId, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + authToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                serviceData = data.data;
+                displayServiceDetails(serviceData);
+            } else {
+                showError(data.message || 'Không thể tải thông tin dịch vụ');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Lỗi khi tải thông tin dịch vụ');
+        })
+        .finally(() => {
+            document.getElementById('loading').style.display = 'none';
+        });
+    }
+
+    function displayServiceDetails(service) {
+        // Service information
+        document.getElementById('serviceName').textContent = service.serviceName;
+        document.getElementById('serviceDetail').textContent = service.detail || 'Không có mô tả';
+        document.getElementById('managerName').textContent = service.managerName || 'Không xác định';
+        document.getElementById('itemCount').textContent = service.itemCount || 0;
+        document.getElementById('flightCount').textContent = service.flightCount || 0;
+
+        // Service status
+        const statusBadge = document.getElementById('serviceStatus');
+        if (service.status) {
+            statusBadge.textContent = service.status.statusName;
+            statusBadge.className = 'badge';
+            
+            switch (service.status.statusName.toLowerCase()) {
+                case 'active':
+                case 'hoạt động':
+                    statusBadge.classList.add('bg-success');
+                    break;
+                case 'inactive':
+                case 'không hoạt động':
+                    statusBadge.classList.add('bg-danger');
+                    break;
+                case 'pending':
+                case 'chờ duyệt':
+                    statusBadge.classList.add('bg-warning');
+                    break;
+                default:
+                    statusBadge.classList.add('bg-secondary');
+            }
+        } else {
+            statusBadge.textContent = 'Không xác định';
+            statusBadge.className = 'badge bg-secondary';
+        }
+
+        // Statistics
+        document.getElementById('totalItems').textContent = service.itemCount || 0;
+        document.getElementById('totalFlights').textContent = service.flightCount || 0;
+
+        // Calculate statistics from items
+        if (service.items && service.items.length > 0) {
+            const totalValue = service.items.reduce((sum, item) => sum + (item.price || 0), 0);
+            const avgPrice = totalValue / service.items.length;
+            
+            document.getElementById('totalValue').textContent = formatCurrency(totalValue);
+            document.getElementById('avgPrice').textContent = formatCurrency(avgPrice);
+        } else {
+            document.getElementById('totalValue').textContent = formatCurrency(0);
+            document.getElementById('avgPrice').textContent = formatCurrency(0);
+        }
+
+        // Service items table
+        displayServiceItems(service.items || []);
+
+        document.getElementById('serviceDetailsContent').style.display = 'block';
+    }
+
+    function displayServiceItems(items) {
+        const tableContainer = document.getElementById('serviceItemsTable');
+        
+        if (items.length === 0) {
+            tableContainer.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Chưa có items nào trong dịch vụ này</h5>
+                    <p class="text-muted">Nhấn "Thêm item" để thêm items vào dịch vụ</p>
+                </div>
+            `;
+            return;
+        }
+
+        let tableHtml = `
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên item</th>
+                            <th>Mô tả</th>
+                            <th>Giá</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        items.forEach(item => {
+            tableHtml += `
+                <tr>
+                    <td>
+                        <strong>${item.itemId}</strong>
+                    </td>
+                    <td>
+                        <strong>${escapeHtml(item.itemName)}</strong>
+                    </td>
+                    <td>
+                        <div class="item-detail-text" style="max-width: 300px;">
+                            ${escapeHtml(item.detail || 'Không có mô tả')}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="fw-bold text-primary">${formatCurrency(item.price)}</span>
+                    </td>
+                    <td>
+                        <span class="badge ${getStatusBadgeClass(item.statusName)}">
+                            ${escapeHtml(item.statusName || 'Không xác định')}
+                        </span>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tableHtml += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        tableContainer.innerHTML = tableHtml;
+    }
+
+    function getStatusBadgeClass(statusName) {
+        if (!statusName) return 'bg-secondary';
+        
+        switch (statusName.toLowerCase()) {
+            case 'active':
+            case 'hoạt động':
+                return 'bg-success';
+            case 'inactive':
+            case 'không hoạt động':
+                return 'bg-danger';
+            case 'pending':
+            case 'chờ duyệt':
+                return 'bg-warning';
+            default:
+                return 'bg-secondary';
+        }
+    }
+
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(amount);
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function showError(message) {
+        document.getElementById('errorText').textContent = message;
+        document.getElementById('errorMessage').style.display = 'block';
+        document.getElementById('serviceDetailsContent').style.display = 'none';
+    }
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    // Action functions
+    function editService() {
+        if (serviceData) {
+            // Redirect to edit page
+            window.location.href = `/Manager/EditService/${serviceData.serviceId}`;
+        }
+    }
+
+    function deleteService() {
+        if (serviceData) {
+            if (confirm('Bạn có chắc chắn muốn xóa dịch vụ này?')) {
+                // Implement delete functionality
+                console.log('Delete service:', serviceData.serviceId);
+            }
+        }
+    }
+</script>

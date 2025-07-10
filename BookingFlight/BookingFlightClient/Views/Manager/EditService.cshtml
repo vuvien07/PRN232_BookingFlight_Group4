@@ -1,0 +1,656 @@
+@{
+    ViewData["Title"] = "Chỉnh sửa dịch vụ";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/manager-services.css" />
+
+<div class="service-edit-container">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/Manager/Services" class="text-decoration-none">
+                            <i class="fas fa-cogs me-1"></i>Quản lý dịch vụ
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="/Manager/ServiceDetails/@ViewBag.ServiceId" class="text-decoration-none">
+                            Chi tiết dịch vụ
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa</li>
+                </ol>
+            </nav>
+            <h3 class="mb-0">Chỉnh sửa dịch vụ</h3>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary" onclick="window.history.back()">
+                <i class="fas fa-arrow-left me-2"></i>Quay lại
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading spinner -->
+    <div id="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Đang tải...</span>
+        </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div id="editFormContainer" class="row g-4" style="display: none;">
+        <div class="col-12">
+            <form id="editServiceForm">
+                <div class="row g-4">
+                    <!-- Service Information -->
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-edit me-2 text-primary"></i>Thông tin dịch vụ
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label for="serviceName" class="form-label">Tên dịch vụ <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="serviceName" name="serviceName" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="serviceDetail" class="form-label">Mô tả chi tiết</label>
+                                        <textarea class="form-control" id="serviceDetail" name="serviceDetail" rows="4"></textarea>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="serviceStatus" class="form-label">Trạng thái</label>
+                                        <select class="form-select" id="serviceStatus" name="serviceStatus">
+                                            <option value="">Chọn trạng thái...</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Người quản lý</label>
+                                        <input type="text" class="form-control" id="managerName" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-cog me-2 text-success"></i>Thao tác
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Lưu thay đổi
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                        <i class="fas fa-undo me-2"></i>Khôi phục
+                                    </button>
+                                    <button type="button" class="btn btn-outline-success" onclick="showCreateItemModal()">
+                                        <i class="fas fa-plus me-2"></i>Tạo item mới
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger" onclick="deleteService()">
+                                        <i class="fas fa-trash me-2"></i>Xóa dịch vụ
+                                    </button>
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="text-center">
+                                    <small class="text-muted">ID: <span id="serviceId">-</span></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Items Management -->
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-boxes me-2 text-primary"></i>Quản lý items trong dịch vụ
+                                </h5>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="showAddItemModal()">
+                                    <i class="fas fa-plus me-1"></i>Thêm items
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <!-- Selected Items Display -->
+                                <div id="selectedItemsContainer">
+                                    <div class="row g-2" id="selectedItemsList">
+                                        <!-- Selected items will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="alert alert-danger" style="display: none;">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span id="errorText"></span>
+    </div>
+
+    <!-- Success Message -->
+    <div id="successMessage" class="alert alert-success" style="display: none;">
+        <i class="fas fa-check-circle me-2"></i>
+        <span id="successText"></span>
+    </div>
+</div>
+
+<!-- Add Items Modal -->
+<div class="modal fade" id="addItemsModal" tabindex="-1" aria-labelledby="addItemsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addItemsModalLabel">
+                    <i class="fas fa-plus me-2"></i>Thêm items vào dịch vụ
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="itemSearchInput" placeholder="Tìm kiếm items...">
+                </div>
+                <div id="availableItemsList" class="row g-2">
+                    <!-- Available items will be populated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="addSelectedItems()">Thêm items đã chọn</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create New Item Modal -->
+<div class="modal fade" id="createItemModal" tabindex="-1" aria-labelledby="createItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createItemModalLabel">
+                    <i class="fas fa-plus me-2"></i>Tạo item mới
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createItemForm" novalidate>
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="newItemName" class="form-label">Tên item <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="newItemName" name="itemName" required>
+                                <div class="invalid-feedback">
+                                    Vui lòng nhập tên item.
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="newItemDetail" class="form-label">Mô tả chi tiết</label>
+                                <textarea class="form-control" id="newItemDetail" name="detail" rows="3" placeholder="Mô tả chi tiết về item..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="newItemPrice" class="form-label">Giá <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="newItemPrice" name="price" min="0" step="1000" required>
+                                    <span class="input-group-text">VND</span>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Vui lòng nhập giá hợp lệ.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-eye me-2"></i>Xem trước
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="item-preview">
+                                        <h6 class="item-preview-name">Tên Item</h6>
+                                        <p class="item-preview-detail text-muted small">Mô tả chi tiết...</p>
+                                        <span class="badge bg-primary item-preview-price">0 VND</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-success" onclick="createNewItem()">
+                    <i class="fas fa-plus me-2"></i>Tạo item
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let serviceId = @ViewBag.ServiceId;
+    let originalServiceData = null;
+    let selectedItemIds = [];
+    let availableItems = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadServiceData();
+        loadAvailableItems();
+        loadServiceStatuses();
+        setupForm();
+    });
+
+    function setupForm() {
+        document.getElementById('editServiceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            updateService();
+        });
+
+        document.getElementById('itemSearchInput').addEventListener('input', function() {
+            filterAvailableItems(this.value);
+        });
+    }
+
+    function loadServiceData() {
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('editFormContainer').style.display = 'none';
+        hideMessages();
+
+        const authToken = localStorage.getItem('authToken') || getCookie('X-Access-Token');
+
+        fetch('/api/manager/services/' + serviceId, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + authToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                originalServiceData = data.data;
+                populateForm(originalServiceData);
+                document.getElementById('editFormContainer').style.display = 'block';
+            } else {
+                showError(data.message || 'Không thể tải thông tin dịch vụ');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Lỗi khi tải thông tin dịch vụ');
+        })
+        .finally(() => {
+            document.getElementById('loading').style.display = 'none';
+        });
+    }
+
+    function populateForm(service) {
+        document.getElementById('serviceId').textContent = service.serviceId;
+        document.getElementById('serviceName').value = service.serviceName;
+        document.getElementById('serviceDetail').value = service.detail || '';
+        document.getElementById('managerName').value = service.managerName || '';
+        
+        if (service.status) {
+            document.getElementById('serviceStatus').value = service.status.statusId;
+        }
+
+        // Populate selected items
+        selectedItemIds = service.items ? service.items.map(item => item.itemId) : [];
+        displaySelectedItems(service.items || []);
+    }
+
+    function displaySelectedItems(items) {
+        const container = document.getElementById('selectedItemsList');
+        
+        if (items.length === 0) {
+            container.innerHTML = `
+                <div class="col-12">
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-box-open fa-3x mb-3"></i>
+                        <p>Chưa có items nào được chọn</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = items.map(item => `
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-primary">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="card-title mb-1">${escapeHtml(item.itemName)}</h6>
+                                <p class="card-text small text-muted mb-2">${escapeHtml(item.detail || 'Không có mô tả')}</p>
+                                <span class="badge bg-primary">${formatCurrency(item.price)}</span>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeSelectedItem(${item.itemId})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function loadAvailableItems() {
+        const authToken = localStorage.getItem('authToken') || getCookie('X-Access-Token');
+
+        fetch('/api/manager/items', {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + authToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                availableItems = data.data;
+                displayAvailableItems(availableItems);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading items:', error);
+        });
+    }
+
+    function displayAvailableItems(items) {
+        const container = document.getElementById('availableItemsList');
+        
+        const filteredItems = items.filter(item => !selectedItemIds.includes(item.itemId));
+        
+        if (filteredItems.length === 0) {
+            container.innerHTML = `
+                <div class="col-12">
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-search fa-2x mb-3"></i>
+                        <p>Không tìm thấy items nào</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = filteredItems.map(item => `
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body p-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="${item.itemId}" id="item${item.itemId}">
+                            <label class="form-check-label w-100" for="item${item.itemId}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">${escapeHtml(item.itemName)}</h6>
+                                        <p class="small text-muted mb-2">${escapeHtml(item.detail || 'Không có mô tả')}</p>
+                                        <span class="badge bg-success">${formatCurrency(item.price)}</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function filterAvailableItems(searchTerm) {
+        const filtered = availableItems.filter(item => 
+            !selectedItemIds.includes(item.itemId) &&
+            (item.itemName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+             (item.detail && item.detail.toLowerCase().includes(searchTerm.toLowerCase())))
+        );
+        displayAvailableItems(filtered);
+    }
+
+    function loadServiceStatuses() {
+        const authToken = localStorage.getItem('authToken') || getCookie('X-Access-Token');
+
+        fetch('/api/manager/services/statuses', {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + authToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const statusSelect = document.getElementById('serviceStatus');
+                statusSelect.innerHTML = '<option value="">Chọn trạng thái...</option>';
+                data.data.forEach(status => {
+                    statusSelect.innerHTML += `<option value="${status.statusId}">${status.statusName}</option>`;
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error loading statuses:', error);
+        });
+    }
+
+    function showAddItemModal() {
+        displayAvailableItems(availableItems);
+        const modal = new bootstrap.Modal(document.getElementById('addItemsModal'));
+        modal.show();
+    }
+
+    function addSelectedItems() {
+        const checkboxes = document.querySelectorAll('#availableItemsList input[type="checkbox"]:checked');
+        const newItemIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+        
+        selectedItemIds = [...selectedItemIds, ...newItemIds];
+        
+        // Update display
+        const selectedItems = availableItems.filter(item => selectedItemIds.includes(item.itemId));
+        displaySelectedItems(selectedItems);
+        
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addItemsModal'));
+        modal.hide();
+        
+        // Clear search
+        document.getElementById('itemSearchInput').value = '';
+    }
+
+    function removeSelectedItem(itemId) {
+        selectedItemIds = selectedItemIds.filter(id => id !== itemId);
+        const selectedItems = availableItems.filter(item => selectedItemIds.includes(item.itemId));
+        displaySelectedItems(selectedItems);
+    }
+
+    function updateService() {
+        const formData = {
+            serviceId: serviceId,
+            serviceName: document.getElementById('serviceName').value,
+            detail: document.getElementById('serviceDetail').value || null,
+            statusId: document.getElementById('serviceStatus').value ? parseInt(document.getElementById('serviceStatus').value) : null,
+            itemIds: selectedItemIds
+        };
+
+        const authToken = localStorage.getItem('authToken') || getCookie('X-Access-Token');
+
+        fetch('/api/manager/services/' + serviceId, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + authToken
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccess('Cập nhật dịch vụ thành công!');
+                // Reload data
+                setTimeout(() => {
+                    loadServiceData();
+                }, 1000);
+            } else {
+                showError(data.message || 'Lỗi khi cập nhật dịch vụ');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showError('Lỗi khi cập nhật dịch vụ');
+        });
+    }
+
+    function resetForm() {
+        if (originalServiceData) {
+            populateForm(originalServiceData);
+            hideMessages();
+        }
+    }
+
+    function deleteService() {
+        if (confirm('Bạn có chắc chắn muốn xóa dịch vụ này? Hành động này không thể hoàn tác.')) {
+            // Implement delete functionality
+            console.log('Delete service:', serviceId);
+            showError('Chức năng xóa đang được phát triển');
+        }
+    }
+
+    // Create Item Modal Functions
+    function showCreateItemModal() {
+        const modal = new bootstrap.Modal(document.getElementById('createItemModal'));
+        modal.show();
+        setupCreateItemPreview();
+        resetCreateItemForm();
+    }
+
+    function setupCreateItemPreview() {
+        const nameInput = document.getElementById('newItemName');
+        const detailInput = document.getElementById('newItemDetail');
+        const priceInput = document.getElementById('newItemPrice');
+
+        [nameInput, detailInput, priceInput].forEach(input => {
+            if (input) {
+                input.addEventListener('input', updateCreateItemPreview);
+            }
+        });
+
+        updateCreateItemPreview();
+    }
+
+    function updateCreateItemPreview() {
+        const name = document.getElementById('newItemName').value || 'Tên Item';
+        const detail = document.getElementById('newItemDetail').value || 'Mô tả chi tiết...';
+        const price = document.getElementById('newItemPrice').value || '0';
+
+        document.querySelector('.item-preview-name').textContent = name;
+        document.querySelector('.item-preview-detail').textContent = detail;
+        document.querySelector('.item-preview-price').textContent = formatCurrency(parseInt(price) || 0);
+    }
+
+    function resetCreateItemForm() {
+        document.getElementById('createItemForm').reset();
+        document.getElementById('createItemForm').classList.remove('was-validated');
+        updateCreateItemPreview();
+    }
+
+    async function createNewItem() {
+        const form = document.getElementById('createItemForm');
+        
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+
+        const itemData = {
+            itemName: document.getElementById('newItemName').value.trim(),
+            detail: document.getElementById('newItemDetail').value.trim() || null,
+            price: parseInt(document.getElementById('newItemPrice').value) || 0
+        };
+
+        try {
+            const authToken = localStorage.getItem('authToken') || getCookie('X-Access-Token');
+
+            const response = await fetch('/api/manager/items', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + authToken
+                },
+                body: JSON.stringify(itemData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('createItemModal'));
+                modal.hide();
+
+                // Reload available items
+                await loadAvailableItems();
+
+                // Auto-select the new item and add to service
+                if (result.data && result.data.itemId) {
+                    selectedItemIds.push(result.data.itemId);
+                    const selectedItems = availableItems.filter(item => selectedItemIds.includes(item.itemId));
+                    displaySelectedItems(selectedItems);
+                }
+
+                showSuccess('Tạo item mới thành công và đã thêm vào dịch vụ!');
+            } else {
+                showError(result.message || 'Lỗi khi tạo item mới');
+            }
+        } catch (error) {
+            console.error('Error creating item:', error);
+            showError('Lỗi khi tạo item mới: ' + error.message);
+        }
+    }
+
+    // Utility functions
+    function showError(message) {
+        document.getElementById('errorText').textContent = message;
+        document.getElementById('errorMessage').style.display = 'block';
+        document.getElementById('successMessage').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showSuccess(message) {
+        document.getElementById('successText').textContent = message;
+        document.getElementById('successMessage').style.display = 'block';
+        document.getElementById('errorMessage').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function hideMessages() {
+        document.getElementById('errorMessage').style.display = 'none';
+        document.getElementById('successMessage').style.display = 'none';
+    }
+
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(amount);
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+</script>
