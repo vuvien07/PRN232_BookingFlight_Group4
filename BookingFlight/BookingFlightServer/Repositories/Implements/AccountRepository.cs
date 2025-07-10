@@ -62,44 +62,65 @@ namespace BookingFlightServer.Repositories.Implements
 
         public async Task SaveResetTokenAsync(int accountId, string token, DateTime expireTime)
         {
-            // For simplicity, we'll store the reset token in Redis
-            // Key: reset_token:{token}, Value: {accountId}:{expireTime}
-            var key = $"reset_token:{token}";
-            var value = $"{accountId}:{expireTime:yyyy-MM-dd HH:mm:ss}";
+            // Remove existing reset tokens for this account
+            var existingLogs = await _repositoryDbContext.UserLogs
+                .Where(ul => ul.AccountId == accountId && ul.Detail != null && ul.Detail.StartsWith("reset_token:"))
+                .ToListAsync();
+            
+            if (existingLogs.Any())
+            {
+                _repositoryDbContext.UserLogs.RemoveRange(existingLogs);
+            }
 
-            // Set expiration for 15 minutes
-            var expiration = TimeSpan.FromMinutes(15);
-            //await _redisHelper.SetAsync(key, value, expiration);
-            // => TO DO
+            // Store reset token in User_Logs table
+            // Format: "reset_token:token:expireTime"
+            var detail = $"reset_token:{token}:{expireTime:yyyy-MM-dd HH:mm:ss}";
+            var userLog = new UserLog
+            {
+                AccountId = accountId,
+                Detail = detail,
+                AccessTime = DateTime.Now
+            };
+            
+            _repositoryDbContext.UserLogs.Add(userLog);
+            await _repositoryDbContext.SaveChangesAsync();
         }
 
         public async Task<(int? accountId, DateTime? expireTime)> GetResetTokenInfoAsync(string token)
         {
-            var key = $"reset_token:{token}";
-            //var value = await _redisHelper.GetAsync(key);
-            //var value = await _redisHelper.GetAsync(key);
+            var userLog = await _repositoryDbContext.UserLogs
+                .Where(ul => ul.Detail != null && ul.Detail.Contains($"reset_token:{token}:"))
+                .FirstOrDefaultAsync();
 
-            //if (string.IsNullOrEmpty(value))
-            //    return (null, null);
+            if (userLog == null || userLog.Detail == null)
+                return (null, null);
 
-            //var parts = value.Split(':');
-            //if (parts.Length >= 2 && int.TryParse(parts[0], out int accountId))
-            //{
-            //    // Reconstruct datetime from parts[1] and parts[2]
-            //    var dateTimePart = string.Join(":", parts.Skip(1));
-            //    if (DateTime.TryParseExact(dateTimePart, "yyyy-MM-dd HH:mm:ss", null,
-            //        System.Globalization.DateTimeStyles.None, out DateTime expireTime))
-            //    {
-            //        return (accountId, expireTime);
-            //    }
-            //}
+            // Parse detail: "reset_token:token:yyyy-MM-dd HH:mm:ss"
+            var parts = userLog.Detail.Split(':');
+            if (parts.Length >= 3)
+            {
+                var dateTimePart = string.Join(":", parts.Skip(2));
+                if (DateTime.TryParseExact(dateTimePart, "yyyy-MM-dd HH:mm:ss", null,
+                    System.Globalization.DateTimeStyles.None, out DateTime expireTime))
+                {
+                    return (userLog.AccountId, expireTime);
+                }
+            }
+
             return (null, null);
         }
 
         public async Task DeleteResetTokenAsync(string token)
         {
-            var key = $"reset_token:{token}";
-            //await _redisHelper.DeleteAsync(key);
+            var userLog = await _repositoryDbContext.UserLogs
+                .Where(ul => ul.Detail != null && ul.Detail.Contains($"reset_token:{token}:"))
+                .FirstOrDefaultAsync();
+
+            if (userLog != null)
+            {
+                _repositoryDbContext.UserLogs.Remove(userLog);
+                await _repositoryDbContext.SaveChangesAsync();
+            }
         }
 
         public async Task UpdatePasswordAsync(int accountId, string newPassword)
@@ -115,42 +136,65 @@ namespace BookingFlightServer.Repositories.Implements
         // Email Verification implementations
         public async Task SaveEmailVerificationTokenAsync(int accountId, string token, DateTime expireTime)
         {
-            // Store verification token in Redis with different prefix
-            var key = $"email_verify:{token}";
-            var value = $"{accountId}:{expireTime:yyyy-MM-dd HH:mm:ss}";
+            // Remove existing email verification tokens for this account
+            var existingLogs = await _repositoryDbContext.UserLogs
+                .Where(ul => ul.AccountId == accountId && ul.Detail != null && ul.Detail.StartsWith("email_verify:"))
+                .ToListAsync();
+            
+            if (existingLogs.Any())
+            {
+                _repositoryDbContext.UserLogs.RemoveRange(existingLogs);
+            }
 
-            // Set expiration for 24 hours (longer than password reset)
-            var expiration = TimeSpan.FromHours(24);
-            //await _redisHelper.SetAsync(key, value, expiration);
+            // Store verification token in User_Logs table
+            // Format: "email_verify:token:expireTime"
+            var detail = $"email_verify:{token}:{expireTime:yyyy-MM-dd HH:mm:ss}";
+            var userLog = new UserLog
+            {
+                AccountId = accountId,
+                Detail = detail,
+                AccessTime = DateTime.Now
+            };
+            
+            _repositoryDbContext.UserLogs.Add(userLog);
+            await _repositoryDbContext.SaveChangesAsync();
         }
 
         public async Task<(int? accountId, DateTime? expireTime)> GetEmailVerificationTokenInfoAsync(string token)
         {
-            //var key = $"email_verify:{token}";
-            //var value = await _redisHelper.GetAsync(key);
+            var userLog = await _repositoryDbContext.UserLogs
+                .Where(ul => ul.Detail != null && ul.Detail.Contains($"email_verify:{token}:"))
+                .FirstOrDefaultAsync();
 
-            //if (string.IsNullOrEmpty(value))
-            //    return (null, null);
+            if (userLog == null || userLog.Detail == null)
+                return (null, null);
 
-            //var parts = value.Split(':');
-            //if (parts.Length >= 2 && int.TryParse(parts[0], out int accountId))
-            //{
-            //    // Reconstruct datetime from parts[1] and parts[2]
-            //    var dateTimePart = string.Join(":", parts.Skip(1));
-            //    if (DateTime.TryParseExact(dateTimePart, "yyyy-MM-dd HH:mm:ss", null,
-            //        System.Globalization.DateTimeStyles.None, out DateTime expireTime))
-            //    {
-            //        return (accountId, expireTime);
-            //    }
-            //}
+            // Parse detail: "email_verify:token:yyyy-MM-dd HH:mm:ss"
+            var parts = userLog.Detail.Split(':');
+            if (parts.Length >= 3)
+            {
+                var dateTimePart = string.Join(":", parts.Skip(2));
+                if (DateTime.TryParseExact(dateTimePart, "yyyy-MM-dd HH:mm:ss", null,
+                    System.Globalization.DateTimeStyles.None, out DateTime expireTime))
+                {
+                    return (userLog.AccountId, expireTime);
+                }
+            }
 
             return (null, null);
         }
 
         public async Task DeleteEmailVerificationTokenAsync(string token)
         {
-            var key = $"email_verify:{token}";
-            //await _redisHelper.DeleteAsync(key);
+            var userLog = await _repositoryDbContext.UserLogs
+                .Where(ul => ul.Detail != null && ul.Detail.Contains($"email_verify:{token}:"))
+                .FirstOrDefaultAsync();
+
+            if (userLog != null)
+            {
+                _repositoryDbContext.UserLogs.Remove(userLog);
+                await _repositoryDbContext.SaveChangesAsync();
+            }
         }
 
         public async Task ActivateAccountAsync(int accountId)
