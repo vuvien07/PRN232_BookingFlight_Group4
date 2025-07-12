@@ -13,6 +13,9 @@ namespace BookingFlightServer.Mappers
 				ForMember(c => c.FlightDTO, opt => opt.MapFrom(c => c.Flight)).
 				ForMember(c => c.ClassSeatDTO, opt => opt.MapFrom(c => c.ClassSeat)).
 				ReverseMap();
+			CreateMap<Role, RoleDTO>().ReverseMap();
+			CreateMap<Status, StatusDTO>().ReverseMap();
+			
 		}
 	}
 }
