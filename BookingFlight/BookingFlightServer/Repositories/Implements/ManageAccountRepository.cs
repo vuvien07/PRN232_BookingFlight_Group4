@@ -12,6 +12,14 @@ namespace BookingFlightServer.Repositories.Implements
         {
             this.bookingFlightContext = bookingFlightContext;
         }
+
+        public async Task<Account?> CreateAccountAsync(Account account)
+        {
+            bookingFlightContext.Accounts.Add(account);
+            await bookingFlightContext.SaveChangesAsync();
+            return account == null ? null : account;
+        }
+
         public async Task<List<Account>?> GetAccountsAsync()
         {
             var accounts = await bookingFlightContext.Accounts.Include(a => a.Role)

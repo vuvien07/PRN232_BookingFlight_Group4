@@ -1,4 +1,5 @@
-﻿using BookingFlightServer.Services;
+﻿using BookingFlightServer.DTO.ManageAccount;
+using BookingFlightServer.Services;
 using BookingFlightServer.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -36,6 +37,22 @@ namespace BookingFlightServer.Controllers
             }
             // Return the list of accounts
             return Ok(responseAccountDTO);
+        }
+
+
+        // POST: api/manageaccount/add-account
+        [HttpPost]
+        [Route("add-account")]
+        public async Task<IActionResult> AddAccount([FromBody] RequestAddAccountDTO requestAddAccountDTO)
+        {
+            var responseAccountDTO = await manageAccountService.CreateAccountAsync(requestAddAccountDTO);
+            // Check if the account creation was successful
+            if (responseAccountDTO == null)
+            {
+                return BadRequest(new { message = "Failed to create account." });
+            }
+            // Return the created account with a 201 Created status
+            return StatusCode(StatusCodes.Status201Created, responseAccountDTO);
         }
     }
 }

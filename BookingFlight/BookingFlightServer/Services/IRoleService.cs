@@ -4,6 +4,6 @@ namespace BookingFlightServer.Services
 {
     public interface IRoleService
     {
-        Task<List<RoleDTO>?> GetRoleDTOsAsync();
+        Task<List<RoleDTO>?> GetRolesAsync();
     }
 }

@@ -11,7 +11,7 @@ namespace BookingFlightServer.Services.Implements
         {
             this.roleRepository = roleRepository;
         }
-        public async Task<List<RoleDTO>?> GetRoleDTOsAsync()
+        public async Task<List<RoleDTO>?> GetRolesAsync()
         {
             var roles = await roleRepository.GetRolesAsync();
             // If roles is null, return null
