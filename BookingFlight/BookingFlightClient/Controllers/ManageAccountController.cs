@@ -111,5 +111,119 @@ namespace BookingFlightClient.Controllers
 
             return RedirectToAction(nameof(Add));
         }
+
+        public async Task<IActionResult>BanAccount(int accountId)
+        {
+            Console.WriteLine($"Client :: accountId :: {accountId}");
+
+            if(accountId == null || accountId == 0)
+            {
+                return NotFound();
+            }
+
+            // init 
+            var client = httpClientFactory.CreateClient();
+            // Add Authorization token if available
+            if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var jsonOptions = new JsonSerializerOptions
+            {
+                // parse to camelCase
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                // format json
+                WriteIndented = true
+            };
+
+            // Đóng gói accountId vào 1 object
+            var payload = new { accountId = accountId };
+
+            // Serialize object
+            var jsonContent = JsonSerializer.Serialize(payload, jsonOptions);
+
+            // Gửi content này vào API
+            var content = new StringContent(accountId.ToString(), Encoding.UTF8, "application/json");
+
+            var apiUrl = "http://localhost:5077/api/ManageAccount/ban-account";
+            var response = await client.PostAsync(apiUrl, content);
+
+            var messageNotification = "";
+            var responseMessage = "";
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["AlertType"] = "success";
+                TempData["MessageNotification"] = "Khóa tài khoản thành công!";
+                responseMessage = response.Content.ToString();
+            }
+            else
+            {
+                TempData["AlertType"] = "danger";
+                TempData["MessageNotification"] = "Khóa tài khoản thất bại!";
+                responseMessage = response.Content.ToString();
+            }
+
+            ViewBag.MessageNotification = messageNotification;
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> UnBanAccount(int accountId)
+        {
+            Console.WriteLine($"Client :: UnBanAccount :: accountId :: {accountId}");
+
+            if (accountId == null || accountId == 0)
+            {
+                return NotFound();
+            }
+
+            // init 
+            var client = httpClientFactory.CreateClient();
+            // Add Authorization token if available
+            if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var jsonOptions = new JsonSerializerOptions
+            {
+                // parse to camelCase
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                // format json
+                WriteIndented = true
+            };
+
+            // Đóng gói accountId vào 1 object
+            var payload = new { accountId = accountId };
+
+            // Serialize object
+            var jsonContent = JsonSerializer.Serialize(payload, jsonOptions);
+
+            // Gửi content này vào API
+            var content = new StringContent(accountId.ToString(), Encoding.UTF8, "application/json");
+
+            var apiUrl = "http://localhost:5077/api/ManageAccount/unban-account";
+            var response = await client.PostAsync(apiUrl, content);
+
+            var messageNotification = "";
+            var responseMessage = "";
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["AlertType"] = "success";
+                TempData["MessageNotification"] = "Mở khóa tài khoản thành công!";
+                responseMessage = response.Content.ToString();
+            }
+            else
+            {
+                TempData["AlertType"] = "danger";
+                TempData["MessageNotification"] = "Mở khóa tài khoản thất bại!";
+                responseMessage = response.Content.ToString();
+            }
+
+            ViewBag.MessageNotification = messageNotification;
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

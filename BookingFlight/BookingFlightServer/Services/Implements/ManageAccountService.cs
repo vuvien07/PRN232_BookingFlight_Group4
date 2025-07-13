@@ -16,6 +16,18 @@ namespace BookingFlightServer.Services.Implements
             this.manageAccountRepository = manageAccountRepository;
         }
 
+        public async Task<bool> BanAccountAsync(int accountId)
+        {
+            if (accountId <= 0)
+            {
+                return false;
+            }
+
+            // Call the repository to ban the account
+            var isBanned = await manageAccountRepository.BanAccountAsync(accountId);
+            return true;
+        }
+
         public async Task<ResponseAccountDTO?> CreateAccountAsync(RequestAddAccountDTO requestAddAccountDTO)
         {
             // Convert RequestAddAccountDTO to Account entity
@@ -58,6 +70,16 @@ namespace BookingFlightServer.Services.Implements
             return responseAccountDTO;
         }
 
+        public async Task<bool> UnBanAccountAsync(int accountId)
+        {
+            if (accountId <= 0)
+            {
+                return false;
+            }
 
+            // Call the repository to unban the account
+            var isUnBanned = await manageAccountRepository.UnBanAccountAsync(accountId);
+            return true;
+        }
     }
 }
