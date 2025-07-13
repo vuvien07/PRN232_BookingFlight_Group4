@@ -8,5 +8,7 @@ namespace BookingFlightServer.Services
     {
         Task<List<ResponseAccountDTO>?> GetAccountsAsync();
         Task<ResponseAccountDTO?> CreateAccountAsync(RequestAddAccountDTO requestAddAccountDTO);
+        Task<bool> BanAccountAsync(int accountId);
+        Task<bool> UnBanAccountAsync(int accountId);
     }
 }
