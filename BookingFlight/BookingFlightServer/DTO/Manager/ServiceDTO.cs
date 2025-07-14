@@ -68,6 +68,7 @@ namespace BookingFlightServer.DTO.Manager
         public int? StatusId { get; set; }
         public List<ItemUpdateRequestDTO> Items { get; set; } = new List<ItemUpdateRequestDTO>();
         public List<ItemCreateRequestDTO> NewItems { get; set; } = new List<ItemCreateRequestDTO>();
+        public List<int> ExistingItemIds { get; set; } = new List<int>();
         public List<int> ItemIdsToRemove { get; set; } = new List<int>();
     }
 }

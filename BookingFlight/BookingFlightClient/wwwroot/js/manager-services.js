@@ -243,7 +243,7 @@ function createServiceCard(service) {
     const statusText = getStatusText(service.status?.statusName || 'Unknown');
     
     return `
-        <div class="col-md-4 mb-4">
+        <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
             <div class="card service-card h-100">
                 <div class="card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-start mb-3">

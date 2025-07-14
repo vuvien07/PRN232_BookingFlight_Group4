@@ -182,6 +182,22 @@ namespace BookingFlightServer.Services.Implements
                 existingService.Items.Add(newItem);
             }
 
+            // Add existing items to service
+            if (request.ExistingItemIds.Any())
+            {
+                var existingItems = await _context.Items
+                    .Where(i => request.ExistingItemIds.Contains(i.ItemId))
+                    .ToListAsync();
+
+                foreach (var item in existingItems)
+                {
+                    if (!existingService.Items.Any(si => si.ItemId == item.ItemId))
+                    {
+                        existingService.Items.Add(item);
+                    }
+                }
+            }
+
             await _serviceRepository.UpdateService(existingService);
             await _context.SaveChangesAsync();
 
@@ -195,7 +211,8 @@ namespace BookingFlightServer.Services.Implements
 
         public async Task<List<StatusDTO>> GetServiceStatuses()
         {
-            var statuses = await _context.Statuses.Where(s => s.StatusType == "Service").ToListAsync();
+            // Get all statuses - since there are only Active (1) and Inactive (2) statuses
+            var statuses = await _context.Statuses.Where(s => s.StatusId == 1 || s.StatusId == 2).ToListAsync();
             return statuses.Select(s => new StatusDTO
             {
                 StatusId = s.StatusId,

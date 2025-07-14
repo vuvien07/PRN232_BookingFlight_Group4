@@ -1,6 +1,7 @@
 // Service Details JavaScript
 let currentService = null;
 let serviceStatuses = [];
+let availableItems = [];
 let itemsToRemove = [];
 let newItemsCounter = 0;
 
@@ -14,8 +15,10 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Extracted Service ID:', serviceId);
     
     if (serviceId) {
+        console.log('Starting to load service details, statuses, and available items...');
         loadServiceDetails(serviceId);
         loadServiceStatuses();
+        loadAvailableItems();
     } else {
         showError('Service ID not found in URL');
         setTimeout(() => {
@@ -209,6 +212,7 @@ function getStatusBadgeClass(statusName) {
 // Load service statuses
 async function loadServiceStatuses() {
     try {
+        console.log('Loading service statuses...');
         const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.SERVICES.STATUSES), {
             method: 'GET',
             headers: {
@@ -216,42 +220,121 @@ async function loadServiceStatuses() {
             },
             credentials: 'include'
         });
+        
+        if (!response.ok) {
+            console.error('Failed to load service statuses:', response.status);
+            return;
+        }
+        
         const result = await response.json();
+        console.log('Service statuses response:', result);
         
         if (result.success) {
             serviceStatuses = result.data;
-            populateStatusDropdown();
+            console.log('Service statuses loaded:', serviceStatuses);
+            console.log('Number of statuses:', serviceStatuses.length);
+            serviceStatuses.forEach(status => {
+                console.log(`Status: ID=${status.statusId}, Name=${status.statusName}, Type=${status.statusType}`);
+            });
+        } else {
+            console.error('Failed to load service statuses:', result.message);
         }
     } catch (error) {
         console.error('Error loading service statuses:', error);
     }
 }
 
+// Load available items
+async function loadAvailableItems() {
+    try {
+        const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.ITEMS.ACTIVE), {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${getAuthToken()}`
+            },
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            console.error('Failed to load available items:', response.status);
+            return;
+        }
+        
+        const result = await response.json();
+        console.log('Available items response:', result);
+        
+        if (result.success) {
+            availableItems = result.data;
+            console.log('Available items loaded:', availableItems);
+        } else {
+            console.error('Failed to load available items:', result.message);
+        }
+    } catch (error) {
+        console.error('Error loading available items:', error);
+    }
+}
+
 // Populate status dropdown
 function populateStatusDropdown() {
     const statusSelect = document.getElementById('editServiceStatus');
+    if (!statusSelect) {
+        console.error('Status select element not found');
+        return;
+    }
+    
+    console.log('Populating status dropdown with serviceStatuses:', serviceStatuses);
     statusSelect.innerHTML = '<option value="">Select Status</option>';
+    
+    if (serviceStatuses.length === 0) {
+        console.warn('No service statuses available');
+        // Add default options as fallback
+        statusSelect.innerHTML += '<option value="1">Active</option>';
+        statusSelect.innerHTML += '<option value="2">Inactive</option>';
+        console.log('Added default status options');
+        return;
+    }
     
     serviceStatuses.forEach(status => {
         const option = document.createElement('option');
         option.value = status.statusId;
         option.textContent = status.statusName;
         statusSelect.appendChild(option);
+        console.log(`Added status option: ${status.statusId} - ${status.statusName}`);
     });
+    
+    console.log('Status dropdown populated with', serviceStatuses.length, 'statuses');
 }
 
 // Open edit modal
 function openEditModal() {
-    if (!currentService) return;
+    if (!currentService) {
+        showError('No service data available');
+        return;
+    }
     
     // Populate form
     document.getElementById('editServiceName').value = currentService.serviceName;
     document.getElementById('editServiceDetail').value = currentService.detail || '';
-    document.getElementById('editServiceStatus').value = currentService.statusId || '';
     
     // Reset items management
     itemsToRemove = [];
     newItemsCounter = 0;
+    
+    // Clear new items list
+    document.getElementById('newItemsList').innerHTML = '';
+    
+    // Ensure statuses are loaded and populate dropdown
+    if (serviceStatuses.length === 0) {
+        // If statuses aren't loaded yet, load them first
+        loadServiceStatuses().then(() => {
+            populateStatusDropdown();
+            document.getElementById('editServiceStatus').value = currentService.statusId || '';
+        });
+    } else {
+        // Statuses are already loaded
+        populateStatusDropdown();
+        document.getElementById('editServiceStatus').value = currentService.statusId || '';
+    }
     
     // Display existing items
     displayEditItems(currentService.items || []);
@@ -309,9 +392,12 @@ function createEditItemCard(item) {
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label class="form-label">Image URL</label>
-                    <input type="url" class="form-control" value="${item.image || ''}" 
-                           onchange="updateItemField(${item.itemId}, 'image', this.value)">
+                    <label class="form-label">Image</label>
+                    <input type="file" class="form-control" accept="image/*" 
+                           onchange="previewEditItemImage(this, ${item.itemId})">
+                    <div id="editImagePreview_${item.itemId}" class="mt-2">
+                        ${item.image ? `<img src="${item.image}" alt="Current image" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">` : ''}
+                    </div>
                 </div>
             </div>
         </div>
@@ -391,43 +477,76 @@ function createNewItemCard() {
     
     div.innerHTML = `
         <h6><i class="fas fa-plus text-success"></i> New Item</h6>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label">Item Name *</label>
-                    <input type="text" class="form-control" required>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label">Price *</label>
-                    <input type="number" class="form-control" required>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label">Status</label>
-                    <select class="form-select">
-                        <option value="">Select Status</option>
-                        ${serviceStatuses.map(status => 
-                            `<option value="${status.statusId}">${status.statusName}</option>`
-                        ).join('')}
-                    </select>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="form-label">Image URL</label>
-                    <input type="url" class="form-control">
-                </div>
-            </div>
-        </div>
+        
+        <!-- Option to create new item or select existing -->
         <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea class="form-control" rows="2"></textarea>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="itemType_${newItemsCounter}" id="newItem_${newItemsCounter}" value="new" checked onchange="toggleItemType(${newItemsCounter}, 'new')">
+                <label class="form-check-label" for="newItem_${newItemsCounter}">
+                    Create New Item
+                </label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="itemType_${newItemsCounter}" id="existingItem_${newItemsCounter}" value="existing" onchange="toggleItemType(${newItemsCounter}, 'existing')">
+                <label class="form-check-label" for="existingItem_${newItemsCounter}">
+                    Select Existing Item
+                </label>
+            </div>
         </div>
+        
+        <!-- Existing items dropdown -->
+        <div id="existingItemSection_${newItemsCounter}" class="mb-3" style="display: none;">
+            <label class="form-label">Select Existing Item *</label>
+            <select class="form-select" id="existingItemSelect_${newItemsCounter}">
+                <option value="">Select an item...</option>
+                ${availableItems.map(item => 
+                    `<option value="${item.itemId}" data-name="${item.itemName}" data-price="${item.price}" data-detail="${item.detail || ''}" data-image="${item.image || ''}">${item.itemName} - $${item.price}</option>`
+                ).join('')}
+            </select>
+        </div>
+        
+        <!-- New item form -->
+        <div id="newItemSection_${newItemsCounter}">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Item Name *</label>
+                        <input type="text" class="form-control" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Price *</label>
+                        <input type="number" class="form-control" required>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select">
+                            <option value="">Select Status</option>
+                            ${serviceStatuses.map(status => 
+                                `<option value="${status.statusId}">${status.statusName}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Image</label>
+                        <input type="file" class="form-control" accept="image/*" onchange="previewImage(this, ${newItemsCounter})">
+                        <div id="imagePreview_${newItemsCounter}" class="mt-2"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" rows="2"></textarea>
+            </div>
+        </div>
+        
         <div class="item-form-actions">
             <button type="button" class="btn btn-outline-danger" onclick="removeNewItem(${newItemsCounter})">
                 <i class="fas fa-trash"></i> Remove
@@ -449,45 +568,63 @@ function removeNewItem(newItemId) {
 // Save service
 async function saveService() {
     try {
-        const formData = gatherFormData();
+        const formData = await gatherFormData();
         
         if (!validateFormData(formData)) {
             return;
         }
         
+        console.log('Saving service with data:', formData);
         showLoading();
         
         const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.SERVICES.UPDATE}/${currentService.serviceId}/advanced`), {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAuthToken()}`
             },
+            credentials: 'include',
             body: JSON.stringify(formData)
         });
         
+        if (!response.ok) {
+            if (response.status === 401) {
+                showError('Authentication required. Please login again.');
+                setTimeout(() => {
+                    window.location.href = '/Authentication/Login';
+                }, 2000);
+                return;
+            }
+            throw new Error(`Server responded with status ${response.status}`);
+        }
+        
         const result = await response.json();
+        console.log('Save service response:', result);
         
         if (result.success) {
             showSuccess('Service updated successfully');
-            currentService = result.data;
-            displayServiceDetails(currentService);
+            
+            // Reload service details to get updated data
+            await loadServiceDetails(currentService.serviceId);
             
             // Close modal
             const modal = bootstrap.Modal.getInstance(document.getElementById('editServiceModal'));
-            modal.hide();
+            if (modal) {
+                modal.hide();
+            }
         } else {
             showError(result.message || 'Failed to update service');
         }
     } catch (error) {
         console.error('Error saving service:', error);
-        showError('Failed to save service');
+        showError('Failed to save service: ' + error.message);
     } finally {
         hideLoading();
     }
 }
 
 // Gather form data
-function gatherFormData() {
+async function gatherFormData() {
     const formData = {
         serviceId: currentService.serviceId,
         serviceName: document.getElementById('editServiceName').value,
@@ -495,6 +632,7 @@ function gatherFormData() {
         statusId: document.getElementById('editServiceStatus').value || null,
         items: [],
         newItems: [],
+        existingItemIds: [],
         itemIdsToRemove: itemsToRemove
     };
     
@@ -514,20 +652,44 @@ function gatherFormData() {
     
     // Gather new items
     const newItemCards = document.querySelectorAll('.new-item-card');
-    newItemCards.forEach(card => {
-        const inputs = card.querySelectorAll('input, select, textarea');
-        const itemData = {
-            itemName: inputs[0].value,
-            price: parseInt(inputs[1].value) || 0,
-            statusId: inputs[2].value || null,
-            image: inputs[3].value || null,
-            detail: inputs[4].value || null
-        };
+    
+    for (let card of newItemCards) {
+        const itemId = card.getAttribute('data-new-item-id');
+        const itemType = card.querySelector(`input[name="itemType_${itemId}"]:checked`).value;
         
-        if (itemData.itemName && itemData.price > 0) {
-            formData.newItems.push(itemData);
+        if (itemType === 'existing') {
+            // Adding existing item
+            const existingItemSelect = card.querySelector(`#existingItemSelect_${itemId}`);
+            if (existingItemSelect.value) {
+                formData.existingItemIds.push(parseInt(existingItemSelect.value));
+            }
+        } else {
+            // Creating new item
+            const inputs = card.querySelectorAll('#newItemSection_' + itemId + ' input, #newItemSection_' + itemId + ' select, #newItemSection_' + itemId + ' textarea');
+            const fileInput = card.querySelector(`#newItemSection_${itemId} input[type="file"]`);
+            
+            let imageData = null;
+            if (fileInput && fileInput.files && fileInput.files[0]) {
+                try {
+                    imageData = await fileToBase64(fileInput.files[0]);
+                } catch (error) {
+                    console.error('Error converting file to base64:', error);
+                }
+            }
+            
+            const itemData = {
+                itemName: inputs[0].value,
+                price: parseInt(inputs[1].value) || 0,
+                statusId: inputs[2].value || null,
+                image: imageData,
+                detail: inputs[3].value || null
+            };
+            
+            if (itemData.itemName && itemData.price > 0) {
+                formData.newItems.push(itemData);
+            }
         }
-    });
+    }
     
     return formData;
 }
@@ -544,7 +706,10 @@ function validateFormData(formData) {
 
 // Delete service
 async function deleteService() {
-    if (!currentService) return;
+    if (!currentService) {
+        showError('No service data available');
+        return;
+    }
     
     const result = await showConfirm(
         'Delete Service',
@@ -556,22 +721,37 @@ async function deleteService() {
             showLoading();
             
             const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.SERVICES.DELETE}/${currentService.serviceId}`), {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`
+                },
+                credentials: 'include'
             });
+            
+            if (!response.ok) {
+                if (response.status === 401) {
+                    showError('Authentication required. Please login again.');
+                    setTimeout(() => {
+                        window.location.href = '/Authentication/Login';
+                    }, 2000);
+                    return;
+                }
+                throw new Error(`Server responded with status ${response.status}`);
+            }
             
             const result = await response.json();
             
             if (result.success) {
                 showSuccess('Service deleted successfully');
                 setTimeout(() => {
-                    goBack();
+                    window.location.href = '/Manager/Services';
                 }, 1500);
             } else {
                 showError(result.message || 'Failed to delete service');
             }
         } catch (error) {
             console.error('Error deleting service:', error);
-            showError('Failed to delete service');
+            showError('Failed to delete service: ' + error.message);
         } finally {
             hideLoading();
         }
@@ -585,36 +765,128 @@ function goBack() {
 
 // Item management functions
 function addNewItem() {
-    // TODO: Implement add new item functionality
-    console.log('Add new item clicked');
-    alert('Add New Item functionality will be implemented');
+    // Open the edit modal and scroll to new items section
+    if (!currentService) {
+        showError('Please load service details first');
+        return;
+    }
+    
+    openEditModal();
+    
+    // Wait for modal to open, then add a new item
+    setTimeout(() => {
+        addNewItemToForm();
+        
+        // Scroll to new items section
+        const newItemsList = document.getElementById('newItemsList');
+        if (newItemsList) {
+            newItemsList.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, 500);
 }
 
 function editItem(itemId) {
-    // TODO: Implement edit item functionality
-    console.log('Edit item:', itemId);
-    alert(`Edit Item ${itemId} functionality will be implemented`);
+    if (!currentService) {
+        showError('Please load service details first');
+        return;
+    }
+    
+    // Open edit modal and highlight the specific item
+    openEditModal();
+    
+    // Wait for modal to open, then highlight the item
+    setTimeout(() => {
+        const itemCard = document.querySelector(`[data-item-id="${itemId}"]`);
+        if (itemCard) {
+            itemCard.style.border = '2px solid #007bff';
+            itemCard.scrollIntoView({ behavior: 'smooth' });
+            
+            // Remove highlight after 3 seconds
+            setTimeout(() => {
+                itemCard.style.border = '';
+            }, 3000);
+        }
+    }, 500);
 }
 
 function removeItem(itemId) {
-    if (confirm('Are you sure you want to remove this item from the service?')) {
-        // TODO: Implement remove item functionality
-        console.log('Remove item:', itemId);
-        alert(`Remove Item ${itemId} functionality will be implemented`);
+    if (!currentService) {
+        showError('Please load service details first');
+        return;
+    }
+    
+    const item = currentService.items.find(i => i.itemId === itemId);
+    if (!item) {
+        showError('Item not found');
+        return;
+    }
+    
+    if (confirm(`Are you sure you want to remove "${item.itemName}" from this service?`)) {
+        // Open edit modal and mark item for removal
+        openEditModal();
+        
+        // Wait for modal to open, then mark item for removal
+        setTimeout(() => {
+            markItemForRemoval(itemId);
+        }, 500);
     }
 }
 
-function openEditModal() {
-    // TODO: Implement edit modal functionality
-    console.log('Open edit modal clicked');
-    alert('Edit Service functionality will be implemented');
-}
+// Remove duplicate function definitions - using the improved openEditModal above
 
 function deleteService() {
-    if (confirm('Are you sure you want to delete this service? This action cannot be undone.')) {
-        // TODO: Implement delete service functionality
-        console.log('Delete service clicked');
-        alert('Delete Service functionality will be implemented');
+    if (!currentService) {
+        showError('No service data available');
+        return;
+    }
+    
+    const result = confirm(`Are you sure you want to delete "${currentService.serviceName}"? This action cannot be undone.`);
+    
+    if (result) {
+        // Call the async deleteService function
+        deleteServiceAsync();
+    }
+}
+
+// Async delete service function
+async function deleteServiceAsync() {
+    try {
+        showLoading();
+        
+        const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.SERVICES.DELETE}/${currentService.serviceId}`), {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${getAuthToken()}`
+            },
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                showError('Authentication required. Please login again.');
+                setTimeout(() => {
+                    window.location.href = '/Authentication/Login';
+                }, 2000);
+                return;
+            }
+            throw new Error(`Server responded with status ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showSuccess('Service deleted successfully');
+            setTimeout(() => {
+                window.location.href = '/Manager/Services';
+            }, 1500);
+        } else {
+            showError(result.message || 'Failed to delete service');
+        }
+    } catch (error) {
+        console.error('Error deleting service:', error);
+        showError('Failed to delete service: ' + error.message);
+    } finally {
+        hideLoading();
     }
 }
 
@@ -738,6 +1010,16 @@ function getCookie(name) {
     return null;
 }
 
+function buildApiUrl(endpoint) {
+    // Check if API_CONFIG is available
+    if (typeof API_CONFIG === 'undefined') {
+        console.error('API_CONFIG is not defined');
+        return `http://localhost:5000/api/Manager${endpoint}`;
+    }
+    
+    return `${API_CONFIG.BASE_URL}${endpoint}`;
+}
+
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
@@ -749,9 +1031,76 @@ function goBack() {
     window.history.back();
 }
 
+// Toggle item type (new or existing)
+function toggleItemType(itemId, type) {
+    const newSection = document.getElementById(`newItemSection_${itemId}`);
+    const existingSection = document.getElementById(`existingItemSection_${itemId}`);
+    
+    if (type === 'new') {
+        newSection.style.display = 'block';
+        existingSection.style.display = 'none';
+    } else {
+        newSection.style.display = 'none';
+        existingSection.style.display = 'block';
+    }
+}
+
+// Preview image for new items
+function previewImage(input, itemId) {
+    const previewDiv = document.getElementById(`imagePreview_${itemId}`);
+    previewDiv.innerHTML = '';
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewDiv.innerHTML = `<img src="${e.target.result}" alt="Preview" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">`;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Preview image for edit items
+function previewEditItemImage(input, itemId) {
+    const previewDiv = document.getElementById(`editImagePreview_${itemId}`);
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewDiv.innerHTML = `<img src="${e.target.result}" alt="Preview" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">`;
+            
+            // Update the item data with the new image
+            const item = currentService.items.find(i => i.itemId === itemId);
+            if (item) {
+                item.image = e.target.result; // Store base64 for now
+            }
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Convert file to base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
 // Global functions for onclick handlers
 window.goBack = goBack;
 window.openEditModal = openEditModal;
 window.addNewItem = addNewItem;
 window.editItem = editItem;
 window.removeItem = removeItem;
+window.saveService = saveService;
+window.deleteService = deleteService;
+window.addNewItemToForm = addNewItemToForm;
+window.removeNewItem = removeNewItem;
+window.markItemForRemoval = markItemForRemoval;
+window.restoreItem = restoreItem;
+window.updateItemField = updateItemField;
+window.toggleItemType = toggleItemType;
+window.previewImage = previewImage;
+window.previewEditItemImage = previewEditItemImage;
