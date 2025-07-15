@@ -94,6 +94,7 @@ namespace BookingFlightClient.Controllers
             return View();
         }
 
+        [Route("Manager/Profile")]
         public IActionResult Profile()
         {
             SetUserRole();
@@ -287,7 +288,150 @@ namespace BookingFlightClient.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+        [HttpGet("/api/Manager/profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                var serverBaseUrl = _configuration["ServerSettings:BaseUrl"] ?? "http://localhost:5077";
+
+                // Get JWT token from cookie
+                var authToken = Request.Cookies["X-Access-Token"] ?? HttpContext.Session.GetString("AuthToken");
+
+                if (string.IsNullOrEmpty(authToken))
+                {
+                    return Json(new { success = false, message = "Authentication token not found" });
+                }
+
+                httpClient.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
+
+                var response = await httpClient.GetAsync($"{serverBaseUrl}/api/Manager/profile");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    return Content(content, "application/json");
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Failed to get profile" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPut("/api/Manager/profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
+        {
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                var serverBaseUrl = _configuration["ServerSettings:BaseUrl"] ?? "http://localhost:5077";
+
+                // Get JWT token from cookie
+                var authToken = Request.Cookies["X-Access-Token"] ?? HttpContext.Session.GetString("AuthToken");
+
+                if (string.IsNullOrEmpty(authToken))
+                {
+                    return Json(new { success = false, message = "Authentication token not found" });
+                }
+
+                httpClient.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
+
+                var jsonContent = JsonSerializer.Serialize(request);
+                var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                var response = await httpClient.PutAsync($"{serverBaseUrl}/api/Manager/profile", httpContent);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    return Content(content, "application/json");
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Failed to update profile" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPut("/api/Manager/change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            try
+            {
+                var serverBaseUrl = _configuration["ServerSettings:BaseUrl"] ?? "http://localhost:5077";
+                using var httpClient = _httpClientFactory.CreateClient();
+
+                // Get access token from cookie
+                var accessToken = Request.Cookies["X-Access-Token"];
+                if (string.IsNullOrEmpty(accessToken))
+                {
+                    return Json(new { success = false, message = "Authentication required" });
+                }
+
+                httpClient.DefaultRequestHeaders.Authorization = 
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+
+                var jsonContent = System.Text.Json.JsonSerializer.Serialize(request);
+                var httpContent = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
+
+                var response = await httpClient.PutAsync($"{serverBaseUrl}/api/Manager/change-password", httpContent);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Json(System.Text.Json.JsonSerializer.Deserialize<object>(responseContent));
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Failed to change password" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // DTO classes for Client
+        public class UpdateProfileRequest
+        {
+            public string FullName { get; set; }
+            public string Address { get; set; }
+            public string PhoneNumber { get; set; }
+            public string Email { get; set; }
+        }
+
+        public class ChangePasswordRequest
+        {
+            public string CurrentPassword { get; set; } = string.Empty;
+            public string NewPassword { get; set; } = string.Empty;
+            public string ConfirmPassword { get; set; } = string.Empty;
+        }
+
+        public class ProfileResponse
+        {
+            public string Username { get; set; }
+            public string FullName { get; set; }
+            public string Address { get; set; }
+            public string PhoneNumber { get; set; }
+            public string Email { get; set; }
+            public string Role { get; set; }
+            public string Status { get; set; }
+        }
     }
+
 
     // DTO classes for API requests
     public class ServiceListRequest

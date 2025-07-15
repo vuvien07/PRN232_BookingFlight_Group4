@@ -1,5 +1,7 @@
 using BookingFlightServer.DTO.Manager;
+using BookingFlightServer.DTO.Request;
 using BookingFlightServer.Services;
+using Library;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -13,11 +15,14 @@ namespace BookingFlightServer.Controllers
     {
         private readonly IServiceService _serviceService;
         private readonly IItemService _itemService;
-        
-        public ManagerController(IServiceService serviceService, IItemService itemService)
+        private readonly IManagerService _managerService;
+
+
+        public ManagerController(IServiceService serviceService, IItemService itemService, IManagerService managerService)
         {
             _serviceService = serviceService;
             _itemService = itemService;
+            _managerService = managerService;
         }
 
         [HttpPost("services/list")]
@@ -225,6 +230,102 @@ namespace BookingFlightServer.Controllers
             {
                 Console.WriteLine($"Error creating item: {ex.Message}");
                 Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+        [HttpGet("profile")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetProfile()
+        {
+            try
+            {
+                var token = Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", "");
+                if (string.IsNullOrEmpty(token))
+                {
+                    return Unauthorized(new { success = false, message = "Token not found" });
+                }
+
+                var username = JwtDecoder.GetUsernameFromToken(token);
+                var profile = await _managerService.GetProfileByUsernameAsync(username);
+
+                return Ok(new { success = true, data = profile });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPut("profile")]
+        [AllowAnonymous]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequestDTO request)
+        {
+            try
+            {
+                var token = Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", "");
+                if (string.IsNullOrEmpty(token))
+                {
+                    return Unauthorized(new { success = false, message = "Token not found" });
+                }
+
+                var username = JwtDecoder.GetUsernameFromToken(token);
+                var updatedProfile = await _managerService.UpdateProfileAsync(username, request);
+
+                return Ok(new { success = true, data = updatedProfile, message = "Profile updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPut("change-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO request)
+        {
+            try
+            {
+                // Validate input
+                if (string.IsNullOrEmpty(request.CurrentPassword) || 
+                    string.IsNullOrEmpty(request.NewPassword) || 
+                    string.IsNullOrEmpty(request.ConfirmPassword))
+                {
+                    return BadRequest(new { success = false, message = "All password fields are required" });
+                }
+
+                if (request.NewPassword != request.ConfirmPassword)
+                {
+                    return BadRequest(new { success = false, message = "New password and confirm password do not match" });
+                }
+
+                if (request.NewPassword.Length < 6)
+                {
+                    return BadRequest(new { success = false, message = "New password must be at least 6 characters long" });
+                }
+
+                // Get username from token
+                var token = Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", "");
+                if (string.IsNullOrEmpty(token))
+                {
+                    return Unauthorized(new { success = false, message = "Token not found" });
+                }
+
+                var username = JwtDecoder.GetUsernameFromToken(token);
+                
+                // Change password
+                var result = await _managerService.ChangePasswordAsync(username, request.CurrentPassword, request.NewPassword);
+                
+                if (result)
+                {
+                    return Ok(new { success = true, message = "Password changed successfully" });
+                }
+                else
+                {
+                    return BadRequest(new { success = false, message = "Current password is incorrect" });
+                }
+            }
+            catch (Exception ex)
+            {
                 return BadRequest(new { success = false, message = ex.Message });
             }
         }

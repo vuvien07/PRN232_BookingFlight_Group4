@@ -1,4 +1,4 @@
-@{
+﻿@{
     ViewData["Title"] = "Profile";
     Layout = "~/Views/Shared/_ManagerLayout.cshtml";
 }
@@ -6,125 +6,129 @@
 <div class="profile-management">
     <div class="row">
         <div class="col-lg-4">
-            <div class="card profile-card">
+            <div class="profile-card card">
                 <div class="card-body text-center">
-                    <div class="profile-avatar mb-3">
+                    <div class="profile-avatar">
                         <i class="fas fa-user-circle"></i>
                     </div>
-                    <h5 class="card-title">@(ViewBag.UserRole == 2 ? "Manager" : "Supporter")</h5>
-                    <p class="text-muted">@(ViewBag.UserRole == 2 ? "System Manager" : "Customer Support")</p>
-                    <div class="profile-stats">
-                        <div class="stat-item">
-                            <strong>@(ViewBag.UserRole == 2 ? "156" : "89")</strong>
-                            <small>@(ViewBag.UserRole == 2 ? "Items Managed" : "Tickets Resolved")</small>
-                        </div>
-                        <div class="stat-item">
-                            <strong>@(ViewBag.UserRole == 2 ? "24" : "15")</strong>
-                            <small>@(ViewBag.UserRole == 2 ? "Services" : "Active Tickets")</small>
+                    <h5 class="card-title" id="profileName">Loading...</h5>
+                    <p class="text-muted" id="profileRole">Loading...</p>
+                    
+                    <div class="profile-stats mt-4">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="stat-item">
+                                    <h6>Status</h6>
+                                    <span class="badge badge-success" id="profileStatus">Active</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-item">
+                                    <h6>Role</h6>
+                                    <span id="profileRoleBadge">User</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-user-edit me-2"></i>Profile Information
-                    </h5>
+                    <h5 class="mb-0">Profile Information</h5>
                 </div>
                 <div class="card-body">
                     <form id="profileForm">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="firstName" class="form-label">First Name</label>
-                                    <input type="text" class="form-control" id="firstName" value="John">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="lastName" class="form-label">Last Name</label>
-                                    <input type="text" class="form-control" id="lastName" value="Doe">
-                                </div>
-                            </div>
-                        </div>
+                        @Html.AntiForgeryToken()
                         
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" value="john.doe@company.com">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="phone" class="form-label">Phone</label>
-                                    <input type="tel" class="form-control" id="phone" value="+1 234 567 8900">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="department" class="form-label">Department</label>
-                                    <input type="text" class="form-control" id="department" value="@(ViewBag.UserRole == 2 ? "Management" : "Customer Support")" readonly>
+                                    <label for="username" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="username" name="Username" readonly>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="role" class="form-label">Role</label>
-                                    <input type="text" class="form-control" id="role" value="@(ViewBag.UserRole == 2 ? "Manager" : "Supporter")" readonly>
+                                    <input type="text" class="form-control" id="role" name="Role" readonly>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="bio" class="form-label">Bio</label>
-                            <textarea class="form-control" id="bio" rows="3">@(ViewBag.UserRole == 2 ? "Experienced system manager with expertise in service management and operations." : "Dedicated customer support specialist focused on providing excellent customer service.")</textarea>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="fullname" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="fullname" name="Fullname" required placeholder="Enter your full name">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="Email" required placeholder="Enter your email address">
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div class="text-end">
-                            <button type="button" class="btn btn-secondary me-2" onclick="resetForm()">Reset</button>
-                            <button type="submit" class="btn btn-primary">Update Profile</button>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="phoneNumber" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" id="phoneNumber" name="PhoneNumber" required placeholder="Enter your phone number">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">Address <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="address" name="Address" rows="3" required placeholder="Enter your full address"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" onclick="loadProfileData()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="updateBtn">
+                                <i class="fas fa-save"></i> Update Profile
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
-            
-            <!-- Change Password Section -->
+
+            <!-- Change Password Card -->
             <div class="card mt-4">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-lock me-2"></i>Change Password
-                    </h5>
+                    <h5 class="mb-0">Change Password</h5>
                 </div>
                 <div class="card-body">
                     <form id="passwordForm">
                         <div class="mb-3">
-                            <label for="currentPassword" class="form-label">Current Password</label>
-                            <input type="password" class="form-control" id="currentPassword" required>
+                            <label for="currentPassword" class="form-label">Current Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="currentPassword" name="CurrentPassword" required placeholder="Enter your current password">
                         </div>
-                        
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="newPassword" class="form-label">New Password</label>
-                                    <input type="password" class="form-control" id="newPassword" required>
+                                    <label for="newPassword" class="form-label">New Password <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="newPassword" name="NewPassword" required placeholder="Enter new password" minlength="6">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                                    <input type="password" class="form-control" id="confirmPassword" required>
+                                    <label for="confirmPassword" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="confirmPassword" name="ConfirmPassword" required placeholder="Confirm new password" minlength="6">
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="text-end">
-                            <button type="submit" class="btn btn-warning">Change Password</button>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-key"></i> Change Password
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -135,79 +139,463 @@
 
 @section Scripts {
     <script>
-        document.getElementById('profileForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            showToast('Profile updated successfully!', 'success');
+        // Load profile data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProfileData();
         });
-        
-        document.getElementById('passwordForm').addEventListener('submit', function(e) {
+
+        // Load profile từ API
+        async function loadProfileData() {
+            try {
+                showLoading(true);
+                
+                const response = await fetch('/api/Manager/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const profile = result.data;
+                    
+                    // Fill form fields
+                    document.getElementById('username').value = profile.username || '';
+                    document.getElementById('fullname').value = profile.fullName || '';
+                    document.getElementById('address').value = profile.address || '';
+                    document.getElementById('phoneNumber').value = profile.phoneNumber || '';
+                    document.getElementById('email').value = profile.email || '';
+                    document.getElementById('role').value = profile.role || '';
+                    
+                    // Update profile card
+                    document.getElementById('profileName').textContent = profile.fullName || 'User';
+                    document.getElementById('profileRole').textContent = profile.role || 'Role';
+                    document.getElementById('profileRoleBadge').textContent = profile.role || 'User';
+                    document.getElementById('profileStatus').textContent = profile.status || 'Active';
+                    
+                    // Update status badge color
+                    const statusBadge = document.getElementById('profileStatus');
+                    statusBadge.className = profile.status === 'Active' ? 'badge badge-success' : 'badge badge-warning';
+                    
+                } else {
+                    showToast('Error loading profile: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showToast('Error loading profile data', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Handle profile form submit
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+            // Validation
+            const fullname = document.getElementById('fullname').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const phone = document.getElementById('phoneNumber').value.trim();
+            const email = document.getElementById('email').value.trim();
+
+            if (!fullname || !address || !phone || !email) {
+                showToast('Please fill all required fields!', 'error');
+                return;
+            }
+
+            // Phone validation
+            const phoneRegex = /^[0-9]{10,11}$/;
+            if (!phoneRegex.test(phone)) {
+                showToast('Phone number must be 10-11 digits!', 'error');
+                return;
+            }
+
+            // Email validation
+            const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+            if (!emailRegex.test(email)) {
+                showToast('Invalid email format!', 'error');
+                return;
+            }
             
+            const formData = {
+                fullName: fullname,
+                address: address,
+                phoneNumber: phone,
+                email: email
+            };
+            
+            try {
+                showLoading(true);
+                
+                const response = await fetch('/api/Manager/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast('Profile updated successfully!', 'success');
+                    loadProfileData(); // Reload data
+                } else {
+                    showToast('Error: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showToast('Error updating profile', 'error');
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Handle password form submit
+        document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const currentPassword = document.getElementById('currentPassword').value.trim();
+            const newPassword = document.getElementById('newPassword').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+            // Validation
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showToast('Please fill all password fields!', 'error');
+                return;
+            }
+
             if (newPassword !== confirmPassword) {
-                showToast('Passwords do not match!', 'error');
+                showToast('New password and confirm password do not match!', 'error');
                 return;
             }
-            
+
             if (newPassword.length < 6) {
-                showToast('Password must be at least 6 characters long!', 'error');
+                showToast('New password must be at least 6 characters long!', 'error');
+                return;
+            }
+
+            if (newPassword === currentPassword) {
+                showToast('New password must be different from current password!', 'error');
                 return;
             }
             
-            showToast('Password changed successfully!', 'success');
-            this.reset();
+            const formData = {
+                currentPassword: currentPassword,
+                newPassword: newPassword,
+                confirmPassword: confirmPassword
+            };
+            
+            try {
+                showPasswordLoading(true);
+                
+                const response = await fetch('/api/Manager/change-password', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast('Password changed successfully!', 'success');
+                    this.reset(); // Clear form
+                } else {
+                    showToast('Error: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error changing password:', error);
+                showToast('Error changing password', 'error');
+            } finally {
+                showPasswordLoading(false);
+            }
         });
-        
-        function resetForm() {
-            document.getElementById('profileForm').reset();
-            showToast('Form reset to original values', 'info');
+
+        // Utility functions
+        function showLoading(show) {
+            const updateBtn = document.getElementById('updateBtn');
+            if (show) {
+                updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+                updateBtn.disabled = true;
+            } else {
+                updateBtn.innerHTML = '<i class="fas fa-save"></i> Update Profile';
+                updateBtn.disabled = false;
+            }
+        }
+
+        function showPasswordLoading(show) {
+            const changePasswordBtn = document.querySelector('#passwordForm button[type="submit"]');
+            if (show) {
+                changePasswordBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Changing...';
+                changePasswordBtn.disabled = true;
+            } else {
+                changePasswordBtn.innerHTML = '<i class="fas fa-key"></i> Change Password';
+                changePasswordBtn.disabled = false;
+            }
+        }
+
+        function showToast(message, type) {
+            // Simple alert for now - you can implement proper toast notifications later
+            const icons = {
+                'success': '✅',
+                'error': '❌', 
+                'info': 'ℹ️',
+                'warning': '⚠️'
+            };
+            
+            alert((icons[type] || '') + ' ' + message);
         }
     </script>
-    
+
     <style>
         .profile-card {
-            text-align: center;
+            border: none;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transition: transform 0.3s ease;
         }
-        
+
+        .profile-card:hover {
+            transform: translateY(-5px);
+        }
+
         .profile-avatar i {
-            font-size: 5rem;
-            color: var(--manager-primary);
-            margin-bottom: 15px;
+            font-size: 100px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
+
         .profile-stats {
-            display: flex;
-            justify-content: space-around;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
             margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
         }
-        
+
         .stat-item {
             text-align: center;
         }
-        
-        .stat-item strong {
-            display: block;
-            font-size: 1.5rem;
-            color: var(--manager-primary);
+
+        .stat-item h6 {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+            font-weight: 600;
         }
-        
-        .stat-item small {
-            color: #666;
-            font-size: 0.8rem;
+
+        .card {
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 15px;
+            transition: box-shadow 0.3s ease;
         }
-        
-        .form-control:focus {
-            border-color: var(--manager-secondary);
-            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+
+        .card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
         }
-        
+
         .card-header {
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             border-bottom: 1px solid #dee2e6;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px 25px;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .btn {
+            border-radius: 12px;
+            padding: 12px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            border: none;
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            border: none;
+            color: #212529;
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 193, 7, 0.4);
+            color: #212529;
+        }
+
+        .form-control {
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            padding: 15px 20px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
+            background-color: white;
+            transform: translateY(-1px);
+        }
+
+        .form-control[readonly] {
+            background-color: #e9ecef;
+            opacity: 0.8;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .badge-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+        }
+
+        .badge-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: #212529;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+        }
+
+        .text-danger {
+            color: #dc3545 !important;
+            font-weight: 600;
+        }
+
+        .profile-management {
+            padding: 30px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+        }
+
+        .mb-3 {
+            margin-bottom: 1.5rem !important;
+        }
+
+        .row {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Animation for loading */
+        .fas.fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive improvements */
+        @@media (max-width: 768px) {
+            .profile-management {
+                padding: 20px 10px;
+            }
+            
+            .col-lg-4 {
+                margin-bottom: 30px;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
+
+            .profile-avatar i {
+                font-size: 80px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Custom scrollbar for textarea */
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        textarea.form-control::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        textarea.form-control::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        textarea.form-control::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        textarea.form-control::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Form validation styles */
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.15);
+        }
+
+        .form-control.is-valid {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.15);
         }
     </style>
 }

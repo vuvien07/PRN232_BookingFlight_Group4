@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Library
 {
@@ -9,6 +10,13 @@ namespace Library
 			var handler = new JwtSecurityTokenHandler();
 			var jwt = handler.ReadJwtToken(token);
 			return jwt.Claims.First(c => c.Type == "Role").Value;
+		}
+
+		public static string GetUsernameFromToken(string token)
+		{
+			var handler = new JwtSecurityTokenHandler();
+			var jwt = handler.ReadJwtToken(token);
+			return jwt.Claims.First(c => c.Type == ClaimTypes.Name).Value;
 		}
 	}
 }
