@@ -1,0 +1,86 @@
+﻿using BookingFlightServer.DTO.ManageNews;
+using BookingFlightServer.Services;
+using BookingFlightServer.Utils;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace BookingFlightServer.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize(Roles = Constants.RoleAdmin)]
+    public class ManageNewsController : ControllerBase
+    {
+        private readonly IManageNewsService manageNewsService;
+
+        public ManageNewsController(IManageNewsService manageNewsService)
+        {
+            this.manageNewsService = manageNewsService;
+        }
+
+        // GET: api/managenews/news
+        [HttpGet("news")]
+        public async Task<IActionResult> GetAllNews()
+        {
+            // Call the service to get the list of news
+            var responseNewsDTO = await manageNewsService.GetNewsAsync();
+
+            // Check if the response is null or empty
+            if (responseNewsDTO == null || !responseNewsDTO.Any())
+            {
+                // Return a NotFound response if no news is found
+                return NotFound(new { message = "No news found." });
+            }
+
+            // Return the list of news
+            return Ok(responseNewsDTO);
+        }
+
+        // POST: api/managenews/add-news
+        [HttpPost("add-news")]
+        public async Task<IActionResult> AddNews([FromBody] RequestAddNewsDTO requestAddNewsDTO)
+        {
+            var responseNewsDTO = await manageNewsService.CreateNewsAsync(requestAddNewsDTO);
+
+            // Check if the news creation was successful
+            if (responseNewsDTO == null)
+            {
+                return BadRequest(new { message = "Failed to create news." });
+            }
+
+            // Return the created news with a 201 Created status
+            return StatusCode(StatusCodes.Status201Created, responseNewsDTO);
+        }
+
+        // DELETE: api/managenews/delete-news/{newsId}
+        [HttpDelete("delete-news/{newsId}")]
+        public async Task<IActionResult> DeleteNews(int newsId)
+        {
+            // Call the service to delete the news
+            var isDeleted = await manageNewsService.DeleteNewsAsync(newsId);
+            // Check if the deletion was successful
+            if (!isDeleted)
+            {
+                return NotFound(new { message = "News not found or could not be deleted." });
+            }
+            // Return a NoContent response if deletion was successful
+            return NoContent();
+        }
+
+        // PUT: api/managenews/update-news
+        [HttpPut("update-news")]
+        public async Task<IActionResult> UpdateNews([FromBody] RequestUpdateNewsDTO requestUpdateNewsDTO)
+        {
+            // Call the service to update the news
+            var isUpdated = await manageNewsService.UpdateNewsAsync(requestUpdateNewsDTO);
+            // Check if the update was successful
+            if (!isUpdated)
+            {
+                return BadRequest(new { message = "Failed to update news." });
+            }
+            // Return a NoContent response if update was successful
+            return NoContent();
+        }
+    }
+}
