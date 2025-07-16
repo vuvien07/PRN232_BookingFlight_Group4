@@ -2,6 +2,10 @@ using BookingFlightServer.Data;
 using BookingFlightServer.Middlewares;
 using BookingFlightServer.UnitOfWork;
 using BookingFlightServer.Utils;
+using BookingFlightServer.Repositories;
+using BookingFlightServer.Repositories.Implements;
+using BookingFlightServer.Services;
+using BookingFlightServer.Services.Implements;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -50,6 +54,12 @@ namespace BookingFlightServer
 			builder.Services.AddAllServices(typeof(Program).Assembly);
 			builder.Services.AddAllRepositories(typeof(Program).Assembly);
 			builder.Services.AddScoped<ITransactionDbManager, TransactionDbManager>();
+			
+			// Manual registration for new Flight Management services
+			builder.Services.AddScoped<IFlightManageRepository, FlightManageRepository>();
+			builder.Services.AddScoped<IFlightManageService, FlightManageService>();
+			builder.Services.AddHttpClient<IGeminiAIService, GeminiAIService>();
+			builder.Services.AddScoped<IGeminiAIService, GeminiAIService>();
 			var app = builder.Build();
             if (app.Environment.IsDevelopment())
             {

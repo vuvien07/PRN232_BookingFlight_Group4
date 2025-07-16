@@ -33,6 +33,12 @@
             {
                 <!-- Manager specific menu items -->
                 <li class="nav-item">
+                    <a href="/Manager/ManageFlights" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ManageFlights" ? "active" : "")">
+                        <i class="fas fa-plane"></i>
+                        <span>Manage Flights</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/Manager/Services" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Services" ? "active" : "")">
                         <i class="fas fa-cogs"></i>
                         <span>Services</span>
@@ -44,24 +50,7 @@
                         <span>Manage Items</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="/Manager/Reports" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Reports" ? "active" : "")">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Reports</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/Manager/Analytics" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Analytics" ? "active" : "")">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Analytics</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/Manager/UserManagement" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "UserManagement" ? "active" : "")">
-                        <i class="fas fa-users"></i>
-                        <span>User Management</span>
-                    </a>
-                </li>
+                
             }
             else if (ViewBag.UserRole == 2)
             {

@@ -300,6 +300,25 @@ namespace BookingFlightClient.Controllers
             ViewBag.ServiceId = id.Value;
             return View();
         }
+
+        public IActionResult ManageFlights()
+        {
+            SetUserRole();
+            return View();
+        }
+
+        public IActionResult AddFlight()
+        {
+            SetUserRole();
+            return View();
+        }
+
+        public IActionResult EditFlight(int id)
+        {
+            SetUserRole();
+            ViewBag.FlightId = id;
+            return View();
+        }
     }
 
     // DTO classes for API requests
