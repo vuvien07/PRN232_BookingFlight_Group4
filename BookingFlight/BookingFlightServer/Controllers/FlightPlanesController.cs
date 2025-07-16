@@ -23,7 +23,7 @@ namespace BookingFlightServer.Controllers
             try
             {
                 var planes = await _context.Planes
-                    .Where(p => p.StatusId == 1) // Active planes
+                    // Remove StatusId filter to get ALL planes
                     .Include(p => p.Seats)
                     .Select(p => new
                     {
@@ -31,7 +31,9 @@ namespace BookingFlightServer.Controllers
                         p.PlaneCode,
                         PlaneName = p.Model,
                         p.Manufacture,
-                        TotalSeat = p.Seats.Count()
+                        TotalSeat = p.Seats.Count(),
+                        p.StatusId, // Include status so frontend can filter if needed
+                        StatusName = p.StatusId == 1 ? "Active" : "Inactive"
                     })
                     .OrderBy(p => p.PlaneCode)
                     .ToListAsync();
