@@ -105,6 +105,7 @@ namespace BookingFlightServer.Repositories.Implements
 				.Include(s => s.Status)
 				.Include(s => s.Flights)
 				.Include(s => s.Items)
+					.ThenInclude(i => i.Status)
 				.FirstOrDefaultAsync(s => s.ServiceId == serviceId);
 		}
 

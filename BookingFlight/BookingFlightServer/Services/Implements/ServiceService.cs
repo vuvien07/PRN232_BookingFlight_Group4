@@ -4,6 +4,7 @@ using BookingFlightServer.Entities;
 using BookingFlightServer.Repositories;
 using BookingFlightServer.Data;
 using Microsoft.EntityFrameworkCore;
+using ManagerItemDTO = BookingFlightServer.DTO.Manager.ItemDTO;
 
 namespace BookingFlightServer.Services.Implements
 {
@@ -47,6 +48,40 @@ namespace BookingFlightServer.Services.Implements
         {
             var service = await _serviceRepository.GetServiceById(serviceId);
             return service != null ? MapToDTO(service) : null;
+        }
+
+        public async Task<ServiceDetailsDTO?> GetServiceDetails(int serviceId)
+        {
+            var service = await _serviceRepository.GetServiceById(serviceId);
+            if (service == null) return null;
+
+            return new ServiceDetailsDTO
+            {
+                ServiceId = service.ServiceId,
+                ServiceName = service.ServiceName,
+                Detail = service.Detail,
+                ManagerId = service.ManagerId,
+                StatusId = service.StatusId,
+                Status = service.Status != null ? new StatusDTO
+                {
+                    StatusId = service.Status.StatusId,
+                    StatusName = service.Status.StatusName,
+                    StatusType = service.Status.StatusType
+                } : null,
+                ManagerName = service.Manager?.Fullname ?? "Unknown",
+                FlightCount = service.Flights?.Count ?? 0,
+                Items = service.Items?.Select(i => new ManagerItemDTO
+                {
+                    ItemId = i.ItemId,
+                    ItemName = i.ItemName,
+                    Detail = i.Detail,
+                    Price = i.Price,
+                    StatusId = i.StatusId,
+                    StatusName = i.Status?.StatusName,
+                    Image = i.Image
+                }).ToList() ?? new List<ManagerItemDTO>(),
+                FlightIds = service.Flights?.Select(f => f.FlightId).ToList() ?? new List<int>()
+            };
         }
 
         public async Task<DTO.Manager.ServiceDTO> CreateService(ServiceCreateRequestDTO request)
@@ -95,6 +130,80 @@ namespace BookingFlightServer.Services.Implements
             return MapToDTO(serviceWithIncludes!);
         }
 
+        public async Task<ServiceDetailsDTO> UpdateServiceAdvanced(ServiceUpdateAdvancedRequestDTO request)
+        {
+            var existingService = await _serviceRepository.GetServiceById(request.ServiceId);
+            if (existingService == null)
+                throw new InvalidOperationException("Service not found");
+
+            // Update service basic info
+            existingService.ServiceName = request.ServiceName;
+            existingService.Detail = request.Detail;
+            existingService.StatusId = request.StatusId;
+
+            // Remove items
+            if (request.ItemIdsToRemove.Any())
+            {
+                var itemsToRemove = existingService.Items.Where(i => request.ItemIdsToRemove.Contains(i.ItemId)).ToList();
+                foreach (var item in itemsToRemove)
+                {
+                    existingService.Items.Remove(item);
+                }
+            }
+
+            // Update existing items
+            foreach (var itemUpdate in request.Items)
+            {
+                var existingItem = await _context.Items.FindAsync(itemUpdate.ItemId);
+                if (existingItem != null)
+                {
+                    existingItem.ItemName = itemUpdate.ItemName;
+                    existingItem.Detail = itemUpdate.Detail;
+                    existingItem.Price = itemUpdate.Price;
+                    existingItem.StatusId = itemUpdate.StatusId;
+                    existingItem.Image = itemUpdate.Image;
+                }
+            }
+
+            // Add new items
+            foreach (var newItemRequest in request.NewItems)
+            {
+                var newItem = new Entities.Item
+                {
+                    ItemName = newItemRequest.ItemName,
+                    Detail = newItemRequest.Detail,
+                    Price = newItemRequest.Price,
+                    StatusId = newItemRequest.StatusId,
+                    Image = newItemRequest.Image
+                };
+
+                _context.Items.Add(newItem);
+                await _context.SaveChangesAsync();
+                existingService.Items.Add(newItem);
+            }
+
+            // Add existing items to service
+            if (request.ExistingItemIds.Any())
+            {
+                var existingItems = await _context.Items
+                    .Where(i => request.ExistingItemIds.Contains(i.ItemId))
+                    .ToListAsync();
+
+                foreach (var item in existingItems)
+                {
+                    if (!existingService.Items.Any(si => si.ItemId == item.ItemId))
+                    {
+                        existingService.Items.Add(item);
+                    }
+                }
+            }
+
+            await _serviceRepository.UpdateService(existingService);
+            await _context.SaveChangesAsync();
+
+            return await GetServiceDetails(request.ServiceId) ?? throw new InvalidOperationException("Failed to get updated service details");
+        }
+
         public async Task<bool> DeleteService(int serviceId)
         {
             return await _serviceRepository.DeleteService(serviceId);
@@ -102,7 +211,8 @@ namespace BookingFlightServer.Services.Implements
 
         public async Task<List<StatusDTO>> GetServiceStatuses()
         {
-            var statuses = await _context.Statuses.Where(s => s.StatusType == "Service").ToListAsync();
+            // Get all statuses - since there are only Active (1) and Inactive (2) statuses
+            var statuses = await _context.Statuses.Where(s => s.StatusId == 1 || s.StatusId == 2).ToListAsync();
             return statuses.Select(s => new StatusDTO
             {
                 StatusId = s.StatusId,

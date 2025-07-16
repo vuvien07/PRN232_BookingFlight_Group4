@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using BookingFlightClient.Models.DTO;
 
 namespace BookingFlightClient.Controllers
 {
@@ -94,10 +95,26 @@ namespace BookingFlightClient.Controllers
             return View();
         }
 
-        [Route("Manager/Profile")]
         public IActionResult Profile()
         {
             SetUserRole();
+            return View();
+        }
+
+        public IActionResult Planes()
+        {
+            SetUserRole();
+            
+            // For Manager role, we'll load planes data via API
+            if (ViewBag.UserRole == 4)
+            {
+                ViewBag.ShowPlaneManagement = true;
+            }
+            else
+            {
+                ViewBag.ShowPlaneManagement = false;
+            }
+            
             return View();
         }
 
@@ -288,150 +305,272 @@ namespace BookingFlightClient.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
-        [HttpGet("/api/Manager/profile")]
-        public async Task<IActionResult> GetProfile()
+
+
+        public IActionResult ServiceDetails(int? id)
         {
-            try
+            SetUserRole();
+            
+            if (!id.HasValue)
             {
-                var httpClient = _httpClientFactory.CreateClient();
-                var serverBaseUrl = _configuration["ServerSettings:BaseUrl"] ?? "http://localhost:5077";
-
-                // Get JWT token from cookie
-                var authToken = Request.Cookies["X-Access-Token"] ?? HttpContext.Session.GetString("AuthToken");
-
-                if (string.IsNullOrEmpty(authToken))
-                {
-                    return Json(new { success = false, message = "Authentication token not found" });
-                }
-
-                httpClient.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
-
-                var response = await httpClient.GetAsync($"{serverBaseUrl}/api/Manager/profile");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var content = await response.Content.ReadAsStringAsync();
-                    return Content(content, "application/json");
-                }
-                else
-                {
-                    return Json(new { success = false, message = "Failed to get profile" });
-                }
+                return RedirectToAction("Services");
             }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
+            
+            ViewBag.ServiceId = id.Value;
+            return View();
         }
 
-        [HttpPut("/api/Manager/profile")]
-        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
+        public IActionResult ManageFlights()
         {
-            try
-            {
-                var httpClient = _httpClientFactory.CreateClient();
-                var serverBaseUrl = _configuration["ServerSettings:BaseUrl"] ?? "http://localhost:5077";
-
-                // Get JWT token from cookie
-                var authToken = Request.Cookies["X-Access-Token"] ?? HttpContext.Session.GetString("AuthToken");
-
-                if (string.IsNullOrEmpty(authToken))
-                {
-                    return Json(new { success = false, message = "Authentication token not found" });
-                }
-
-                httpClient.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
-
-                var jsonContent = JsonSerializer.Serialize(request);
-                var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-                var response = await httpClient.PutAsync($"{serverBaseUrl}/api/Manager/profile", httpContent);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var content = await response.Content.ReadAsStringAsync();
-                    return Content(content, "application/json");
-                }
-                else
-                {
-                    return Json(new { success = false, message = "Failed to update profile" });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
+            SetUserRole();
+            return View();
         }
 
-        [HttpPut("/api/Manager/change-password")]
-        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        public IActionResult AddFlight()
         {
+            SetUserRole();
+            return View();
+        }
+
+        public IActionResult EditFlight(int id)
+        {
+            SetUserRole();
+            ViewBag.FlightId = id;
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetPlanes([FromBody] PlaneListRequest request)
+        {
+            SetUserRole();
+            
             try
             {
-                var serverBaseUrl = _configuration["ServerSettings:BaseUrl"] ?? "http://localhost:5077";
+                Console.WriteLine($"Client GetPlanes: Search='{request.Search}', StatusId={request.StatusId}");
+                
                 using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"]);
 
-                // Get access token from cookie
-                var accessToken = Request.Cookies["X-Access-Token"];
-                if (string.IsNullOrEmpty(accessToken))
+                // Add authorization header if needed
+                var token = Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
                 {
-                    return Json(new { success = false, message = "Authentication required" });
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
                 }
 
-                httpClient.DefaultRequestHeaders.Authorization = 
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+                var json = JsonSerializer.Serialize(request);
+                Console.WriteLine($"Client request JSON: {json}");
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var jsonContent = System.Text.Json.JsonSerializer.Serialize(request);
-                var httpContent = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
+                var response = await httpClient.PostAsync("api/Manager/planes/list", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Client received response: {responseContent.Substring(0, Math.Min(200, responseContent.Length))}...");
 
-                var response = await httpClient.PutAsync($"{serverBaseUrl}/api/Manager/change-password", httpContent);
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(responseContent, "application/json");
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Failed to fetch planes data" });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching planes: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while fetching planes data" });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreatePlane([FromBody] PlaneCreateRequest request)
+        {
+            SetUserRole();
+            
+            try
+            {
+                using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"]);
+
+                // Add authorization header if needed
+                var token = Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await httpClient.PostAsync("api/Manager/planes", content);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                if (response.IsSuccessStatusCode)
-                {
-                    return Json(System.Text.Json.JsonSerializer.Deserialize<object>(responseContent));
-                }
-                else
-                {
-                    return Json(new { success = false, message = "Failed to change password" });
-                }
+                return Content(responseContent, "application/json");
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                Console.WriteLine($"Error creating plane: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while creating plane" });
             }
         }
 
-        // DTO classes for Client
-        public class UpdateProfileRequest
+        [HttpPost]
+        [Route("Manager/UpdatePlane/{id}")]
+        public async Task<IActionResult> UpdatePlane(int id, [FromBody] PlaneUpdateRequest request)
         {
-            public string FullName { get; set; }
-            public string Address { get; set; }
-            public string PhoneNumber { get; set; }
-            public string Email { get; set; }
+            SetUserRole();
+            
+            try
+            {
+                Console.WriteLine($"UpdatePlane called with id: {id}");
+                Console.WriteLine($"Request data: {JsonSerializer.Serialize(request)}");
+                
+                using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"]);
+
+                // Add authorization header if needed
+                var token = Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                Console.WriteLine($"Sending PUT request to: api/Manager/planes/{id}");
+                var response = await httpClient.PutAsync($"api/Manager/planes/{id}", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+                
+                Console.WriteLine($"Server response: {responseContent}");
+                return Content(responseContent, "application/json");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating plane: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while updating plane" });
+            }
         }
 
-        public class ChangePasswordRequest
+        [HttpPost]
+        public async Task<IActionResult> DeletePlane(int id)
         {
-            public string CurrentPassword { get; set; } = string.Empty;
-            public string NewPassword { get; set; } = string.Empty;
-            public string ConfirmPassword { get; set; } = string.Empty;
+            SetUserRole();
+            
+            try
+            {
+                using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"]);
+
+                // Add authorization header if needed
+                var token = Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var response = await httpClient.DeleteAsync($"api/Manager/planes/{id}");
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                return Content(responseContent, "application/json");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting plane: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while deleting plane" });
+            }
         }
 
-        public class ProfileResponse
+        [HttpGet]
+        public async Task<IActionResult> CanDeletePlane(int id)
         {
-            public string Username { get; set; }
-            public string FullName { get; set; }
-            public string Address { get; set; }
-            public string PhoneNumber { get; set; }
-            public string Email { get; set; }
-            public string Role { get; set; }
-            public string Status { get; set; }
+            SetUserRole();
+            
+            try
+            {
+                using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"]);
+
+                // Add authorization header if needed
+                var token = Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var response = await httpClient.GetAsync($"api/Manager/planes/{id}/can-delete");
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                return Content(responseContent, "application/json");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking if plane can be deleted: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while checking plane deletion status" });
+            }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPlaneStatuses()
+        {
+            try
+            {
+                using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"]);
+
+                var response = await httpClient.GetAsync("api/Manager/planes/statuses");
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                return Content(responseContent, "application/json");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching plane statuses: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while fetching plane statuses" });
+            }
+        }
+
+        [HttpGet]
+        [Route("Manager/GetPlane")]
+        public async Task<IActionResult> GetPlane(int id)
+        {
+            SetUserRole();
+            
+            try
+            {
+                Console.WriteLine($"GetPlane called with id: {id}");
+                
+                using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"]);
+
+                // Add authorization header if needed
+                var token = Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var response = await httpClient.GetAsync($"api/Manager/planes/{id}");
+                var responseContent = await response.Content.ReadAsStringAsync();
+                
+                Console.WriteLine($"GetPlane response: {responseContent}");
+                return Content(responseContent, "application/json");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting plane: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while getting plane details" });
+            }
+        }
+
+
     }
-
 
     // DTO classes for API requests
     public class ServiceListRequest
@@ -459,5 +598,14 @@ namespace BookingFlightClient.Controllers
         public int Price { get; set; }
         public int? StatusId { get; set; }
         public string? Image { get; set; }
+    }
+
+    public class PlaneListRequest
+    {
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public string? Search { get; set; }
+        public int? StatusId { get; set; }
+        public int? ManagerId { get; set; }
     }
 }
