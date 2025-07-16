@@ -1,0 +1,684 @@
+@{
+    ViewData["Title"] = "Plane Management";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+<style>
+    .plane-container {
+        padding: 20px;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+
+    .content-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .content-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+
+    .content-header p {
+        margin: 10px 0 0 0;
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .card-header {
+        background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border-radius: 15px 15px 0 0 !important;
+        padding: 20px;
+        border: none;
+    }
+
+    .card-title {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+
+    .btn-primary {
+        background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-success {
+        background: linear-gradient(45deg, #56ab2f 0%, #a8e6cf 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 500;
+    }
+
+    .btn-warning {
+        background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 500;
+    }
+
+    .btn-danger {
+        background: linear-gradient(45deg, #ff416c 0%, #ff4b2b 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 500;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        padding: 12px 15px;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+    }
+
+    .table thead th {
+        background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        font-weight: 600;
+        padding: 15px;
+    }
+
+    .table tbody tr {
+        transition: background-color 0.3s ease;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .modal-content {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+        background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        border: none;
+    }
+
+    .modal-title {
+        font-weight: 600;
+    }
+
+    .pagination .page-link {
+        border-radius: 8px;
+        margin: 0 2px;
+        border: none;
+        color: #667eea;
+        font-weight: 500;
+    }
+
+    .pagination .page-link:hover {
+        background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+        border: none;
+    }
+
+    .badge {
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+    .badge-success {
+        background: linear-gradient(45deg, #56ab2f 0%, #a8e6cf 100%);
+    }
+
+    .badge-warning {
+        background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .search-filters {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .alert {
+        border-radius: 10px;
+        border: none;
+        padding: 15px 20px;
+    }
+</style>
+
+<div class="plane-container">
+    <div class="content-header">
+        <h1><i class="fas fa-plane"></i> Plane Management</h1>
+        <p>Manage aircraft fleet and monitor plane status</p>
+    </div>
+
+    @if (ViewBag.ShowPlaneManagement == true)
+    {
+        <!-- Search and Filters -->
+        <div class="search-filters">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="searchInput" class="form-label">Search by Plane Code</label>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Enter plane code...">
+                </div>
+                <div class="col-md-3">
+                    <label for="statusFilter" class="form-label">Status</label>
+                    <select id="statusFilter" class="form-control">
+                        <option value="">All Statuses</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="button" class="btn btn-primary me-2" onclick="searchPlanes()">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="showAddPlaneModal()">
+                        <i class="fas fa-plus"></i> Add Plane
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Planes Table -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-list"></i> Planes List</h3>
+            </div>
+            <div class="card-body">
+                <div class="loading-spinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Loading planes...</p>
+                </div>
+
+                <div class="table-responsive" id="planesTableContainer">
+                    <table class="table table-striped" id="planesTable">
+                        <thead>
+                            <tr>
+                                <th>Plane Code</th>
+                                <th>Model</th>
+                                <th>Manufacture</th>
+                                <th>Year</th>
+                                <th>Status</th>
+                                <th>Manager</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="planesTableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div id="paginationInfo">
+                        Showing 0 to 0 of 0 results
+                    </div>
+                    <nav>
+                        <ul class="pagination" id="pagination">
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            <h4>Access Denied</h4>
+            <p>You don't have permission to manage planes.</p>
+        </div>
+    }
+</div>
+
+<!-- Add/Edit Plane Modal -->
+<div class="modal fade" id="planeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="planeModalTitle">Add New Plane</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="planeForm">
+                    <input type="hidden" id="planeId" name="PlaneId">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="planeCode" class="form-label">Plane Code <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="planeCode" name="PlaneCode" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="manufacture" class="form-label">Manufacture <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="manufacture" name="Manufacture" required>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label for="model" class="form-label">Model <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="model" name="Model" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="yearOfManufacture" class="form-label">Year of Manufacture <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="yearOfManufacture" name="YearOfManufacture" min="1990" max="2030" required>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label for="statusId" class="form-label">Status <span class="text-danger">*</span></label>
+                            <select class="form-control" id="statusId" name="StatusId" required>
+                                <option value="">Select Status</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="savePlane()">Save Plane</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentPage = 1;
+    let pageSize = 10;
+    let totalPages = 1;
+    let isEditing = false;
+    let currentPlaneManagerId = null; // Store current plane's manager ID for editing
+
+    // Wait for jQuery to be available
+    function initializePage() {
+        if (typeof $ === 'undefined') {
+            setTimeout(initializePage, 100);
+            return;
+        }
+        
+        loadPlaneStatuses();
+        loadPlanes();
+    }
+
+    // Initialize page when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializePage);
+    } else {
+        initializePage();
+    }
+
+    // Load plane statuses for dropdowns
+    function loadPlaneStatuses() {
+        $.ajax({
+            url: '/Manager/GetPlaneStatuses',
+            type: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    const statusOptions = response.data.map(status => 
+                        `<option value="${status.statusId}">${status.statusName}</option>`
+                    ).join('');
+                    
+                    $('#statusFilter').append(statusOptions);
+                    $('#statusId').append(statusOptions);
+                } else {
+                    showAlert('error', 'Failed to load plane statuses');
+                }
+            },
+            error: function(xhr, status, error) {
+                showAlert('error', 'Failed to load plane statuses');
+            }
+        });
+    }
+
+    // Load planes with current filters
+    function loadPlanes() {
+        $('.loading-spinner').show();
+        $('#planesTableContainer').hide();
+
+        const request = {
+            search: $('#searchInput').val() || null,
+            statusId: $('#statusFilter').val() || null,
+            managerId: null,
+            page: currentPage,
+            pageSize: 10 // Fixed page size
+        };
+
+        console.log('Frontend request:', request);
+
+        $.ajax({
+            url: '/Manager/GetPlanes',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(request),
+            success: function(response) {
+                console.log('Frontend response:', response);
+                $('.loading-spinner').hide();
+                $('#planesTableContainer').show();
+
+                if (response.success) {
+                    displayPlanes(response.data);
+                    updatePagination(response.pagination);
+                } else {
+                    showAlert('error', response.message || 'Failed to load planes');
+                }
+            },
+            error: function(xhr, status, error) {
+                $('.loading-spinner').hide();
+                $('#planesTableContainer').show();
+                showAlert('error', 'Failed to load planes data: ' + error);
+            }
+        });
+    }
+
+    // Display planes in table
+    function displayPlanes(planes) {
+        const tbody = $('#planesTableBody');
+        tbody.empty();
+
+        if (planes.length === 0) {
+            tbody.append('<tr><td colspan="7" class="text-center">No planes found</td></tr>');
+            return;
+        }
+
+        planes.forEach(plane => {
+            const statusBadge = plane.statusId === 1 ? 
+                `<span class="badge badge-success">${plane.statusName}</span>` : 
+                `<span class="badge badge-warning">${plane.statusName}</span>`;
+
+            const row = `
+                <tr>
+                    <td><strong>${plane.planeCode}</strong></td>
+                    <td>${plane.model}</td>
+                    <td>${plane.manufacture}</td>
+                    <td>${plane.yearOfManufacture}</td>
+                    <td>${statusBadge}</td>
+                    <td>${plane.managerName}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1" onclick="editPlane(${plane.planeId})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deletePlane(${plane.planeId})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tbody.append(row);
+        });
+    }
+
+    // Update pagination
+    function updatePagination(pagination) {
+        totalPages = pagination.totalPages;
+        currentPage = pagination.currentPage;
+
+        $('#paginationInfo').text(
+            `Showing ${((currentPage - 1) * pagination.pageSize) + 1} to ${Math.min(currentPage * pagination.pageSize, pagination.totalCount)} of ${pagination.totalCount} results`
+        );
+
+        const paginationElement = $('#pagination');
+        paginationElement.empty();
+
+        // Previous button
+        paginationElement.append(`
+            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>
+            </li>
+        `);
+
+        // Page numbers
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(totalPages, currentPage + 2);
+
+        for (let i = startPage; i <= endPage; i++) {
+            paginationElement.append(`
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                </li>
+            `);
+        }
+
+        // Next button
+        paginationElement.append(`
+            <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>
+            </li>
+        `);
+    }
+
+    // Change page
+    function changePage(page) {
+        if (page >= 1 && page <= totalPages && page !== currentPage) {
+            currentPage = page;
+            loadPlanes();
+        }
+    }
+
+    // Search planes
+    function searchPlanes() {
+        currentPage = 1;
+        loadPlanes();
+    }
+
+    // Show add plane modal
+    function showAddPlaneModal() {
+        isEditing = false;
+        currentPlaneManagerId = null;
+        $('#planeModalTitle').text('Add New Plane');
+        $('#planeForm')[0].reset();
+        $('#planeId').val('');
+        $('#planeModal').modal('show');
+    }
+
+    // Edit plane
+    function editPlane(planeId) {
+        isEditing = true;
+        $('#planeModalTitle').text('Edit Plane');
+        $('#planeId').val(planeId);
+        
+        // Load plane data
+        $.ajax({
+            url: `/Manager/GetPlane?id=${planeId}`,
+            type: 'GET',
+            success: function(response) {
+                console.log('Edit plane response:', response);
+                if (response.success && response.data) {
+                    const plane = response.data;
+                    
+                    // Store manager ID for update
+                    currentPlaneManagerId = plane.managerId;
+                    
+                    console.log('Plane data:', plane);
+                    console.log('Setting statusId to:', plane.statusId);
+                    
+                    // Populate form fields
+                    $('#planeCode').val(plane.planeCode);
+                    $('#model').val(plane.model);
+                    $('#manufacture').val(plane.manufacture);
+                    $('#yearOfManufacture').val(plane.yearOfManufacture);
+                    $('#statusId').val(plane.statusId);
+                    
+                    console.log('Status dropdown value after setting:', $('#statusId').val());
+                    
+                    // Show modal
+                    $('#planeModal').modal('show');
+                } else {
+                    showAlert('error', response.message || 'Failed to load plane details');
+                }
+            },
+            error: function(xhr, status, error) {
+                showAlert('error', 'Failed to load plane details: ' + error);
+            }
+        });
+    }
+
+    // Save plane
+    function savePlane() {
+        const form = $('#planeForm')[0];
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const formData = {
+            planeId: parseInt($('#planeId').val()) || 0,
+            planeCode: $('#planeCode').val(),
+            model: $('#model').val(),
+            manufacture: $('#manufacture').val(),
+            yearOfManufacture: parseInt($('#yearOfManufacture').val()),
+            statusId: parseInt($('#statusId').val())
+        };
+
+        console.log('Raw status dropdown value:', $('#statusId').val());
+        console.log('Parsed statusId:', parseInt($('#statusId').val()));
+        
+        // Add ManagerId for update requests
+        if (isEditing) {
+            formData.managerId = currentPlaneManagerId || 1; // Use stored manager ID or fallback
+        }
+
+        const url = isEditing ? `/Manager/UpdatePlane/${formData.planeId}` : '/Manager/CreatePlane';
+        const method = 'POST';
+
+        console.log('Saving plane with data:', formData);
+        console.log('URL:', url);
+        console.log('Is editing:', isEditing);
+
+        $.ajax({
+            url: url,
+            type: method,
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function(response) {
+                console.log('Save response:', response);
+                if (response.success) {
+                    $('#planeModal').modal('hide');
+                    showAlert('success', response.message || 'Plane saved successfully');
+                    loadPlanes();
+                } else {
+                    showAlert('error', response.message || 'Failed to save plane');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Save error:', xhr, status, error);
+                console.error('Response text:', xhr.responseText);
+                showAlert('error', 'Failed to save plane: ' + error);
+            }
+        });
+    }
+
+    // Delete plane
+    function deletePlane(planeId) {
+        // First check if plane can be deleted
+        $.ajax({
+            url: `/Manager/CanDeletePlane?id=${planeId}`,
+            type: 'GET',
+            success: function(response) {
+                if (response.success && response.canDelete) {
+                    if (confirm('Are you sure you want to delete this plane?')) {
+                        performDeletePlane(planeId);
+                    }
+                } else {
+                    showAlert('error', response.message || 'Cannot delete this plane');
+                }
+            },
+            error: function() {
+                showAlert('error', 'Failed to check if plane can be deleted');
+            }
+        });
+    }
+
+    // Perform actual delete
+    function performDeletePlane(planeId) {
+        $.ajax({
+            url: `/Manager/DeletePlane?id=${planeId}`,
+            type: 'POST',
+            success: function(response) {
+                if (response.success) {
+                    showAlert('success', 'Plane deleted successfully');
+                    loadPlanes();
+                } else {
+                    showAlert('error', response.message || 'Failed to delete plane');
+                }
+            },
+            error: function() {
+                showAlert('error', 'Failed to delete plane');
+            }
+        });
+    }
+
+    // Show alert
+    function showAlert(type, message) {
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        const alertHtml = `
+            <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        $('.plane-container').prepend(alertHtml);
+        
+        // Auto dismiss after 5 seconds
+        setTimeout(() => {
+            $('.alert').fadeOut();
+        }, 5000);
+    }
+
+    // Enter key search
+    $('#searchInput').keypress(function(e) {
+        if (e.which === 13) {
+            searchPlanes();
+        }
+    });
+</script>

@@ -5,7 +5,7 @@ namespace BookingFlightServer.Entities;
 
 public partial class Plane
 {
-    public int? PlaneId { get; set; }
+    public int PlaneId { get; set; }
 
     public string PlaneCode { get; set; } = null!;
 

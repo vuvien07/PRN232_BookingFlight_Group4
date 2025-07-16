@@ -32,33 +32,41 @@ namespace BookingFlightServer.Services.Implements
 
         public async Task<Customer> RegisterCustomerAsync(string username, string password, string fullname, string address, string phoneNumber, string email)
         {
-            // Create Account first
-            var account = new Account
+            try 
             {
-                Username = username,
-                Password = password, // Store password directly as entered by user
-                RoleId = 3, // Customer role
-                StatusId = 0 // Pending status - will be activated after email verification
-            };
+                // Create Account first
+                var account = new Account
+                {
+                    Username = username,
+                    Password = password, // Store password directly as entered by user
+                    RoleId = 3, // Customer role
+                    StatusId = 2 // Inactive status - will be activated after email verification
+                };
 
-            var createdAccount = await _accountRepository.CreateAccountAsync(account);
+                var createdAccount = await _accountRepository.CreateAccountAsync(account);
 
-            // Create Customer
-            var customer = new Customer
+                // Create Customer with the account ID
+                var customer = new Customer
+                {
+                    Fullname = fullname,
+                    Address = address,
+                    PhoneNumber = phoneNumber,
+                    Email = email,
+                    AccountId = createdAccount.AccountId
+                };
+
+                var createdCustomer = await _accountRepository.CreateCustomerAsync(customer);
+
+                // Send email verification
+                await SendEmailVerificationAsync(email, createdAccount.AccountId);
+
+                return createdCustomer;
+            }
+            catch (Exception ex)
             {
-                Fullname = fullname,
-                Address = address,
-                PhoneNumber = phoneNumber,
-                Email = email,
-                AccountId = createdAccount.AccountId
-            };
-
-            var createdCustomer = await _accountRepository.CreateCustomerAsync(customer);
-
-            // Send email verification
-            await SendEmailVerificationAsync(email, createdAccount.AccountId);
-
-            return createdCustomer;
+                Console.WriteLine($"Error in RegisterCustomerAsync: {ex.Message}");
+                throw;
+            }
         }
 
         // Forgot Password implementations
@@ -67,11 +75,13 @@ namespace BookingFlightServer.Services.Implements
             // Find account by email
             var account = await _accountRepository.FindByEmailAsync(email);
             if (account == null)
-                return false;            // Generate reset token (simple random string)
+                return false;
+
+            // Generate reset token (simple random string)
             var token = Guid.NewGuid().ToString("N")[..16]; // 16 character token
             var expireTime = DateTime.Now.AddMinutes(15); // Token expires in 15 minutes
             
-            // Save token to Redis
+            // Save token to database
             await _accountRepository.SaveResetTokenAsync(account.AccountId, token, expireTime);
 
             // Try to send email, fallback to console if email fails
@@ -120,7 +130,7 @@ namespace BookingFlightServer.Services.Implements
                 var token = Guid.NewGuid().ToString("N")[..16];
                 var expireTime = DateTime.Now.AddHours(24); // Token expires in 24 hours
 
-                // Save token to Redis
+                // Save token to database
                 await _accountRepository.SaveEmailVerificationTokenAsync(accountId, token, expireTime);
 
                 // Try to send email, fallback to console if email fails

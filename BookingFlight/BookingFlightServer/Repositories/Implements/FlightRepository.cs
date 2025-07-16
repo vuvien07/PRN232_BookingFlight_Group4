@@ -51,8 +51,8 @@ namespace BookingFlightServer.Repositories.Implements
 				   from ap in apGroup.DefaultIfEmpty()
 				   join fs in _flightContext.FlightSeats on f.FlightId equals fs.FlightId into fsGroup
 				   from fs in fsGroup.DefaultIfEmpty()
-				   join seat in _flightContext.Seats on new { fs.SeatId, p.PlaneId }
-					   equals new { seat.SeatId, seat.PlaneId }
+				   join seat in _flightContext.Seats on new { SeatId = fs != null ? fs.SeatId : 0, PlaneId = (int?)p.PlaneId }
+					   equals new { SeatId = seat.SeatId, PlaneId = seat.PlaneId }
 					   into seatGroup
 				   from seat in seatGroup.DefaultIfEmpty()
 				   join cs in _flightContext.ClassSeats on seat.ClassId equals cs.ClassId into csGroup
