@@ -269,5 +269,85 @@ namespace BookingFlightServer.Controllers
                 return BadRequest(new { success = false, message = ex.Message });
             }
         }
+
+        [HttpGet("items/{id}")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> GetItem(int id)
+        {
+            try
+            {
+                var item = await _itemService.GetItemById(id);
+                if (item == null)
+                {
+                    return NotFound(new { success = false, message = "Item not found" });
+                }
+
+                return Ok(new { success = true, data = item });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPut("items/{id}")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> UpdateItem(int id, [FromBody] ItemUpdateRequestDTO request)
+        {
+            try
+            {
+                if (id != request.ItemId)
+                {
+                    return BadRequest(new { success = false, message = "Item ID mismatch" });
+                }
+
+                var item = await _itemService.UpdateItem(request);
+                return Ok(new { success = true, data = item, message = "Item updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpDelete("items/{id}")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> DeleteItem(int id)
+        {
+            try
+            {
+                var result = await _itemService.DeleteItem(id);
+                if (!result)
+                {
+                    return NotFound(new { success = false, message = "Item not found" });
+                }
+
+                return Ok(new { success = true, message = "Item deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet("items/statuses")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> GetItemStatuses()
+        {
+            try
+            {
+                // Return common statuses for items
+                var statuses = new[]
+                {
+                    new { StatusId = 1, StatusType = "Active" },
+                    new { StatusId = 2, StatusType = "Inactive" }
+                };
+                return Ok(new { success = true, data = statuses });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
     }
 }

@@ -575,6 +575,14 @@ async function saveService() {
         }
         
         console.log('Saving service with data:', formData);
+        console.log('Data structure check:');
+        console.log('- ServiceId:', formData.serviceId, typeof formData.serviceId);
+        console.log('- ServiceName:', formData.serviceName, typeof formData.serviceName);
+        console.log('- Items count:', formData.items.length);
+        console.log('- NewItems count:', formData.newItems.length);
+        console.log('- ExistingItemIds count:', formData.existingItemIds.length);
+        console.log('- ItemIdsToRemove count:', formData.itemIdsToRemove.length);
+        
         showLoading();
         
         const response = await fetch(buildApiUrl(`${API_CONFIG.ENDPOINTS.SERVICES.UPDATE}/${currentService.serviceId}/advanced`), {
@@ -595,7 +603,20 @@ async function saveService() {
                 }, 2000);
                 return;
             }
-            throw new Error(`Server responded with status ${response.status}`);
+            
+            // Try to get error details from response
+            let errorMessage = `Server responded with status ${response.status}`;
+            try {
+                const errorData = await response.text();
+                console.error('Server error response:', errorData);
+                if (errorData) {
+                    errorMessage += `: ${errorData}`;
+                }
+            } catch (e) {
+                console.error('Could not read error response:', e);
+            }
+            
+            throw new Error(errorMessage);
         }
         
         const result = await response.json();
@@ -668,12 +689,29 @@ async function gatherFormData() {
             const inputs = card.querySelectorAll('#newItemSection_' + itemId + ' input, #newItemSection_' + itemId + ' select, #newItemSection_' + itemId + ' textarea');
             const fileInput = card.querySelector(`#newItemSection_${itemId} input[type="file"]`);
             
-            let imageData = null;
+            let imageUrl = null;
             if (fileInput && fileInput.files && fileInput.files[0]) {
                 try {
-                    imageData = await fileToBase64(fileInput.files[0]);
+                    // Upload image first and get URL
+                    const uploadFormData = new FormData();
+                    uploadFormData.append('imageFile', fileInput.files[0]);
+                    
+                    const uploadResponse = await fetch('/ItemManage/UploadImage', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${getAuthToken()}`
+                        },
+                        body: uploadFormData
+                    });
+                    
+                    const uploadResult = await uploadResponse.json();
+                    if (uploadResult.success) {
+                        imageUrl = uploadResult.imageUrl;
+                    } else {
+                        console.error('Image upload failed:', uploadResult.message);
+                    }
                 } catch (error) {
-                    console.error('Error converting file to base64:', error);
+                    console.error('Error uploading image:', error);
                 }
             }
             
@@ -681,7 +719,7 @@ async function gatherFormData() {
                 itemName: inputs[0].value,
                 price: parseInt(inputs[1].value) || 0,
                 statusId: inputs[2].value || null,
-                image: imageData,
+                image: imageUrl,
                 detail: inputs[3].value || null
             };
             

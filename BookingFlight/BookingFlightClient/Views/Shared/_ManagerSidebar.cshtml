@@ -39,7 +39,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/Manager/ManageItems" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ManageItems" ? "active" : "")">
+                    <a href="/ItemManage/Items" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ItemManage" ? "active" : "")">
                         <i class="fas fa-boxes"></i>
                         <span>Manage Items</span>
                     </a>

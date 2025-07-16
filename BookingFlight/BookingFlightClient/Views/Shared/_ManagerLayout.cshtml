@@ -12,6 +12,8 @@
     <!-- Manager Custom CSS -->
     <link href="~/css/manager-dashboard.css" rel="stylesheet">
     <link href="~/css/manager-sidebar.css" rel="stylesheet">
+    
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <div class="manager-wrapper">
