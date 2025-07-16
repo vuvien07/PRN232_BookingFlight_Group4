@@ -430,6 +430,12 @@ namespace BookingFlightServer.Controllers
 
                 var item = await _itemService.UpdateItem(request);
                 return Ok(new { success = true, data = item, message = "Item updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
 
         [HttpDelete("planes/{id}")]
         public async Task<IActionResult> DeletePlane(int id)
@@ -443,14 +449,12 @@ namespace BookingFlightServer.Controllers
                 }
 
                 return Ok(new { success = true, message = "Plane deleted successfully" });
-
             }
             catch (Exception ex)
             {
                 return BadRequest(new { success = false, message = ex.Message });
             }
         }
-
 
         [HttpDelete("items/{id}")]
         [AllowAnonymous] // Temporary for testing
@@ -465,6 +469,12 @@ namespace BookingFlightServer.Controllers
                 }
 
                 return Ok(new { success = true, message = "Item deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
                 
         [HttpGet("planes/{id}/can-delete")]
         public async Task<IActionResult> CanDeletePlane(int id)
@@ -473,14 +483,12 @@ namespace BookingFlightServer.Controllers
             {
                 var canDelete = await _planeService.CanDeletePlaneAsync(id);
                 return Ok(new { success = true, canDelete = canDelete.CanDelete, message = canDelete.Message });
-
             }
             catch (Exception ex)
             {
                 return BadRequest(new { success = false, message = ex.Message });
             }
         }
-
 
         [HttpGet("items/statuses")]
         [AllowAnonymous] // Temporary for testing
@@ -494,6 +502,14 @@ namespace BookingFlightServer.Controllers
                     new { StatusId = 1, StatusType = "Active" },
                     new { StatusId = 2, StatusType = "Inactive" }
                 };
+
+                return Ok(new { success = true, data = statuses });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
 
         [HttpGet("planes/statuses")]
         public async Task<IActionResult> GetPlaneStatuses()
