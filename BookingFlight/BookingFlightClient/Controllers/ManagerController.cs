@@ -306,6 +306,39 @@ namespace BookingFlightClient.Controllers
             }
         }
 
+
+        public IActionResult ServiceDetails(int? id)
+        {
+            SetUserRole();
+            
+            if (!id.HasValue)
+            {
+                return RedirectToAction("Services");
+            }
+            
+            ViewBag.ServiceId = id.Value;
+            return View();
+        }
+
+        public IActionResult ManageFlights()
+        {
+            SetUserRole();
+            return View();
+        }
+
+        public IActionResult AddFlight()
+        {
+            SetUserRole();
+            return View();
+        }
+
+        public IActionResult EditFlight(int id)
+        {
+            SetUserRole();
+            ViewBag.FlightId = id;
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> GetPlanes([FromBody] PlaneListRequest request)
         {
@@ -535,6 +568,7 @@ namespace BookingFlightClient.Controllers
                 return Json(new { success = false, message = "An error occurred while getting plane details" });
             }
         }
+
 
     }
 

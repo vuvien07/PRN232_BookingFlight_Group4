@@ -90,6 +90,26 @@ namespace BookingFlightServer.Controllers
             }
         }
 
+        [HttpGet("services/{id}/details")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> GetServiceDetails(int id)
+        {
+            try
+            {
+                var serviceDetails = await _serviceService.GetServiceDetails(id);
+                if (serviceDetails == null)
+                {
+                    return NotFound(new { success = false, message = "Service not found" });
+                }
+
+                return Ok(new { success = true, data = serviceDetails });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
         [HttpPost("services")]
         public async Task<IActionResult> CreateService([FromBody] ServiceCreateRequestDTO request)
         {
@@ -123,7 +143,28 @@ namespace BookingFlightServer.Controllers
             }
         }
 
+        [HttpPut("services/{id}/advanced")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> UpdateServiceAdvanced(int id, [FromBody] ServiceUpdateAdvancedRequestDTO request)
+        {
+            try
+            {
+                if (id != request.ServiceId)
+                {
+                    return BadRequest(new { success = false, message = "Service ID mismatch" });
+                }
+
+                var serviceDetails = await _serviceService.UpdateServiceAdvanced(request);
+                return Ok(new { success = true, data = serviceDetails, message = "Service updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
         [HttpDelete("services/{id}")]
+        [AllowAnonymous] // Temporary for testing
         public async Task<IActionResult> DeleteService(int id)
         {
             try
@@ -356,6 +397,40 @@ namespace BookingFlightServer.Controllers
             }
         }
 
+        [HttpGet("items/{id}")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> GetItem(int id)
+        {
+            try
+            {
+                var item = await _itemService.GetItemById(id);
+                if (item == null)
+                {
+                    return NotFound(new { success = false, message = "Item not found" });
+                }
+
+                return Ok(new { success = true, data = item });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPut("items/{id}")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> UpdateItem(int id, [FromBody] ItemUpdateRequestDTO request)
+        {
+            try
+            {
+                if (id != request.ItemId)
+                {
+                    return BadRequest(new { success = false, message = "Item ID mismatch" });
+                }
+
+                var item = await _itemService.UpdateItem(request);
+                return Ok(new { success = true, data = item, message = "Item updated successfully" });
+
         [HttpDelete("planes/{id}")]
         public async Task<IActionResult> DeletePlane(int id)
         {
@@ -368,6 +443,7 @@ namespace BookingFlightServer.Controllers
                 }
 
                 return Ok(new { success = true, message = "Plane deleted successfully" });
+
             }
             catch (Exception ex)
             {
@@ -375,6 +451,21 @@ namespace BookingFlightServer.Controllers
             }
         }
 
+
+        [HttpDelete("items/{id}")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> DeleteItem(int id)
+        {
+            try
+            {
+                var result = await _itemService.DeleteItem(id);
+                if (!result)
+                {
+                    return NotFound(new { success = false, message = "Item not found" });
+                }
+
+                return Ok(new { success = true, message = "Item deleted successfully" });
+                
         [HttpGet("planes/{id}/can-delete")]
         public async Task<IActionResult> CanDeletePlane(int id)
         {
@@ -382,6 +473,7 @@ namespace BookingFlightServer.Controllers
             {
                 var canDelete = await _planeService.CanDeletePlaneAsync(id);
                 return Ok(new { success = true, canDelete = canDelete.CanDelete, message = canDelete.Message });
+
             }
             catch (Exception ex)
             {
@@ -389,12 +481,27 @@ namespace BookingFlightServer.Controllers
             }
         }
 
+
+        [HttpGet("items/statuses")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> GetItemStatuses()
+        {
+            try
+            {
+                // Return common statuses for items
+                var statuses = new[]
+                {
+                    new { StatusId = 1, StatusType = "Active" },
+                    new { StatusId = 2, StatusType = "Inactive" }
+                };
+
         [HttpGet("planes/statuses")]
         public async Task<IActionResult> GetPlaneStatuses()
         {
             try
             {
                 var statuses = await _planeService.GetPlaneStatusesAsync();
+
                 return Ok(new { success = true, data = statuses });
             }
             catch (Exception ex)
