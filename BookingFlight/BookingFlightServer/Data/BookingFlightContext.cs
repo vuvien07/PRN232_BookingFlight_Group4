@@ -352,7 +352,6 @@ public partial class BookingFlightContext : DbContext
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Flights)
                 .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Flight__customer__1332DBDC");
 
             entity.HasOne(d => d.DepartureAirport).WithMany(p => p.FlightDepartureAirports)
