@@ -1,4 +1,5 @@
-﻿using BookingFlightServer.Services;
+﻿using BookingFlightServer.DTO.ManageAccount;
+using BookingFlightServer.Services;
 using BookingFlightServer.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -36,6 +37,48 @@ namespace BookingFlightServer.Controllers
             }
             // Return the list of accounts
             return Ok(responseAccountDTO);
+        }
+
+
+        // POST: api/manageaccount/add-account
+        [HttpPost]
+        [Route("add-account")]
+        public async Task<IActionResult> AddAccount([FromBody] RequestAddAccountDTO requestAddAccountDTO)
+        {
+            var responseAccountDTO = await manageAccountService.CreateAccountAsync(requestAddAccountDTO);
+            // Check if the account creation was successful
+            if (responseAccountDTO == null)
+            {
+                return BadRequest(new { message = "Failed to create account." });
+            }
+            // Return the created account with a 201 Created status
+            return StatusCode(StatusCodes.Status201Created, responseAccountDTO);
+        }
+
+        // POST: api/manageaccount/ban-account
+        [HttpPost]
+        [Route("ban-account")]
+        public async Task<IActionResult> BanAccount([FromBody] int accountId)
+        {
+            Console.WriteLine($"Server :: BanAccount :: accountId :: {accountId}");
+            var isBanned = await manageAccountService.BanAccountAsync(accountId);
+
+            if (!isBanned) return BadRequest(new { message = $"Failed to ban account with ID {accountId}" });
+
+            return StatusCode(StatusCodes.Status200OK, accountId);
+        }
+
+        // POST: api/manageaccount/unban-account
+        [HttpPost]
+        [Route("unban-account")]
+        public async Task<IActionResult> UnBanAccount([FromBody] int accountId)
+        {
+            Console.WriteLine($"Server:: UnBanAccount :: accountId :: {accountId}");
+            var isBanned = await manageAccountService.UnBanAccountAsync(accountId);
+
+            if (!isBanned) return BadRequest(new { message = $"Failed to ban unaccount with ID {accountId}" });
+
+            return StatusCode(StatusCodes.Status200OK, accountId);
         }
     }
 }
