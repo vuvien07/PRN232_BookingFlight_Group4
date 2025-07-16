@@ -151,7 +151,7 @@ async function loadStatuses() {
 
 async function loadAirports() {
     try {
-        const response = await fetch('http://localhost:5077/api/Airports', {
+        const response = await fetch('http://localhost:5077/api/FlightAirports', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${getAuthToken()}`
@@ -186,7 +186,7 @@ async function loadAirports() {
 
 async function loadPlanes() {
     try {
-        const response = await fetch('http://localhost:5077/api/Planes', {
+        const response = await fetch('http://localhost:5077/api/FlightPlanes', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${getAuthToken()}`
@@ -221,7 +221,7 @@ async function loadPlanes() {
 
 async function loadCustomers() {
     try {
-        const response = await fetch('http://localhost:5077/api/Customers', {
+        const response = await fetch('http://localhost:5077/api/FlightCustomers', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${getAuthToken()}`
