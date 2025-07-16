@@ -11,5 +11,7 @@
 		public RoleDTO? Role { get; set; }
 
 		public DateTime? RefreshTokenExpiryTime { get; set; }
+
+		public int? ManagerId { get; set; }
 	}
 }

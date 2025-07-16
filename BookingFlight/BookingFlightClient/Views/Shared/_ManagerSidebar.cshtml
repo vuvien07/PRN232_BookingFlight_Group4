@@ -45,6 +45,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="/Manager/Planes" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Planes" ? "active" : "")">
+                        <i class="fas fa-plane"></i>
+                        <span>Planes</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/Manager/Reports" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Reports" ? "active" : "")">
                         <i class="fas fa-chart-bar"></i>
                         <span>Reports</span>
