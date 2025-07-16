@@ -240,7 +240,7 @@ namespace BookingFlightServer.Services.Implements
                 PlaneName = flight.Plane?.PlaneCode,
                 ManagerId = flight.ManagerId,
                 ManagerName = flight.Manager?.Fullname,
-                CustomerId = flight.CustomerId,
+                CustomerId = flight.CustomerId ?? 0,
                 CustomerName = flight.Customer?.Fullname,
                 DepartureAirportId = flight.DepartureAirportId,
                 DepartureAirportName = flight.DepartureAirport?.AirportName,
