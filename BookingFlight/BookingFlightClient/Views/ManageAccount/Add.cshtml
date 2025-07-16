@@ -1,0 +1,147 @@
+﻿@model BookingFlightClient.Models.ViewModels.ManageAccountAddVM
+
+@* @{
+    ViewData["Title"] = "Tài khoản mới";
+} *@
+
+<style>
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+    }
+
+    .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+    .card-header {
+        border-radius: 12px 12px 0 0;
+        background: linear-gradient(to right, #007bff, #00d4ff);
+    }
+
+    .form-label {
+        color: #333;
+        font-weight: 500;
+    }
+
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+        }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-radius: 8px 0 0 8px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(to right, #007bff, #00d4ff);
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        transition: opacity 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+    .btn-outline-secondary {
+        border-radius: 8px;
+        padding: 10px 20px;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-outline-secondary:hover {
+            background-color: #f8f9fa;
+        }
+
+    .alert {
+        border-radius: 8px;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card">
+                <div class="card-header text-white">
+                    <h3 class="mb-0 text-center">Thêm tài khoản mới</h3>
+                </div>
+                <div class="card-body p-4">
+                    @* Hiển thị thông báo nếu có *@
+                    @if (TempData["MessageNotification"] != null)
+                    {
+                        <div class="alert alert-@TempData["AlertType"] alert-dismissible fade show" role="alert">
+                            @TempData["MessageNotification"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    <form asp-action="Add" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert" style="display: @(ViewData.ModelState.IsValid ? "none" : "block")"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="Username" class="form-label">Tên đăng nhập</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input asp-for="Username" class="form-control" placeholder="Nhập tên đăng nhập" />
+                            </div>
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Password" class="form-label">Mật khẩu</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input asp-for="Password" class="form-control" type="password" placeholder="Nhập mật khẩu" />
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="RoleId" class="form-label">Vai trò</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
+                                <select asp-for="RoleId" class="form-select"
+                                        asp-items="@(new SelectList(Model.roles, "RoleId", "RoleName"))">
+                                    <option value="">Chọn vai trò</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="RoleId" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3">
+                            <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="display: none;"></span>
+                                Tạo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.querySelector('form').addEventListener('submit', function() {
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.querySelector('.spinner-border').style.display = 'inline-block';
+        submitBtn.disabled = true;
+    });
+</script>
