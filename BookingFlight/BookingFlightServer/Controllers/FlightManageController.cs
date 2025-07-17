@@ -155,6 +155,21 @@ namespace BookingFlightServer.Controllers
                     return BadRequest(new { success = false, message = "Validation failed", errors = ModelState });
                 }
 
+                // Check if flight exists and get departure time
+                var existingFlight = await _context.Flights
+                    .FirstOrDefaultAsync(f => f.FlightId == id);
+
+                if (existingFlight == null)
+                {
+                    return NotFound(new { success = false, message = "Flight not found" });
+                }
+
+                // Check if departure time is in the past
+                if (existingFlight.DepartureTime <= DateTime.Now)
+                {
+                    return BadRequest(new { success = false, message = "Cannot update flights that have already departed or are departing now" });
+                }
+
                 var managerId = await GetManagerIdAsync();
                 var flight = await _flightManageService.UpdateFlight(request, managerId);
 
@@ -180,6 +195,21 @@ namespace BookingFlightServer.Controllers
         {
             try
             {
+                // Check if flight exists and get departure time
+                var existingFlight = await _context.Flights
+                    .FirstOrDefaultAsync(f => f.FlightId == id);
+
+                if (existingFlight == null)
+                {
+                    return NotFound(new { success = false, message = "Flight not found" });
+                }
+
+                // Check if departure time is in the past
+                if (existingFlight.DepartureTime <= DateTime.Now)
+                {
+                    return BadRequest(new { success = false, message = "Cannot delete flights that have already departed or are departing now" });
+                }
+
                 var flight = await _flightManageService.GetFlightById(id);
                 if (flight == null)
                 {

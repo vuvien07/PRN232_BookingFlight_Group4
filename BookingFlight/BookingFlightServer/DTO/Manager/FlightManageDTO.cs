@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using BookingFlightServer.Validations;
 
 namespace BookingFlightServer.DTO.Manager
 {
@@ -68,6 +69,7 @@ namespace BookingFlightServer.DTO.Manager
         public int DepartureAirportId { get; set; }
 
         [Required(ErrorMessage = "Arrival airport is required")]
+        [DifferentAirports(nameof(DepartureAirportId), ErrorMessage = "Arrival airport must be different from departure airport")]
         public int ArrivalAirportId { get; set; }
 
         public int StatusId { get; set; } = 1; // Default to active
@@ -102,6 +104,7 @@ namespace BookingFlightServer.DTO.Manager
         public int DepartureAirportId { get; set; }
 
         [Required(ErrorMessage = "Arrival airport is required")]
+        [DifferentAirports(nameof(DepartureAirportId), ErrorMessage = "Arrival airport must be different from departure airport")]
         public int ArrivalAirportId { get; set; }
 
         [Required(ErrorMessage = "Status is required")]
