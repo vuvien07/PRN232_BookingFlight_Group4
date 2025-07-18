@@ -20,7 +20,8 @@
                 <a href="/help" class="header-link">
                     <i class="fas fa-question-circle"></i>
                     <span data-vn="Trợ giúp" data-en="Help" data-zh="帮助">Trợ giúp</span>
-                </a><div class="language-selector" onclick="toggleLanguage()">
+                </a>
+                <div class="language-selector" onclick="toggleLanguage()">
                     <i class="fas fa-globe"></i>
                     <span id="currentLang">VN</span>
                     <i class="fas fa-chevron-down"></i>
@@ -63,7 +64,8 @@
                     </div>
                 </a>
                 
-                <ul class="nav-menu" id="navMenu">                    <li class="nav-item">
+                <ul class="nav-menu" id="navMenu" style="margin-bottom: 0">
+                    <li class="nav-item">
                         <a href="/Home" class="nav-link">
                             <i class="fas fa-home"></i> 
                             <span data-vn="Trang chủ" data-en="Home" data-zh="首页">Trang chủ</span>
@@ -88,10 +90,21 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/help" class="nav-link">
-                            <i class="fas fa-question-circle"></i> 
-                            <span data-vn="Trợ giúp" data-en="Help" data-zh="帮助">Trợ giúp</span>
-                        </a>
+                        <div class="dropdown">
+                            <button class="nav-link dropdown-toggle">
+                                <i class="fas fa-question-circle"></i>
+                                <span data-vn="Trợ giúp" data-en="Help" data-zh="帮助">Trợ giúp</span>
+                            </button>
+                            <div class="dropdown-content">
+                                <a href="/Support/ai/ask">AI Chatbot</a></a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#searchTicketModal" class="nav-link">
+                            <i class="fas fa-search"></i>
+                            <span>Tra cứu chuyến bay</span>
+                        </button>
                     </li>
                 </ul>
                   <!-- User Section -->
@@ -108,57 +121,57 @@
             </div>
         </div>
     </nav>
+</header>
 
-    <!-- Search Ticket Modal -->
-    <div class="modal fade" id="searchTicketModal" tabindex="-1" aria-labelledby="searchTicketModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">                <div class="modal-header">
-                    <h5 class="modal-title" id="searchTicketModalLabel">
-                        <i class="fas fa-search"></i> 
-                        <span data-vn="Tra cứu vé máy bay" data-en="Flight Ticket Search" data-zh="航班票务查询">Tra cứu vé máy bay</span>
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="searchTicketForm" action="/ticket" method="get">
-                        <div class="mb-3">
-                            <label for="ticketNumber" class="form-label">
-                                <i class="fas fa-ticket-alt"></i> 
-                                <span data-vn="Mã đặt chỗ" data-en="Booking Code" data-zh="预订代码">Mã đặt chỗ</span>
-                            </label>
-                            <input type="text" class="form-control" id="ticketNumber" name="ticketNumber" 
-                                   placeholder="Nhập mã đặt chỗ của bạn"
-                                   data-placeholder-vn="Nhập mã đặt chỗ của bạn" 
-                                   data-placeholder-en="Enter your booking code" 
-                                   data-placeholder-zh="请输入您的预订代码" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="lastName" class="form-label">
-                                <i class="fas fa-user"></i> 
-                                <span data-vn="Họ tên" data-en="Full Name" data-zh="姓名">Họ tên</span>
-                            </label>
-                            <input type="text" class="form-control" id="lastName" name="lastName" 
-                                   placeholder="Nhập họ tên"
-                                   data-placeholder-vn="Nhập họ tên" 
-                                   data-placeholder-en="Enter full name" 
-                                   data-placeholder-zh="请输入姓名" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times"></i> 
-                        <span data-vn="Đóng" data-en="Close" data-zh="关闭">Đóng</span>
-                    </button>
-                    <button type="submit" form="searchTicketForm" class="btn btn-primary">
-                        <i class="fas fa-search"></i> 
-                        <span data-vn="Tìm kiếm" data-en="Search" data-zh="搜索">Tìm kiếm</span>
-                    </button>
-                </div>
+<div class="modal fade" id="searchTicketModal" tabindex="99" aria-labelledby="searchTicketModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="searchTicketModalLabel">
+                    <i class="fas fa-search"></i>
+                    <span data-vn="Tra cứu vé máy bay" data-en="Flight Ticket Search" data-zh="航班票务查询">Tra cứu vé máy bay</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="searchTicketForm" action="/ticket/search" method="get">
+                    <div class="mb-3">
+                        <label for="ticketNumber" class="form-label">
+                            <i class="fas fa-ticket-alt"></i>
+                            <span data-vn="Mã đặt chỗ" data-en="Booking Code" data-zh="预订代码">Mã đặt chỗ</span>
+                        </label>
+                        <input type="text" class="form-control" id="ticketNumber" name="ticketNumber"
+                               placeholder="Nhập mã đặt chỗ của bạn"
+                               data-placeholder-vn="Nhập mã đặt chỗ của bạn"
+                               data-placeholder-en="Enter your booking code"
+                               data-placeholder-zh="请输入您的预订代码" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="lastName" class="form-label">
+                            <i class="fas fa-user"></i>
+                            <span data-vn="Họ tên" data-en="Full Name" data-zh="姓名">Họ tên</span>
+                        </label>
+                        <input type="text" class="form-control" id="lastName" name="lastName"
+                               placeholder="Nhập họ tên"
+                               data-placeholder-vn="Nhập họ tên"
+                               data-placeholder-en="Enter full name"
+                               data-placeholder-zh="请输入姓名" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i>
+                    <span data-vn="Đóng" data-en="Close" data-zh="关闭">Đóng</span>
+                </button>
+                <button type="submit" form="searchTicketForm" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    <span data-vn="Tìm kiếm" data-en="Search" data-zh="搜索">Tìm kiếm</span>
+                </button>
             </div>
         </div>
     </div>
-</header>
+</div>
 
 <!-- Include JavaScript files -->
 <script src="~/js/common/LanguageUtils.js" asp-append-version="true"></script>
