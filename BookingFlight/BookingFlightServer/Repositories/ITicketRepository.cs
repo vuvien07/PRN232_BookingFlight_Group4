@@ -8,5 +8,6 @@ namespace BookingFlightServer.Repositories
 	{
 		Task CreateTicketAsync(Ticket ticket);
 		Task<Ticket?> GetTicketByIdAsync(int id);
+		Task<Ticket?> GetTicketByTicketNumber(string? ticketNumber);
 	}
 }
