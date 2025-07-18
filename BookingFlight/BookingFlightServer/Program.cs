@@ -64,6 +64,9 @@ namespace BookingFlightServer
 			// Manual registration for Profile services
 			builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 			builder.Services.AddScoped<IProfileService, ProfileService>();
+			
+			// Manual registration for Discount services
+			builder.Services.AddScoped<IDiscountService, BookingFlightServer.Services.Implements.DiscountService>();
 			var app = builder.Build();
             if (app.Environment.IsDevelopment())
             {
