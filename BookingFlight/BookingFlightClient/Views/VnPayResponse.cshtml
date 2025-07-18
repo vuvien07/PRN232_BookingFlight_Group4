@@ -47,11 +47,11 @@
                 <div class="text-center">
                     @if (Model != null && Model.VnPayResponseCode.Equals("00"))
                     {
-                        <img src="${pageContext.request.contextPath}/images/images.png" style="width: 100px" />
+                        <img src="~/images/images.png" style="width: 100px" />
                     }
                     else
                     {
-                        <img src="${pageContext.request.contextPath}/images/6659895.png" style="width: 100px" />
+                        <img src="~/images/6659895.png" style="width: 100px" />
                     }
                     <h5 style="font-size: 30px;color: red">Thông báo</h5>
                     <h5 style="font-size: 30px">
@@ -80,7 +80,7 @@
                     </div>
                 </div>
                 <div class="text-center">
-                    <button class="btn btn-primary px-4 py-2 backToHome">Quay về trang chủ</button>
+                    <button class="btn btn-primary px-4 py-2 backToHome" onclick="window.location.href='/Home'">Quay về trang chủ</button>
                     @if (Model == null || !Model.VnPayResponseCode.Equals("00"))
                     {
                         <button class="btn btn-warning px-4 py-2 me-5 re-pay">Thanh toán lại</button>
@@ -113,12 +113,7 @@
                         showConfirmButton: true
                     });
                 } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Thất bại',
-                        text: 'Có lỗi xảy ra trong khi gửi vé cho quý khách. Vui lòng liên hệ với chúng tôi!',
-                        showConfirmButton: true
-                    });
+                    await showSnackbar('Có lỗi xảy ra trong khi gửi vé cho quý khách. Vui lòng liên hệ với chúng tôi!', 'error');
                 }
             }
         };
