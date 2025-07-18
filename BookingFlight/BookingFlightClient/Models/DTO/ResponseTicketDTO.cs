@@ -1,8 +1,9 @@
-﻿using BookingFlightServer.Entities;
+﻿using BookingFlightClient.Models.Shared;
+using BookingFlightServer.DTO.Shared;
 
-namespace BookingFlightServer.DTO.Shared
+namespace BookingFlightClient.Models.DTO
 {
-	public class TicketDTO
+	public class ResponseTicketDTO
 	{
 		public int TicketId { get; set; }
 
@@ -29,11 +30,7 @@ namespace BookingFlightServer.DTO.Shared
 		public string? ContactEmail { get; set; }
 
 		public string? ContactAddress { get; set; }
-
-		public CustomerDTO CustomerDTO { get; set; } = null!;
-
 		public FlightDTO FlightDTO { get; set; } = null!;
-
 		public List<TicketItemDTO> TicketItems { get; set; } = new List<TicketItemDTO>();
 	}
 }

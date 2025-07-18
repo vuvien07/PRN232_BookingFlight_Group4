@@ -115,6 +115,7 @@ namespace BookingFlightServer
 					});
 			});
 			services.AddScoped(typeof(BookingFlightContext));
+			services.AddSingleton<FlightSearchSessionStore>();
 
 			services.AddAuthentication(options =>
 			{

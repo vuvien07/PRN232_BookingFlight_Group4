@@ -66,7 +66,7 @@ public partial class BookingFlightContext : DbContext
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.AccountId).HasName("PK__Account__46A222CDF08EEBBC");
+            entity.HasKey(e => e.AccountId).HasName("PK__Account__46A222CD16D48287");
 
             entity.ToTable("Account");
 
@@ -88,21 +88,21 @@ public partial class BookingFlightContext : DbContext
             entity.HasOne(d => d.Role).WithMany(p => p.Accounts)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Account__role_id__06CD04F7");
+                .HasConstraintName("FK__Account__role_id__07C12930");
 
             entity.HasOne(d => d.Status).WithMany(p => p.Accounts)
                 .HasForeignKey(d => d.StatusId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Account__status___07C12930");
+                .HasConstraintName("FK__Account__status___08B54D69");
         });
 
         modelBuilder.Entity<Admin>(entity =>
         {
-            entity.HasKey(e => e.AdminId).HasName("PK__Admin__43AA41414ABE5C5B");
+            entity.HasKey(e => e.AdminId).HasName("PK__Admin__43AA41410978B09D");
 
             entity.ToTable("Admin");
 
-            entity.HasIndex(e => e.AccountId, "UQ__Admin__46A222CC12A283A6").IsUnique();
+            entity.HasIndex(e => e.AccountId, "UQ__Admin__46A222CC24D6D9F3").IsUnique();
 
             entity.Property(e => e.AdminId).HasColumnName("admin_id");
             entity.Property(e => e.AccountId).HasColumnName("account_id");
@@ -124,12 +124,12 @@ public partial class BookingFlightContext : DbContext
             entity.HasOne(d => d.Account).WithOne(p => p.Admin)
                 .HasForeignKey<Admin>(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Admin__account_i__08B54D69");
+                .HasConstraintName("FK__Admin__account_i__09A971A2");
         });
 
         modelBuilder.Entity<Airport>(entity =>
         {
-            entity.HasKey(e => e.AirportId).HasName("PK__Airport__C795D516ECFCD54E");
+            entity.HasKey(e => e.AirportId).HasName("PK__Airport__C795D5168D90093F");
 
             entity.ToTable("Airport");
 
@@ -149,12 +149,12 @@ public partial class BookingFlightContext : DbContext
             entity.HasOne(d => d.Manager).WithMany(p => p.Airports)
                 .HasForeignKey(d => d.ManagerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Airport__manager__09A971A2");
+                .HasConstraintName("FK__Airport__manager__0A9D95DB");
         });
 
         modelBuilder.Entity<AirportPrice>(entity =>
         {
-            entity.HasKey(e => e.AirportPriceId).HasName("PK__AirportP__E5C343472BA6DBE7");
+            entity.HasKey(e => e.AirportPriceId).HasName("PK__AirportP__E5C343471C893DA2");
 
             entity.ToTable("AirportPrice");
 
@@ -168,17 +168,17 @@ public partial class BookingFlightContext : DbContext
             entity.HasOne(d => d.AirportFrom).WithMany(p => p.AirportPriceAirportFroms)
                 .HasForeignKey(d => d.AirportFromId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__AirportPr__airpo__0A9D95DB");
+                .HasConstraintName("FK__AirportPr__airpo__0B91BA14");
 
             entity.HasOne(d => d.AirportTo).WithMany(p => p.AirportPriceAirportTos)
                 .HasForeignKey(d => d.AirportToId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__AirportPr__airpo__0B91BA14");
+                .HasConstraintName("FK__AirportPr__airpo__0C85DE4D");
         });
 
         modelBuilder.Entity<ClassSeat>(entity =>
         {
-            entity.HasKey(e => e.ClassId).HasName("PK__ClassSea__FDF47986BBF9332E");
+            entity.HasKey(e => e.ClassId).HasName("PK__ClassSea__FDF479865214DBFF");
 
             entity.ToTable("ClassSeat");
 
@@ -198,7 +198,7 @@ public partial class BookingFlightContext : DbContext
 
         modelBuilder.Entity<Complaint>(entity =>
         {
-            entity.HasKey(e => e.ComplaintId).HasName("PK__Complain__A771F61C03932033");
+            entity.HasKey(e => e.ComplaintId).HasName("PK__Complain__A771F61CEAA299EB");
 
             entity.ToTable("Complaint");
 
@@ -223,26 +223,26 @@ public partial class BookingFlightContext : DbContext
             entity.HasOne(d => d.Customer).WithMany(p => p.Complaints)
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Complaint__custo__0C85DE4D");
+                .HasConstraintName("FK__Complaint__custo__0D7A0286");
 
             entity.HasOne(d => d.Status).WithMany(p => p.Complaints)
                 .HasForeignKey(d => d.StatusId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Complaint__statu__0D7A0286");
+                .HasConstraintName("FK__Complaint__statu__0E6E26BF");
 
             entity.HasOne(d => d.Supporter).WithMany(p => p.Complaints)
                 .HasForeignKey(d => d.SupporterId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Complaint__suppo__0E6E26BF");
+                .HasConstraintName("FK__Complaint__suppo__0F624AF8");
         });
 
         modelBuilder.Entity<Customer>(entity =>
         {
-            entity.HasKey(e => e.CustomerId).HasName("PK__Customer__CD65CB8539D884AF");
+            entity.HasKey(e => e.CustomerId).HasName("PK__Customer__CD65CB8518A1C4A0");
 
             entity.ToTable("Customer");
 
-            entity.HasIndex(e => e.AccountId, "UQ__Customer__46A222CC5A9E3C48").IsUnique();
+            entity.HasIndex(e => e.AccountId, "UQ__Customer__46A222CC00BC4C29").IsUnique();
 
             entity.Property(e => e.CustomerId).HasColumnName("customer_id");
             entity.Property(e => e.AccountId).HasColumnName("account_id");
@@ -264,16 +264,16 @@ public partial class BookingFlightContext : DbContext
             entity.HasOne(d => d.Account).WithOne(p => p.Customer)
                 .HasForeignKey<Customer>(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Customer__accoun__0F624AF8");
+                .HasConstraintName("FK__Customer__accoun__10566F31");
         });
 
         modelBuilder.Entity<Discount>(entity =>
         {
-            entity.HasKey(e => e.DiscountId).HasName("PK__Discount__BDBE9EF9A982EE6C");
+            entity.HasKey(e => e.DiscountId).HasName("PK__Discount__BDBE9EF987994503");
 
             entity.ToTable("Discount");
 
-            entity.HasIndex(e => e.DiscountCode, "UQ__Discount__75C1F0060ACA8870").IsUnique();
+            entity.HasIndex(e => e.DiscountCode, "UQ__Discount__75C1F006A23F89FF").IsUnique();
 
             entity.Property(e => e.DiscountId).HasColumnName("discount_id");
             entity.Property(e => e.CustomerId).HasColumnName("customer_id");
@@ -294,12 +294,12 @@ public partial class BookingFlightContext : DbContext
             entity.HasOne(d => d.Customer).WithMany(p => p.Discounts)
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Discount__custom__10566F31");
+                .HasConstraintName("FK__Discount__custom__114A936A");
         });
 
         modelBuilder.Entity<Feedback>(entity =>
         {
-            entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__7A6B2B8C57939F9D");
+            entity.HasKey(e => e.FeedbackId).HasName("PK__Feedback__7A6B2B8CD8086017");
 
             entity.ToTable("Feedback");
 
@@ -315,7 +315,7 @@ public partial class BookingFlightContext : DbContext
             entity.HasOne(d => d.Account).WithMany(p => p.Feedbacks)
                 .HasForeignKey(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Feedback__accoun__114A936A");
+                .HasConstraintName("FK__Feedback__accoun__123EB7A3");
         });
 
         modelBuilder.Entity<Flight>(entity =>
@@ -382,7 +382,7 @@ public partial class BookingFlightContext : DbContext
                         .HasConstraintName("FK__FlightSer__fligh__1AD3FDA4"),
                     j =>
                     {
-                        j.HasKey("FlightId", "ServiceId").HasName("PK__FlightSe__00908CEF5EB538F0");
+                        j.HasKey("FlightId", "ServiceId").HasName("PK__FlightSe__00908CEFF11099F1");
                         j.ToTable("FlightService");
                         j.IndexerProperty<int>("FlightId").HasColumnName("flight_id");
                         j.IndexerProperty<int>("ServiceId").HasColumnName("service_id");
@@ -417,7 +417,7 @@ public partial class BookingFlightContext : DbContext
 
         modelBuilder.Entity<Item>(entity =>
         {
-            entity.HasKey(e => e.ItemId).HasName("PK__Items__52020FDDD3344EE9");
+            entity.HasKey(e => e.ItemId).HasName("PK__Items__52020FDD275EA735");
 
             entity.Property(e => e.ItemId).HasColumnName("item_id");
             entity.Property(e => e.Detail)
@@ -440,11 +440,11 @@ public partial class BookingFlightContext : DbContext
 
         modelBuilder.Entity<Manager>(entity =>
         {
-            entity.HasKey(e => e.ManagerId).HasName("PK__Manager__5A6073FC9DD59B5A");
+            entity.HasKey(e => e.ManagerId).HasName("PK__Manager__5A6073FC44C27C13");
 
             entity.ToTable("Manager");
 
-            entity.HasIndex(e => e.AccountId, "UQ__Manager__46A222CCC5AC0D3A").IsUnique();
+            entity.HasIndex(e => e.AccountId, "UQ__Manager__46A222CC0AB30127").IsUnique();
 
             entity.Property(e => e.ManagerId).HasColumnName("manager_id");
             entity.Property(e => e.AccountId).HasColumnName("account_id");
@@ -471,7 +471,7 @@ public partial class BookingFlightContext : DbContext
 
         modelBuilder.Entity<News>(entity =>
         {
-            entity.HasKey(e => e.NewId).HasName("PK__News__8215F588D5B064A0");
+            entity.HasKey(e => e.NewId).HasName("PK__News__8215F58893AC1690");
 
             entity.Property(e => e.NewId).HasColumnName("new_id");
             entity.Property(e => e.AccountId).HasColumnName("account_id");
@@ -497,7 +497,7 @@ public partial class BookingFlightContext : DbContext
 
         modelBuilder.Entity<Notification>(entity =>
         {
-            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__E059842F1115864D");
+            entity.HasKey(e => e.NotificationId).HasName("PK__Notifica__E059842FCF900CB8");
 
             entity.ToTable("Notification");
 
@@ -528,7 +528,7 @@ public partial class BookingFlightContext : DbContext
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__ED1FC9EAAFF3D0C8");
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__ED1FC9EA3B39579E");
 
             entity.ToTable("Payment");
 
@@ -555,7 +555,7 @@ public partial class BookingFlightContext : DbContext
 
         modelBuilder.Entity<Plane>(entity =>
         {
-            entity.HasKey(e => e.PlaneId).HasName("PK__Plane__4D11D7FDEB6E940B");
+            entity.HasKey(e => e.PlaneId).HasName("PK__Plane__4D11D7FDD690FD48");
 
             entity.ToTable("Plane");
 
@@ -589,7 +589,7 @@ public partial class BookingFlightContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Role__760965CCEA7BBCED");
+            entity.HasKey(e => e.RoleId).HasName("PK__Role__760965CC9AF58AE3");
 
             entity.ToTable("Role");
 
@@ -631,7 +631,7 @@ public partial class BookingFlightContext : DbContext
 
         modelBuilder.Entity<Service>(entity =>
         {
-            entity.HasKey(e => e.ServiceId).HasName("PK__Service__3E0DB8AF42ABCB6D");
+            entity.HasKey(e => e.ServiceId).HasName("PK__Service__3E0DB8AFAC8D5893");
 
             entity.ToTable("Service");
 
@@ -648,7 +648,7 @@ public partial class BookingFlightContext : DbContext
             entity.HasOne(d => d.Manager).WithMany(p => p.Services)
                 .HasForeignKey(d => d.ManagerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Service__manager__2A164134");
+                .HasConstraintName("FK__Service__manager__282DF8C2");
 
             entity.HasOne(d => d.Status).WithMany(p => p.Services)
                 .HasForeignKey(d => d.StatusId)
@@ -660,14 +660,14 @@ public partial class BookingFlightContext : DbContext
                     r => r.HasOne<Item>().WithMany()
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__Service_I__item___2BFE89A6"),
+                        .HasConstraintName("FK__Service_I__item___2A164134"),
                     l => l.HasOne<Service>().WithMany()
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__Service_I__servi__2CF2ADDF"),
+                        .HasConstraintName("FK__Service_I__servi__2B0A656D"),
                     j =>
                     {
-                        j.HasKey("ServiceId", "ItemId").HasName("PK__Service___FB2D9852D6AE4DE4");
+                        j.HasKey("ServiceId", "ItemId").HasName("PK__Service___FB2D9852CD5AA2FD");
                         j.ToTable("Service_Item");
                         j.IndexerProperty<int>("ServiceId").HasColumnName("service_id");
                         j.IndexerProperty<int>("ItemId").HasColumnName("item_id");
@@ -676,7 +676,7 @@ public partial class BookingFlightContext : DbContext
 
         modelBuilder.Entity<Status>(entity =>
         {
-            entity.HasKey(e => e.StatusId).HasName("PK__Status__3683B531CC8A8C83");
+            entity.HasKey(e => e.StatusId).HasName("PK__Status__3683B5310291BB56");
 
             entity.ToTable("Status");
 
@@ -693,11 +693,11 @@ public partial class BookingFlightContext : DbContext
 
         modelBuilder.Entity<Supporter>(entity =>
         {
-            entity.HasKey(e => e.SupporterId).HasName("PK__Supporte__F3A5770137213A14");
+            entity.HasKey(e => e.SupporterId).HasName("PK__Supporte__F3A577016AD0363F");
 
             entity.ToTable("Supporter");
 
-            entity.HasIndex(e => e.AccountId, "UQ__Supporte__46A222CCDE9423FB").IsUnique();
+            entity.HasIndex(e => e.AccountId, "UQ__Supporte__46A222CCCEC18A66").IsUnique();
 
             entity.Property(e => e.SupporterId).HasColumnName("supporter_id");
             entity.Property(e => e.AccountId).HasColumnName("account_id");
@@ -719,7 +719,7 @@ public partial class BookingFlightContext : DbContext
             entity.HasOne(d => d.Account).WithOne(p => p.Supporter)
                 .HasForeignKey<Supporter>(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Supporter__accou__2DE6D218");
+                .HasConstraintName("FK__Supporter__accou__2BFE89A6");
         });
 
         modelBuilder.Entity<Ticket>(entity =>
@@ -808,7 +808,7 @@ public partial class BookingFlightContext : DbContext
 
         modelBuilder.Entity<UserLog>(entity =>
         {
-            entity.HasKey(e => e.LogId).HasName("PK__User_Log__9E2397E0F8B8CA68");
+            entity.HasKey(e => e.LogId).HasName("PK__User_Log__9E2397E09BCC7CA8");
 
             entity.ToTable("User_Logs");
 

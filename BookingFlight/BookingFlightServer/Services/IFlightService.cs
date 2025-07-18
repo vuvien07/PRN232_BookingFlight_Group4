@@ -1,4 +1,5 @@
 ﻿using BookingFlightServer.DTO.Filter;
+using BookingFlightServer.DTO.Query;
 using BookingFlightServer.Entities;
 
 namespace BookingFlightServer.Services
@@ -11,5 +12,7 @@ namespace BookingFlightServer.Services
 		Task<long> CountAllClassSeatByFlightIdAndSeatEmpty(int flightId);
 		Task<List<Service>> GetServicesByFlightId(int flightId);
 
+		Task<List<FlightQueryDTO>> GetAllFlights();
+		Task<List<FlightQueryDTO>> GetAllFlightsWithGemini(FilterFlightDTO filterFlightDTO);
 	}
 }

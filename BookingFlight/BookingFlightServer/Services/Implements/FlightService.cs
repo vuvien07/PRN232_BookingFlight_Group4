@@ -1,4 +1,5 @@
 ﻿using BookingFlightServer.DTO.Filter;
+using BookingFlightServer.DTO.Query;
 using BookingFlightServer.Entities;
 using BookingFlightServer.Repositories;
 
@@ -24,6 +25,16 @@ namespace BookingFlightServer.Services.Implements
 		public async Task<List<dynamic>> GetAllClassSeatByFlightIdAndSeatEmpty(int flightId)
 		{
 			return await _classSeatRepository.GetAllClassSeatByFlightIdAndSeatEmpty(flightId);
+		}
+
+		public async Task<List<FlightQueryDTO>> GetAllFlights()
+		{
+			return await _flightRepository.GetAllFlights();
+		}
+
+		public async Task<List<FlightQueryDTO>> GetAllFlightsWithGemini(FilterFlightDTO filterFlightDTO)
+		{
+			return await _flightRepository.GetAllFlightsWithGemini(filterFlightDTO);
 		}
 
 		public async Task<List<dynamic>> GetFlights(FilterFlightDTO filterFlightDTO)

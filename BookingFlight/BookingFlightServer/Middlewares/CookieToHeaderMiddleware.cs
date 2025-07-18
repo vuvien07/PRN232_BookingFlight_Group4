@@ -20,6 +20,10 @@
 			{
 				context.Request.Headers["X-Refresh-Token"] = refreshToken;
 			}
+			if (context.Request.Cookies.TryGetValue("X-Session-Token", out var sessionToken))
+			{
+				context.Request.Headers["X-Session-Token"] = sessionToken;
+			}
 
 			await _next(context);
 		}

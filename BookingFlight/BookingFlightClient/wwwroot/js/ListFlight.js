@@ -383,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const target = event.target;
 
         if (target.classList.contains('departure-time')) {
-            updateArrayByCheckbox(filterForm.departureDate, target.value, target.checked);
+            updateArrayByCheckbox(filterForm.departureTime, target.value, target.checked);
         }
 
         if (target.classList.contains('arrival-time')) {

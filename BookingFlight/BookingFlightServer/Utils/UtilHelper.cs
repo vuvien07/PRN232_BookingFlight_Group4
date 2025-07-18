@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text;
@@ -91,6 +92,31 @@ namespace BookingFlightServer.Utils
 				return Nullable.GetUnderlyingType(type)!.Name; // e.g., "Int32", "Single"
 			}
 			return type.Name; // e.g., "String", "Int32", "Float"
+		}
+
+		public static string GenerateRandomString(int length)
+		{
+			string characters = "0123456789";
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < length; i++)
+			{
+				int index = (new Random().Next(characters.Length));
+				sb.Append(characters.ToCharArray()[index]);
+			}
+			return sb.ToString();
+		}
+
+		public static TimeOnly Parse24Hour(string input)
+		{
+			if (TimeOnly.TryParseExact(input,
+				new[] { "HH:mm", "HH:mm:ss" },
+				CultureInfo.InvariantCulture,
+				DateTimeStyles.None,
+				out var result))
+			{
+				return result;
+			}
+			throw new FormatException("Không đúng định dạng 24h. Cần 'HH:mm' hoặc 'HH:mm:ss'");
 		}
 	}
 }
