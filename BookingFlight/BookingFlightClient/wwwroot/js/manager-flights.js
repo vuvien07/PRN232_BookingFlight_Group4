@@ -35,8 +35,7 @@ async function initializePage() {
         await Promise.all([
             loadStatuses(),
             loadAirports(),
-            loadPlanes(),
-            loadCustomers()
+            loadPlanes()
         ]);
         
         setupEventListeners();
@@ -59,6 +58,10 @@ function setupEventListeners() {
     
     // Form submission
     document.getElementById('flightForm').addEventListener('submit', handleFlightSubmit);
+    
+    // Airport validation
+    document.getElementById('departureAirportId').addEventListener('change', validateAirports);
+    document.getElementById('arrivalAirportId').addEventListener('change', validateAirports);
     
     // Conflict checking
     document.getElementById('departureTime').addEventListener('change', autoCheckConflicts);
@@ -219,41 +222,6 @@ async function loadPlanes() {
     }
 }
 
-async function loadCustomers() {
-    try {
-        const response = await fetch('http://localhost:5077/api/FlightCustomers', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${getAuthToken()}`
-            },
-            credentials: 'include'
-        });
-        
-        if (response.ok) {
-            const customers = await response.json();
-            populateDropdown('customerId', customers, 'customerId', 'fullname');
-        } else {
-            console.warn('Failed to load customers from API, using mock data');
-            // Mock data for development
-            const mockCustomers = [
-                { customerId: 1, fullname: 'John Doe', email: 'john@example.com' },
-                { customerId: 2, fullname: 'Jane Smith', email: 'jane@example.com' },
-                { customerId: 3, fullname: 'Bob Johnson', email: 'bob@example.com' }
-            ];
-            populateDropdown('customerId', mockCustomers, 'customerId', 'fullname');
-        }
-    } catch (error) {
-        console.error('Error loading customers:', error);
-        // Mock data for development
-        const mockCustomers = [
-            { customerId: 1, fullname: 'John Doe', email: 'john@example.com' },
-            { customerId: 2, fullname: 'Jane Smith', email: 'jane@example.com' },
-            { customerId: 3, fullname: 'Bob Johnson', email: 'bob@example.com' }
-        ];
-        populateDropdown('customerId', mockCustomers, 'customerId', 'fullname');
-    }
-}
-
 // Display functions
 function displayFlights(flights) {
     const tbody = document.getElementById('flightsTableBody');
@@ -270,10 +238,17 @@ function displayFlights(flights) {
         return;
     }
     
-    tbody.innerHTML = flights.map(flight => `
-        <tr>
+    const now = new Date();
+    
+    tbody.innerHTML = flights.map(flight => {
+        const departureTime = new Date(flight.departureTime);
+        const isPastFlight = departureTime <= now;
+        
+        return `
+        <tr${isPastFlight ? ' class="table-secondary"' : ''}>
             <td>
                 <strong>${escapeHtml(flight.flightCode)}</strong>
+                ${isPastFlight ? '<small class="text-muted d-block">Departed</small>' : ''}
             </td>
             <td>
                 <div class="route-info">
@@ -308,22 +283,30 @@ function displayFlights(flights) {
             </td>
             <td>
                 <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-sm btn-outline-primary" 
-                            onclick="editFlight(${flight.flightId})" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-info" 
-                            onclick="viewFlightDetails(${flight.flightId})" title="View Details">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-danger" 
-                            onclick="deleteFlight(${flight.flightId}, '${escapeHtml(flight.flightCode)}')" title="Delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    ${isPastFlight ? `
+                        <button type="button" class="btn btn-sm btn-outline-info" 
+                                onclick="viewFlightDetails(${flight.flightId})" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <small class="text-muted ms-2">Flight departed</small>
+                    ` : `
+                        <button type="button" class="btn btn-sm btn-outline-primary" 
+                                onclick="editFlight(${flight.flightId})" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-info" 
+                                onclick="viewFlightDetails(${flight.flightId})" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                onclick="deleteFlight(${flight.flightId}, '${escapeHtml(flight.flightCode)}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `}
                 </div>
             </td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
 function updatePagination(pagination) {
@@ -381,6 +364,7 @@ function showAddFlightModal() {
     currentFlightId = null;
     document.getElementById('flightModalLabel').textContent = 'Add New Flight';
     document.getElementById('flightForm').reset();
+    
     clearValidationErrors();
     hideConflictAlert();
     
@@ -404,6 +388,17 @@ async function editFlight(flightId) {
         
         const result = await response.json();
         if (result.success) {
+            const flight = result.data;
+            
+            // Check if departure time is in the past
+            const departureTime = new Date(flight.departureTime);
+            const now = new Date();
+            
+            if (departureTime <= now) {
+                showError('Cannot edit flights that have already departed or are departing now.');
+                return;
+            }
+            
             isEditMode = true;
             currentFlightId = flightId;
             document.getElementById('flightModalLabel').textContent = 'Edit Flight';
@@ -430,7 +425,7 @@ function populateFlightForm(flight) {
     document.getElementById('departureAirportId').value = flight.departureAirportId || '';
     document.getElementById('arrivalAirportId').value = flight.arrivalAirportId || '';
     document.getElementById('planeId').value = flight.planeId || '';
-    document.getElementById('customerId').value = flight.customerId || '';
+    
     document.getElementById('statusId').value = flight.statusId || '';
 }
 
@@ -447,9 +442,19 @@ async function handleFlightSubmit(event) {
         departureAirportId: parseInt(formData.get('departureAirportId')),
         arrivalAirportId: parseInt(formData.get('arrivalAirportId')),
         planeId: parseInt(formData.get('planeId')),
-        customerId: parseInt(formData.get('customerId')),
         statusId: parseInt(formData.get('statusId'))
     };
+    
+    // Validate that departure and arrival airports are different
+    if (flightData.departureAirportId === flightData.arrivalAirportId) {
+        showError('Departure and Arrival airports must be different!');
+        document.getElementById('arrivalAirportId').classList.add('is-invalid');
+        const feedback = document.getElementById('arrivalAirportId').nextElementSibling;
+        if (feedback && feedback.classList.contains('invalid-feedback')) {
+            feedback.textContent = 'Arrival airport must be different from departure airport';
+        }
+        return;
+    }
     
     if (isEditMode) {
         flightData.flightId = currentFlightId;
@@ -612,6 +617,41 @@ function autoCheckConflicts() {
             checkConflicts();
         }
     }, 1000);
+}
+
+// Airport validation function
+function validateAirports() {
+    const departureAirportId = document.getElementById('departureAirportId').value;
+    const arrivalAirportId = document.getElementById('arrivalAirportId').value;
+    
+    const departureElement = document.getElementById('departureAirportId');
+    const arrivalElement = document.getElementById('arrivalAirportId');
+    
+    // Clear previous validation states
+    departureElement.classList.remove('is-invalid');
+    arrivalElement.classList.remove('is-invalid');
+    
+    const departureFeedback = departureElement.nextElementSibling;
+    const arrivalFeedback = arrivalElement.nextElementSibling;
+    
+    if (departureFeedback && departureFeedback.classList.contains('invalid-feedback')) {
+        departureFeedback.textContent = '';
+    }
+    if (arrivalFeedback && arrivalFeedback.classList.contains('invalid-feedback')) {
+        arrivalFeedback.textContent = '';
+    }
+    
+    // Validate if both airports are selected and same
+    if (departureAirportId && arrivalAirportId && departureAirportId === arrivalAirportId) {
+        arrivalElement.classList.add('is-invalid');
+        if (arrivalFeedback && arrivalFeedback.classList.contains('invalid-feedback')) {
+            arrivalFeedback.textContent = 'Arrival airport must be different from departure airport';
+        }
+        showWarning('Departure and Arrival airports must be different!');
+        return false;
+    }
+    
+    return true;
 }
 
 // Delete function

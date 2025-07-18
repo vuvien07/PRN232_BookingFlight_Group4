@@ -329,7 +329,6 @@ public partial class BookingFlightContext : DbContext
             entity.Property(e => e.ArrivalTime)
                 .HasColumnType("datetime")
                 .HasColumnName("arrival_time");
-            entity.Property(e => e.CustomerId).HasColumnName("customer_id");
             entity.Property(e => e.DepartureAirportId).HasColumnName("departure_airport_id");
             entity.Property(e => e.DepartureTime)
                 .HasColumnType("datetime")
@@ -349,11 +348,6 @@ public partial class BookingFlightContext : DbContext
                 .HasForeignKey(d => d.ArrivalAirportId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Flight__arrival___123EB7A3");
-
-            entity.HasOne(d => d.Customer).WithMany(p => p.Flights)
-                .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Flight__customer__1332DBDC");
 
             entity.HasOne(d => d.DepartureAirport).WithMany(p => p.FlightDepartureAirports)
                 .HasForeignKey(d => d.DepartureAirportId)

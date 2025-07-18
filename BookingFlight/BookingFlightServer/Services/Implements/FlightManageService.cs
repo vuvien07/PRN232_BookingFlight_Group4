@@ -82,7 +82,6 @@ namespace BookingFlightServer.Services.Implements
                 ArrivalTime = request.ArrivalTime,
                 PlaneId = request.PlaneId,
                 ManagerId = managerId, // Use logged-in manager
-                CustomerId = request.CustomerId,
                 DepartureAirportId = request.DepartureAirportId,
                 ArrivalAirportId = request.ArrivalAirportId,
                 StatusId = request.StatusId
@@ -144,7 +143,6 @@ namespace BookingFlightServer.Services.Implements
             existingFlight.DepartureTime = request.DepartureTime;
             existingFlight.ArrivalTime = request.ArrivalTime;
             existingFlight.PlaneId = request.PlaneId;
-            existingFlight.CustomerId = request.CustomerId;
             existingFlight.DepartureAirportId = request.DepartureAirportId;
             existingFlight.ArrivalAirportId = request.ArrivalAirportId;
             existingFlight.StatusId = request.StatusId;
@@ -240,8 +238,7 @@ namespace BookingFlightServer.Services.Implements
                 PlaneName = flight.Plane?.PlaneCode,
                 ManagerId = flight.ManagerId,
                 ManagerName = flight.Manager?.Fullname,
-                CustomerId = flight.CustomerId ?? 0,
-                CustomerName = flight.Customer?.Fullname,
+
                 DepartureAirportId = flight.DepartureAirportId,
                 DepartureAirportName = flight.DepartureAirport?.AirportName,
                 DepartureAirportCode = flight.DepartureAirport?.AirportCode,
@@ -271,29 +268,16 @@ namespace BookingFlightServer.Services.Implements
 
         private string DetermineConflictType(Flight conflictingFlight, FlightConflictCheckRequestDTO request)
         {
+            // Now we only check plane conflicts
             if (conflictingFlight.PlaneId == request.PlaneId)
                 return "PlaneConflict";
-            if (conflictingFlight.DepartureAirportId == request.DepartureAirportId || 
-                conflictingFlight.ArrivalAirportId == request.ArrivalAirportId)
-                return "AirportConflict";
             return "TimeConflict";
         }
 
         private string GenerateConflictDescription(Flight conflictingFlight, FlightConflictCheckRequestDTO request)
         {
-            if (conflictingFlight.PlaneId == request.PlaneId)
-            {
-                return $"Plane {conflictingFlight.Plane?.PlaneCode} is already scheduled for flight {conflictingFlight.FlightCode} during the requested time";
-            }
-            if (conflictingFlight.DepartureAirportId == request.DepartureAirportId)
-            {
-                return $"Departure airport {conflictingFlight.DepartureAirport?.AirportCode} has conflicting departure time with flight {conflictingFlight.FlightCode}";
-            }
-            if (conflictingFlight.ArrivalAirportId == request.ArrivalAirportId)
-            {
-                return $"Arrival airport {conflictingFlight.ArrivalAirport?.AirportCode} has conflicting arrival time with flight {conflictingFlight.FlightCode}";
-            }
-            return $"Time conflict with flight {conflictingFlight.FlightCode}";
+            // Since we only check plane conflicts now, this will always be plane conflict
+            return $"Aircraft {conflictingFlight.Plane?.PlaneCode} is already scheduled for flight {conflictingFlight.FlightCode} during the requested time period";
         }
 
         private List<string> ExtractRecommendations(string aiAnalysis)
@@ -317,9 +301,9 @@ namespace BookingFlightServer.Services.Implements
 
             if (!recommendations.Any())
             {
-                recommendations.Add("Review flight scheduling for optimal time slots");
-                recommendations.Add("Consider alternative airports if available");
-                recommendations.Add("Adjust departure/arrival times to avoid conflicts");
+                recommendations.Add("Select a different aircraft for this time slot");
+                recommendations.Add("Adjust departure/arrival times to avoid aircraft conflicts");
+                recommendations.Add("Schedule flight when the aircraft is available");
             }
 
             return recommendations;
