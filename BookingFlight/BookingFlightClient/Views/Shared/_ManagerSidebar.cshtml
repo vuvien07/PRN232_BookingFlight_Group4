@@ -57,7 +57,14 @@
                         <span>Planes</span>
                     </a>
                 </li>
-              
+
+                <li class="nav-item">
+                    <a href="/DiscountManage/Discounts" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "DiscountManage" ? "active" : "")">
+                        <i class="fas fa-percent"></i>
+                        <span>Manage Discounts</span>
+                    </a>
+                </li>
+               
 
             }
             else if (ViewBag.UserRole == 2)

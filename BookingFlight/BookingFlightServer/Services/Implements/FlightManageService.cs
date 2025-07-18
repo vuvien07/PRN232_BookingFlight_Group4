@@ -238,6 +238,7 @@ namespace BookingFlightServer.Services.Implements
                 PlaneName = flight.Plane?.PlaneCode,
                 ManagerId = flight.ManagerId,
                 ManagerName = flight.Manager?.Fullname,
+
                 DepartureAirportId = flight.DepartureAirportId,
                 DepartureAirportName = flight.DepartureAirport?.AirportName,
                 DepartureAirportCode = flight.DepartureAirport?.AirportCode,
