@@ -50,6 +50,7 @@ namespace BookingFlightServer
 			builder.Services.AddAllServices(typeof(Program).Assembly);
 			builder.Services.AddAllRepositories(typeof(Program).Assembly);
 			builder.Services.AddScoped<ITransactionDbManager, TransactionDbManager>();
+			builder.Services.AddHttpClient();
 			var app = builder.Build();
             if (app.Environment.IsDevelopment())
             {
@@ -92,6 +93,7 @@ namespace BookingFlightServer
 					});
 			});
 			services.AddScoped(typeof(BookingFlightContext));
+			services.AddSingleton<FlightSearchSessionStore>();
 
 			services.AddAuthentication(options =>
 			{
