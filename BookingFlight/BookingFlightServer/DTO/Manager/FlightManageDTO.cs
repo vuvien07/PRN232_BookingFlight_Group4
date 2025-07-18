@@ -16,8 +16,6 @@ namespace BookingFlightServer.DTO.Manager
         public string? PlaneName { get; set; }
         public int ManagerId { get; set; }
         public string? ManagerName { get; set; }
-        public int CustomerId { get; set; }
-        public string? CustomerName { get; set; }
         public int DepartureAirportId { get; set; }
         public string? DepartureAirportName { get; set; }
         public string? DepartureAirportCode { get; set; }
@@ -62,9 +60,6 @@ namespace BookingFlightServer.DTO.Manager
         [Required(ErrorMessage = "Plane is required")]
         public int PlaneId { get; set; }
 
-        [Required(ErrorMessage = "Customer is required")]
-        public int CustomerId { get; set; }
-
         [Required(ErrorMessage = "Departure airport is required")]
         public int DepartureAirportId { get; set; }
 
@@ -96,9 +91,6 @@ namespace BookingFlightServer.DTO.Manager
 
         [Required(ErrorMessage = "Plane is required")]
         public int PlaneId { get; set; }
-
-        [Required(ErrorMessage = "Customer is required")]
-        public int CustomerId { get; set; }
 
         [Required(ErrorMessage = "Departure airport is required")]
         public int DepartureAirportId { get; set; }

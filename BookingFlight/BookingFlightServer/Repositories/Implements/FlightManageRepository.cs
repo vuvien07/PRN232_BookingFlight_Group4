@@ -21,7 +21,6 @@ namespace BookingFlightServer.Repositories.Implements
                 .Include(f => f.ArrivalAirport)
                 .Include(f => f.Plane)
                 .Include(f => f.Manager)
-                .Include(f => f.Customer)
                 .Include(f => f.Status)
                 .AsQueryable();
 
@@ -134,7 +133,6 @@ namespace BookingFlightServer.Repositories.Implements
                 .Include(f => f.ArrivalAirport)
                 .Include(f => f.Plane)
                 .Include(f => f.Manager)
-                .Include(f => f.Customer)
                 .Include(f => f.Status)
                 .FirstOrDefaultAsync(f => f.FlightId == flightId);
         }

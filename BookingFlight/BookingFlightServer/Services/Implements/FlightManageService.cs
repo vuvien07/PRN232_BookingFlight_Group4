@@ -82,7 +82,6 @@ namespace BookingFlightServer.Services.Implements
                 ArrivalTime = request.ArrivalTime,
                 PlaneId = request.PlaneId,
                 ManagerId = managerId, // Use logged-in manager
-                CustomerId = request.CustomerId,
                 DepartureAirportId = request.DepartureAirportId,
                 ArrivalAirportId = request.ArrivalAirportId,
                 StatusId = request.StatusId
@@ -144,7 +143,6 @@ namespace BookingFlightServer.Services.Implements
             existingFlight.DepartureTime = request.DepartureTime;
             existingFlight.ArrivalTime = request.ArrivalTime;
             existingFlight.PlaneId = request.PlaneId;
-            existingFlight.CustomerId = request.CustomerId;
             existingFlight.DepartureAirportId = request.DepartureAirportId;
             existingFlight.ArrivalAirportId = request.ArrivalAirportId;
             existingFlight.StatusId = request.StatusId;
@@ -240,7 +238,6 @@ namespace BookingFlightServer.Services.Implements
                 PlaneName = flight.Plane?.PlaneCode,
                 ManagerId = flight.ManagerId,
                 ManagerName = flight.Manager?.Fullname,
-                CustomerName = flight.Customer?.Fullname,
                 DepartureAirportId = flight.DepartureAirportId,
                 DepartureAirportName = flight.DepartureAirport?.AirportName,
                 DepartureAirportCode = flight.DepartureAirport?.AirportCode,

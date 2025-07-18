@@ -35,8 +35,7 @@ async function initializePage() {
         await Promise.all([
             loadStatuses(),
             loadAirports(),
-            loadPlanes(),
-            loadCustomers()
+            loadPlanes()
         ]);
         
         setupEventListeners();
@@ -223,41 +222,6 @@ async function loadPlanes() {
     }
 }
 
-async function loadCustomers() {
-    try {
-        const response = await fetch('http://localhost:5077/api/FlightCustomers', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${getAuthToken()}`
-            },
-            credentials: 'include'
-        });
-        
-        if (response.ok) {
-            const customers = await response.json();
-            populateDropdown('customerId', customers, 'customerId', 'fullname');
-        } else {
-            console.warn('Failed to load customers from API, using mock data');
-            // Mock data for development
-            const mockCustomers = [
-                { customerId: 1, fullname: 'John Doe', email: 'john@example.com' },
-                { customerId: 2, fullname: 'Jane Smith', email: 'jane@example.com' },
-                { customerId: 3, fullname: 'Bob Johnson', email: 'bob@example.com' }
-            ];
-            populateDropdown('customerId', mockCustomers, 'customerId', 'fullname');
-        }
-    } catch (error) {
-        console.error('Error loading customers:', error);
-        // Mock data for development
-        const mockCustomers = [
-            { customerId: 1, fullname: 'John Doe', email: 'john@example.com' },
-            { customerId: 2, fullname: 'Jane Smith', email: 'jane@example.com' },
-            { customerId: 3, fullname: 'Bob Johnson', email: 'bob@example.com' }
-        ];
-        populateDropdown('customerId', mockCustomers, 'customerId', 'fullname');
-    }
-}
-
 // Display functions
 function displayFlights(flights) {
     const tbody = document.getElementById('flightsTableBody');
@@ -401,12 +365,6 @@ function showAddFlightModal() {
     document.getElementById('flightModalLabel').textContent = 'Add New Flight';
     document.getElementById('flightForm').reset();
     
-    // Set default customer to first available customer or leave empty for manager assignment
-    const customerSelect = document.getElementById('customerId');
-    if (customerSelect.options.length > 1) {
-        customerSelect.selectedIndex = 1; // Select first customer
-    }
-    
     clearValidationErrors();
     hideConflictAlert();
     
@@ -468,9 +426,6 @@ function populateFlightForm(flight) {
     document.getElementById('arrivalAirportId').value = flight.arrivalAirportId || '';
     document.getElementById('planeId').value = flight.planeId || '';
     
-    // Set customer but don't allow editing (it's hidden)
-    document.getElementById('customerId').value = flight.customerId || '';
-    
     document.getElementById('statusId').value = flight.statusId || '';
 }
 
@@ -487,7 +442,6 @@ async function handleFlightSubmit(event) {
         departureAirportId: parseInt(formData.get('departureAirportId')),
         arrivalAirportId: parseInt(formData.get('arrivalAirportId')),
         planeId: parseInt(formData.get('planeId')),
-        customerId: parseInt(formData.get('customerId')),
         statusId: parseInt(formData.get('statusId'))
     };
     
