@@ -1,7 +1,9 @@
 using BookingFlightServer.DTO.Manager;
 using BookingFlightServer.Services;
+using BookingFlightServer.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace BookingFlightServer.Controllers
@@ -14,12 +16,16 @@ namespace BookingFlightServer.Controllers
         private readonly IServiceService _serviceService;
         private readonly IItemService _itemService;
         private readonly IPlaneService _planeService;
+        private readonly IDiscountService _discountService;
+        private readonly BookingFlightContext _context;
         
-        public ManagerController(IServiceService serviceService, IItemService itemService, IPlaneService planeService)
+        public ManagerController(IServiceService serviceService, IItemService itemService, IPlaneService planeService, IDiscountService discountService, BookingFlightContext context)
         {
             _serviceService = serviceService;
             _itemService = itemService;
             _planeService = planeService;
+            _discountService = discountService;
+            _context = context;
         }
 
         [HttpPost("services/list")]
@@ -524,6 +530,272 @@ namespace BookingFlightServer.Controllers
             {
                 return BadRequest(new { success = false, message = ex.Message });
             }
+        }
+
+        // DISCOUNT MANAGEMENT ENDPOINTS
+        
+        [HttpPost("discounts/list")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> GetDiscounts([FromBody] DiscountListRequestDTO request)
+        {
+            try
+            {
+                Console.WriteLine($"GetDiscounts called with: Page={request?.Page}, PageSize={request?.PageSize}");
+                
+                // Get all discounts from database directly
+                var discounts = await _context.Discounts
+                    .Include(d => d.Customer)
+                    .ThenInclude(c => c.Account)
+                    .OrderByDescending(d => d.DiscountId)
+                    .Take(10)
+                    .Select(d => new 
+                    {
+                        discountId = d.DiscountId,
+                        discountCode = d.DiscountCode,
+                        discountTitle = d.DiscountTitle,
+                        discountPercent = d.DiscountPercent,
+                        customerName = d.Customer.Account.Username ?? "N/A",
+                        status = d.Status
+                    })
+                    .ToListAsync();
+
+                Console.WriteLine($"Found {discounts.Count} discounts");
+
+                return Ok(new
+                {
+                    success = true,
+                    data = discounts,
+                    pagination = new
+                    {
+                        currentPage = 1,
+                        pageSize = 10,
+                        totalCount = discounts.Count,
+                        totalPages = 1
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetDiscounts: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return StatusCode(500, new { success = false, message = $"Lỗi server: {ex.Message}" });
+            }
+        }
+
+        [HttpGet("discounts/{id}")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> GetDiscount(int id)
+        {
+            try
+            {
+                var discount = await _discountService.GetDiscountById(id);
+                if (discount == null)
+                {
+                    return NotFound(new { success = false, message = "Discount not found" });
+                }
+
+                return Ok(new { success = true, data = discount });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost("discounts")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> CreateDiscount([FromBody] DiscountCreateRequestDTO request)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(request?.DiscountCode))
+                {
+                    return BadRequest(new { success = false, message = "Discount code is required" });
+                }
+
+                if (request.DiscountPercent <= 0 || request.DiscountPercent > 100)
+                {
+                    return BadRequest(new { success = false, message = "Discount percent must be between 0 and 100" });
+                }
+
+                var discount = await _discountService.CreateDiscount(request);
+                return Ok(new { success = true, data = discount, message = "Discount created successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPut("discounts/{id}")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> UpdateDiscount(int id, [FromBody] DiscountUpdateRequestDTO request)
+        {
+            try
+            {
+                if (id != request.DiscountId)
+                {
+                    return BadRequest(new { success = false, message = "Discount ID mismatch" });
+                }
+
+                var discount = await _discountService.UpdateDiscount(request);
+                return Ok(new { success = true, data = discount, message = "Discount updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpDelete("discounts/{id}")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> DeleteDiscount(int id)
+        {
+            try
+            {
+                var result = await _discountService.DeleteDiscount(id);
+                if (!result)
+                {
+                    return NotFound(new { success = false, message = "Discount not found" });
+                }
+
+                return Ok(new { success = true, message = "Discount deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet("discounts/statuses")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> GetDiscountStatuses()
+        {
+            try
+            {
+                var statuses = await _discountService.GetDiscountStatuses();
+                return Ok(new { success = true, data = statuses });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet("customers")]
+        [AllowAnonymous] // Temporary for testing
+        public async Task<IActionResult> GetCustomers()
+        {
+            try
+            {
+                var customers = await _context.Customers
+                    .Include(c => c.Account)
+                    .Where(c => c.Account != null)
+                    .Select(c => new
+                    {
+                        CustomerId = c.CustomerId,
+                        Username = c.Account.Username
+                    })
+                    .ToListAsync();
+
+                return Ok(new { success = true, data = customers });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet("discounts/test")]
+        [AllowAnonymous]
+        public async Task<IActionResult> TestDiscounts()
+        {
+            try
+            {
+                Console.WriteLine("Testing database connection...");
+                
+                // Test basic query
+                var discountCount = await _context.Discounts.CountAsync();
+                Console.WriteLine($"Total discounts in DB: {discountCount}");
+                
+                // Test with customers
+                var discountsWithCustomers = await _context.Discounts
+                    .Include(d => d.Customer)
+                        .ThenInclude(c => c.Account)
+                    .Take(3)
+                    .ToListAsync();
+                
+                Console.WriteLine($"Found {discountsWithCustomers.Count} discounts with customers");
+                
+                var result = discountsWithCustomers.Select(d => new {
+                    id = d.DiscountId,
+                    code = d.DiscountCode,
+                    title = d.DiscountTitle,
+                    customerName = d.Customer?.Account?.Username ?? "No customer"
+                }).ToList();
+                
+                return Ok(new { 
+                    success = true, 
+                    totalCount = discountCount,
+                    sampleData = result,
+                    message = "Database connection OK" 
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Database test failed: {ex.Message}");
+                return StatusCode(500, new { 
+                    success = false, 
+                    message = ex.Message,
+                    stackTrace = ex.StackTrace 
+                });
+            }
+        }
+
+        // Simple test endpoints without database
+        [HttpGet("test/simple")]
+        [AllowAnonymous]
+        public IActionResult SimpleTest()
+        {
+            return Ok(new { success = true, message = "Simple test OK", time = DateTime.Now });
+        }
+
+        [HttpPost("discounts/dummy")]
+        [AllowAnonymous]
+        public IActionResult GetDummyDiscounts()
+        {
+            var dummyData = new List<object>
+            {
+                new {
+                    discountId = 1,
+                    discountCode = "SAVE10",
+                    discountTitle = "Giảm giá 10%",
+                    discountPercent = 10.0,
+                    customerName = "Nguyễn Văn A",
+                    status = 1
+                },
+                new {
+                    discountId = 2,
+                    discountCode = "SAVE20", 
+                    discountTitle = "Giảm giá 20%",
+                    discountPercent = 20.0,
+                    customerName = "Trần Thị B",
+                    status = 1
+                }
+            };
+
+            return Ok(new
+            {
+                success = true,
+                data = dummyData,
+                pagination = new
+                {
+                    currentPage = 1,
+                    pageSize = 10,
+                    totalCount = 2,
+                    totalPages = 1
+                }
+            });
         }
     }
 }
