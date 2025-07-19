@@ -134,6 +134,18 @@ namespace BookingFlightServer.Repositories.Implements
                 .Include(f => f.Plane)
                 .Include(f => f.Manager)
                 .Include(f => f.Status)
+                .Include(f => f.Services)
+                    .ThenInclude(s => s.Manager)
+                .Include(f => f.Services)
+                    .ThenInclude(s => s.Status)
+                .Include(f => f.FlightSeats)
+                    .ThenInclude(fs => fs.Seat)
+                    .ThenInclude(s => s.Class)
+                .Include(f => f.FlightSeats)
+                    .ThenInclude(fs => fs.Seat)
+                    .ThenInclude(s => s.Status)
+                .Include(f => f.FlightSeats)
+                    .ThenInclude(fs => fs.Ticket)
                 .FirstOrDefaultAsync(f => f.FlightId == flightId);
         }
 
