@@ -1,0 +1,86 @@
+@{
+    ViewData["Title"] = "Add New Item";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+@section Styles {
+    <link href="~/css/item-manage.css" rel="stylesheet" />
+}
+
+<div class="card">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4><i class="fas fa-plus"></i> Add New Item</h4>
+            <a href="/ItemManage/Items" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Items
+            </a>
+        </div>
+
+        <form id="addItemForm">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="itemName" class="form-label">Item Name *</label>
+                        <input type="text" class="form-control" id="itemName" required>
+                        <div class="invalid-feedback">Please provide a valid item name.</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Price (VND) *</label>
+                        <input type="number" class="form-control" id="price" min="0" step="1000" required>
+                        <div class="invalid-feedback">Please provide a valid price.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="detail" class="form-label">Detail</label>
+                <textarea class="form-control" id="detail" rows="4" placeholder="Enter item description..."></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Image URL</label>
+                        <input type="text" class="form-control" id="image" placeholder="Enter image URL">
+                        <div class="form-text">Leave empty for default image</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="statusId" class="form-label">Status</label>
+                        <select class="form-control" id="statusId">
+                            <option value="1" selected>Active</option>
+                            <option value="2">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Preview -->
+            <div class="mb-3" id="imagePreviewContainer" style="display: none;">
+                <label class="form-label">Image Preview</label>
+                <div>
+                    <img id="imagePreview" src="" alt="Image Preview" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-secondary me-2" onclick="resetForm()">
+                    <i class="fas fa-undo"></i> Reset
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Item
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<div id="alertContainer"></div>
+
+@section Scripts {
+    <script src="~/js/item-add.js"></script>
+}

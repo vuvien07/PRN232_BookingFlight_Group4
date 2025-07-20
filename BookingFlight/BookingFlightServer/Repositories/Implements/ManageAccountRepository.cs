@@ -13,6 +13,19 @@ namespace BookingFlightServer.Repositories.Implements
             this.bookingFlightContext = bookingFlightContext;
         }
 
+        public async Task<bool> BanAccountAsync(int accountId)
+        {
+            var account = await bookingFlightContext.Accounts.FirstOrDefaultAsync(a => a.AccountId == accountId);
+            if (account == null)
+            {
+                return false;
+            }
+            account.StatusId = 2; // Assuming 2 is the ID for "Inactive" status
+            bookingFlightContext.Accounts.Update(account);
+            await bookingFlightContext.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<Account?> CreateAccountAsync(Account account)
         {
             bookingFlightContext.Accounts.Add(account);
@@ -26,6 +39,19 @@ namespace BookingFlightServer.Repositories.Implements
                                                         .Include(a => a.Status)
                                                         .ToListAsync();
             return accounts == null ? null : accounts;
+        }
+
+        public async Task<bool> UnBanAccountAsync(int accountId)
+        {
+            var account = await bookingFlightContext.Accounts.FirstOrDefaultAsync(a => a.AccountId == accountId);
+            if (account == null)
+            {
+                return false;
+            }
+            account.StatusId = 1; // Assuming 1 is the ID for "Active" status
+            bookingFlightContext.Accounts.Update(account);
+            await bookingFlightContext.SaveChangesAsync();
+            return true;
         }
     }
 }

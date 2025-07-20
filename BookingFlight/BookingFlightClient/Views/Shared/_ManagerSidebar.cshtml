@@ -33,15 +33,40 @@
             {
                 <!-- Manager specific menu items -->
                 <li class="nav-item">
+                    <a href="/Manager/ManageFlights" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ManageFlights" ? "active" : "")">
+                        <i class="fas fa-plane"></i>
+                        <span>Manage Flights</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/Manager/Services" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Services" ? "active" : "")">
                         <i class="fas fa-cogs"></i>
                         <span>Services</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/Manager/ManageItems" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ManageItems" ? "active" : "")">
+                    <a href="/ItemManage/Items" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ItemManage" ? "active" : "")">
                         <i class="fas fa-boxes"></i>
                         <span>Manage Items</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="/Manager/Planes" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Planes" ? "active" : "")">
+                        <i class="fas fa-plane"></i>
+                        <span>Planes</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/SeatManagement" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "SeatManagement" ? "active" : "")">
+                        <i class="fas fa-chair"></i>
+                        <span>Manage Seats</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/DiscountManage/Discounts" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "DiscountManage" ? "active" : "")">
+                        <i class="fas fa-percent"></i>
+                        <span>Manage Discounts</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -62,6 +87,7 @@
                         <span>User Management</span>
                     </a>
                 </li>
+
             }
             else if (ViewBag.UserRole == 2)
             {

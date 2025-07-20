@@ -11,19 +11,17 @@ namespace BookingFlightServer.Repositories.Implements
 		{
 		}
 
-		public async Task<Account?> findByUsernameAndPassword(string? username, string password)
+        public async Task<Account?> findByUsernameAndPassword(string? username, string password)
         {
             var findAccount = await GetByCondition(
                  account =>
                   account.Username != null && account.Password != null &&
                   username != null && password != null &&
                   account.Username.Equals(username.Trim()) && account.Password.Equals(password.Trim()) &&
-                  account.StatusId == 1, (account => account.Include(account => account.Role))
+                  account.StatusId == 1, (account => account.Include(account => account.Role).Include(account => account.Manager))
                 );
             return findAccount;
-        }
-
-        public async Task UpdateAccountAsync(Account account)
+        }        public async Task UpdateAccountAsync(Account account)
         {
             await Update(account);
         }

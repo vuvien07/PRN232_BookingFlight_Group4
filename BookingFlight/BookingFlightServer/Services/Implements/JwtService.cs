@@ -126,12 +126,20 @@ namespace BookingFlightServer.Services.Implements
 		public string CreateJwtToken(AccountDTO accountDTO)
 		{
 			DateTime expiration = DateTime.Now.AddMinutes(Convert.ToDouble(_configuration["Jwt:Expiration_In_Minutes"]));
-			Claim[] claims = new Claim[]
+			var claimsList = new List<Claim>
 			{
 				new Claim(ClaimTypes.Name, accountDTO.Username.ToString()),
 				new Claim(ClaimTypes.Role, accountDTO?.Role?.RoleName.ToString() ?? string.Empty),
 				new Claim("RoleId", accountDTO?.Role?.RoleId.ToString() ?? "0")
 			};
+
+			// Add ManagerId claim if it exists
+			if (accountDTO.ManagerId.HasValue)
+			{
+				claimsList.Add(new Claim("ManagerId", accountDTO.ManagerId.Value.ToString()));
+			}
+
+			Claim[] claims = claimsList.ToArray();
 			SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? string.Empty));
 			SigningCredentials credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 			JwtSecurityToken token = new JwtSecurityToken(

@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using BookingFlightServer.DTO.ManageAccount;
+﻿using BookingFlightServer.DTO.ManageAccount;
 using BookingFlightServer.DTO.Shared;
 using BookingFlightServer.Entities;
 using BookingFlightServer.Repositories;
@@ -9,11 +8,22 @@ namespace BookingFlightServer.Services.Implements
     public class ManageAccountService : IManageAccountService
     {
         private readonly IManageAccountRepository manageAccountRepository;
-        private readonly IMapper mapper;
 
         public ManageAccountService(IManageAccountRepository manageAccountRepository)
         {
             this.manageAccountRepository = manageAccountRepository;
+        }
+
+        public async Task<bool> BanAccountAsync(int accountId)
+        {
+            if (accountId <= 0)
+            {
+                return false;
+            }
+
+            // Call the repository to ban the account
+            var isBanned = await manageAccountRepository.BanAccountAsync(accountId);
+            return true;
         }
 
         public async Task<ResponseAccountDTO?> CreateAccountAsync(RequestAddAccountDTO requestAddAccountDTO)
@@ -58,6 +68,16 @@ namespace BookingFlightServer.Services.Implements
             return responseAccountDTO;
         }
 
+        public async Task<bool> UnBanAccountAsync(int accountId)
+        {
+            if (accountId <= 0)
+            {
+                return false;
+            }
 
+            // Call the repository to unban the account
+            var isUnBanned = await manageAccountRepository.UnBanAccountAsync(accountId);
+            return true;
+        }
     }
 }

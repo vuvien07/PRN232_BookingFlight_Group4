@@ -2,6 +2,10 @@ using BookingFlightServer.Data;
 using BookingFlightServer.Middlewares;
 using BookingFlightServer.UnitOfWork;
 using BookingFlightServer.Utils;
+using BookingFlightServer.Repositories;
+using BookingFlightServer.Repositories.Implements;
+using BookingFlightServer.Services;
+using BookingFlightServer.Services.Implements;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -86,7 +90,13 @@ namespace BookingFlightServer
 				options.AddPolicy("AllowFrontEndClient",
 					builder =>
 					{
-						builder.WithOrigins("http://localhost:5001", "https://localhost:5001", "http://127.0.0.1:5001", "https://127.0.0.1:5001")
+						builder.WithOrigins(
+							"http://localhost:5001", "https://localhost:5001", 
+							"http://127.0.0.1:5001", "https://127.0.0.1:5001",
+							"http://localhost:5000", "https://localhost:5000",
+							"http://localhost:5002", "https://localhost:5002",
+							"http://localhost:3000", "https://localhost:3000"
+						)
 						.AllowCredentials()
 							   .AllowAnyMethod()
 							   .AllowAnyHeader();

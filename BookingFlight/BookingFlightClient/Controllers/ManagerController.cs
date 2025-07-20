@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using BookingFlightClient.Models.DTO;
 
 namespace BookingFlightClient.Controllers
 {
@@ -59,9 +60,57 @@ namespace BookingFlightClient.Controllers
             };
         }
 
-        public IActionResult Dashboard()
+        // Helper method để lấy dữ liệu Dashboard
+        private async Task LoadDashboardDataAsync()
+        {
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                var baseUrl = _configuration.GetValue<string>("ServerSettings:BaseUrl") ?? "http://localhost:5077";
+                
+                // Lấy dữ liệu Seat
+                var seatResponse = await httpClient.GetAsync($"{baseUrl}/api/Seat");
+                if (seatResponse.IsSuccessStatusCode)
+                {
+                    var seatJson = await seatResponse.Content.ReadAsStringAsync();
+                    var seats = JsonSerializer.Deserialize<List<SeatListDTO>>(seatJson, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    }) ?? new List<SeatListDTO>();
+                    
+                    // Thống kê Seat
+                    ViewBag.TotalSeats = seats.Count;
+                    ViewBag.AvailableSeats = seats.Count(s => s.StatusName == "Available");
+                    ViewBag.BookedSeats = seats.Count(s => s.StatusName == "Booked");
+                    ViewBag.MaintenanceSeats = seats.Count(s => s.StatusName == "Maintenance");
+                }
+                else
+                {
+                    // Default values nếu API không hoạt động
+                    ViewBag.TotalSeats = 0;
+                    ViewBag.AvailableSeats = 0;
+                    ViewBag.BookedSeats = 0;
+                    ViewBag.MaintenanceSeats = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading dashboard data: {ex.Message}");
+                // Default values nếu có lỗi
+                ViewBag.TotalSeats = 0;
+                ViewBag.AvailableSeats = 0;
+                ViewBag.BookedSeats = 0;
+                ViewBag.MaintenanceSeats = 0;
+            }
+        }
+
+        public async Task<IActionResult> Dashboard()
         {
             SetUserRole();
+            
+            // Lấy dữ liệu thống kê cho Dashboard
+            await LoadDashboardDataAsync();
+            
             return View();
         }
 
@@ -97,6 +146,23 @@ namespace BookingFlightClient.Controllers
         public IActionResult Profile()
         {
             SetUserRole();
+            return View();
+        }
+
+        public IActionResult Planes()
+        {
+            SetUserRole();
+            
+            // For Manager role, we'll load planes data via API
+            if (ViewBag.UserRole == 4)
+            {
+                ViewBag.ShowPlaneManagement = true;
+            }
+            else
+            {
+                ViewBag.ShowPlaneManagement = false;
+            }
+            
             return View();
         }
 
@@ -287,6 +353,271 @@ namespace BookingFlightClient.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+
+        public IActionResult ServiceDetails(int? id)
+        {
+            SetUserRole();
+            
+            if (!id.HasValue)
+            {
+                return RedirectToAction("Services");
+            }
+            
+            ViewBag.ServiceId = id.Value;
+            return View();
+        }
+
+        public IActionResult ManageFlights()
+        {
+            SetUserRole();
+            return View();
+        }
+
+        public IActionResult AddFlight()
+        {
+            SetUserRole();
+            return View();
+        }
+
+        public IActionResult EditFlight(int id)
+        {
+            SetUserRole();
+            ViewBag.FlightId = id;
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetPlanes([FromBody] PlaneListRequest request)
+        {
+            SetUserRole();
+            
+            try
+            {
+                Console.WriteLine($"Client GetPlanes: Search='{request.Search}', StatusId={request.StatusId}");
+                
+                using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"]);
+
+                // Add authorization header if needed
+                var token = Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var json = JsonSerializer.Serialize(request);
+                Console.WriteLine($"Client request JSON: {json}");
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await httpClient.PostAsync("api/Manager/planes/list", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Client received response: {responseContent.Substring(0, Math.Min(200, responseContent.Length))}...");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(responseContent, "application/json");
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Failed to fetch planes data" });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching planes: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while fetching planes data" });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreatePlane([FromBody] PlaneCreateRequest request)
+        {
+            SetUserRole();
+            
+            try
+            {
+                using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"]);
+
+                // Add authorization header if needed
+                var token = Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await httpClient.PostAsync("api/Manager/planes", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                return Content(responseContent, "application/json");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating plane: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while creating plane" });
+            }
+        }
+
+        [HttpPost]
+        [Route("Manager/UpdatePlane/{id}")]
+        public async Task<IActionResult> UpdatePlane(int id, [FromBody] PlaneUpdateRequest request)
+        {
+            SetUserRole();
+            
+            try
+            {
+                Console.WriteLine($"UpdatePlane called with id: {id}");
+                Console.WriteLine($"Request data: {JsonSerializer.Serialize(request)}");
+                
+                using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"]);
+
+                // Add authorization header if needed
+                var token = Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var json = JsonSerializer.Serialize(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                Console.WriteLine($"Sending PUT request to: api/Manager/planes/{id}");
+                var response = await httpClient.PutAsync($"api/Manager/planes/{id}", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+                
+                Console.WriteLine($"Server response: {responseContent}");
+                return Content(responseContent, "application/json");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating plane: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while updating plane" });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeletePlane(int id)
+        {
+            SetUserRole();
+            
+            try
+            {
+                using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"]);
+
+                // Add authorization header if needed
+                var token = Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var response = await httpClient.DeleteAsync($"api/Manager/planes/{id}");
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                return Content(responseContent, "application/json");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting plane: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while deleting plane" });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CanDeletePlane(int id)
+        {
+            SetUserRole();
+            
+            try
+            {
+                using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"]);
+
+                // Add authorization header if needed
+                var token = Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var response = await httpClient.GetAsync($"api/Manager/planes/{id}/can-delete");
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                return Content(responseContent, "application/json");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error checking if plane can be deleted: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while checking plane deletion status" });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPlaneStatuses()
+        {
+            try
+            {
+                using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"]);
+
+                var response = await httpClient.GetAsync("api/Manager/planes/statuses");
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                return Content(responseContent, "application/json");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching plane statuses: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while fetching plane statuses" });
+            }
+        }
+
+        [HttpGet]
+        [Route("Manager/GetPlane")]
+        public async Task<IActionResult> GetPlane(int id)
+        {
+            SetUserRole();
+            
+            try
+            {
+                Console.WriteLine($"GetPlane called with id: {id}");
+                
+                using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"]);
+
+                // Add authorization header if needed
+                var token = Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var response = await httpClient.GetAsync($"api/Manager/planes/{id}");
+                var responseContent = await response.Content.ReadAsStringAsync();
+                
+                Console.WriteLine($"GetPlane response: {responseContent}");
+                return Content(responseContent, "application/json");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting plane: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while getting plane details" });
+            }
+        }
+
+
     }
 
     // DTO classes for API requests
@@ -315,5 +646,25 @@ namespace BookingFlightClient.Controllers
         public int Price { get; set; }
         public int? StatusId { get; set; }
         public string? Image { get; set; }
+    }
+
+    public class PlaneListRequest
+    {
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public string? Search { get; set; }
+        public int? StatusId { get; set; }
+        public int? ManagerId { get; set; }
+    }
+
+    // DTO cho Seat Dashboard Statistics
+    public class SeatListDTO
+    {
+        public int SeatId { get; set; }
+        public string SeatNumber { get; set; } = string.Empty;
+        public string PlaneName { get; set; } = string.Empty;
+        public string ClassName { get; set; } = string.Empty;
+        public string StatusName { get; set; } = string.Empty;
+        public string StatusColor { get; set; } = string.Empty;
     }
 }
