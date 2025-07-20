@@ -1,0 +1,177 @@
+﻿@model BookingFlightClient.Models.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">
+                <i class="fas fa-user-circle"></i> My Profile
+            </h2>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="row">
+                <!-- Profile Information Card -->
+                <div class="col-md-8">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-user"></i> Profile Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="UpdateProfile" method="post" id="profileForm">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Username</label>
+                                            <input type="text" class="form-control" value="@Model.Username" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Role</label>
+                                            <input type="text" class="form-control" value="@Model.Role" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="FullName" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="FullName" value="@Model.FullName" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="Email" class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" name="Email" value="@Model.Email" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="PhoneNumber" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" name="PhoneNumber" value="@Model.PhoneNumber" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="Address" class="form-label">Address <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" name="Address" rows="3" required>@Model.Address</textarea>
+                                </div>
+
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Update Profile
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Change Password Card -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">
+                                <i class="fas fa-lock"></i> Change Password
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="ChangePassword" method="post" id="passwordForm">
+                                <div class="mb-3">
+                                    <label for="CurrentPassword" class="form-label">Current Password <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" name="CurrentPassword" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="NewPassword" class="form-label">New Password <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" name="NewPassword" minlength="6" required>
+                                    <div class="form-text">Password must be at least 6 characters long.</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="ConfirmPassword" class="form-label">Confirm New Password <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" name="ConfirmPassword" minlength="6" required>
+                                </div>
+
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-key"></i> Change Password
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Account Status Card -->
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle"></i> Account Status
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-2">
+                                <strong>Status:</strong> 
+                                <span class="badge bg-success">
+                                    <i class="fas fa-circle me-1" style="font-size: 0.6em;"></i>Active
+                                </span>
+                            </p>
+                            <p class="mb-0">
+                                <strong>Account Type:</strong> @Model.Role
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password confirmation validation
+    const passwordForm = document.getElementById('passwordForm');
+    const newPassword = passwordForm.querySelector('input[name="NewPassword"]');
+    const confirmPassword = passwordForm.querySelector('input[name="ConfirmPassword"]');
+
+    function validatePasswords() {
+        if (newPassword.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('Passwords do not match');
+        } else {
+            confirmPassword.setCustomValidity('');
+        }
+    }
+
+    newPassword.addEventListener('input', validatePasswords);
+    confirmPassword.addEventListener('input', validatePasswords);
+
+    // Form submission confirmation
+    passwordForm.addEventListener('submit', function(e) {
+        if (!confirm('Are you sure you want to change your password?')) {
+            e.preventDefault();
+        }
+    });
+
+    profileForm.addEventListener('submit', function(e) {
+        if (!confirm('Are you sure you want to update your profile?')) {
+            e.preventDefault();
+        }
+    });
+});
+</script>

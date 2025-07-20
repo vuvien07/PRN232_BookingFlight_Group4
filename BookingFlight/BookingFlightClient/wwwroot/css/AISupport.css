@@ -1,0 +1,126 @@
+﻿body {
+    background: #f8f9fa;
+    font-family: 'Inter', sans-serif;
+}
+
+.aiHelperContainer {
+    background: #181D2A;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(0, 105, 148, 0.08);
+    min-height: 70vh;
+}
+
+.app-header .heading {
+    font-size: 2.2rem;
+    font-weight: 700;
+    background: linear-gradient(to right, #1d7e7d, #40E0D0 80%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.app-header .sub-heading {
+    font-size: 1.3rem;
+    color: #b0b8d1;
+    font-weight: 500;
+}
+
+.chat-container {
+    background: #23283a;
+    border-radius: 14px;
+    min-height: 320px;
+    max-height: 55vh;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
+
+.bot-message .bot-icon {
+    color: #40E0D0;
+    font-size: 1.7rem;
+    min-width: 32px;
+}
+
+.message-text {
+    font-size: 1rem;
+    padding: 12px 18px;
+    border-radius: 13px;
+    max-width: 80%;
+    word-break: break-word;
+    line-height: 1.6;
+}
+
+.bg-bot {
+    background: linear-gradient(135deg, #1d7e7d 60%, #40E0D0 100%);
+    color: #fff;
+    margin-left: 0;
+}
+
+.user-message {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.bg-user {
+    background: #fff;
+    color: #23283a;
+    border: 1px solid #e3e6ea;
+    margin-right: 0;
+}
+
+.prompt-container {
+    width: 100%;
+}
+
+.prompt-form {
+    width: 100%;
+    background: #23283a;
+    border-radius: 40px;
+    padding: 6px 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.prompt-input {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    box-shadow: none;
+}
+
+    .prompt-input::placeholder {
+        color: #b0b8d1;
+        opacity: 1;
+    }
+
+.btn-primary {
+    background: linear-gradient(135deg, #1d7e7d, #40E0D0);
+    border: none;
+    font-weight: 600;
+    border-radius: 24px;
+    transition: background 0.2s;
+}
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #40E0D0, #1d7e7d);
+    }
+
+@media (max-width: 768px) {
+    .aiHelperContainer {
+        padding: 10px 2vw;
+    }
+
+    .chat-container {
+        min-height: 200px;
+        max-height: 40vh;
+    }
+
+    .app-header .heading {
+        font-size: 1.5rem;
+    }
+
+    .app-header .sub-heading {
+        font-size: 1rem;
+    }
+}

@@ -123,17 +123,37 @@ namespace BookingFlightServer.Services.Implements
                 throw new ArgumentException("Price must be non-negative");
             }
             
+            // Process image - allow null but set default if empty string
+            string imageValue = "default.jpg"; // Default fallback
+            
+            if (!string.IsNullOrWhiteSpace(request.Image))
+            {
+                // Validate image string length
+                if (request.Image.Length <= 255)
+                {
+                    imageValue = request.Image.Trim();
+                    Console.WriteLine($"Using provided image: {imageValue}");
+                }
+                else
+                {
+                    Console.WriteLine($"Image URL too long ({request.Image.Length} chars), using default");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No image provided, using default.jpg");
+            }
+            
             var item = new BookingFlightServer.Entities.Item
             {
                 ItemName = request.ItemName.Trim(),
                 Detail = string.IsNullOrWhiteSpace(request.Detail) ? null : request.Detail.Trim(),
                 Price = request.Price,
                 StatusId = 1, // Set to active status
-                Image = string.IsNullOrWhiteSpace(request.Image) ? "default.jpg" : 
-                        (request.Image.Length > 255 ? "default.jpg" : request.Image) // Limit image field size
+                Image = imageValue
             };
 
-            Console.WriteLine($"Creating item: {item.ItemName}, Price: {item.Price}, StatusId: {item.StatusId}");
+            Console.WriteLine($"Creating item: {item.ItemName}, Price: {item.Price}, StatusId: {item.StatusId}, Image: {item.Image}");
 
             try
             {

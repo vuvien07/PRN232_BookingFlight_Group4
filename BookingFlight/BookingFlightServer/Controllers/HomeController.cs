@@ -27,5 +27,21 @@ namespace BookingFlightServer.Controllers
             string flightInfoToken = _jwtService.CreateJwtDTOToken<FlightFormDTO>(flightFormDTO);
 			return Ok(new { token = flightInfoToken });
         }
+        [HttpGet("addSession")]
+        public IActionResult AddSession()
+        {
+			var sessionId = Guid.NewGuid().ToString();
+
+			var sessionTokenCookie = new CookieOptions
+			{
+				HttpOnly = true,
+				Secure = true, // Chỉ bật nếu bạn dùng HTTPS, nếu đang dùng HTTP thì set = false
+				SameSite = SameSiteMode.Strict,
+				Expires = DateTime.Now.AddDays(7),
+				Path = "/"
+			};
+			Response.Cookies.Append("X-Session-Token", sessionId, sessionTokenCookie);
+			return Ok();
+        }
     }
 }

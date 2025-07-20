@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using BookingFlightServer.DTO.ManageAccount;
+﻿using BookingFlightServer.DTO.ManageAccount;
 using BookingFlightServer.DTO.Shared;
 using BookingFlightServer.Entities;
 using BookingFlightServer.Repositories;
@@ -9,7 +8,6 @@ namespace BookingFlightServer.Services.Implements
     public class ManageAccountService : IManageAccountService
     {
         private readonly IManageAccountRepository manageAccountRepository;
-        private readonly IMapper mapper;
 
         public ManageAccountService(IManageAccountRepository manageAccountRepository)
         {

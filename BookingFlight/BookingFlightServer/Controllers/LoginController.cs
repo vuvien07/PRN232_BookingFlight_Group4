@@ -42,8 +42,8 @@ namespace BookingFlightServer.Controllers
 			var accessTokenCookie = new CookieOptions
 			{
 				HttpOnly = true,
-				Secure = true,
-				SameSite = SameSiteMode.Strict,
+				Secure = Request.IsHttps, // Only secure in production (HTTPS)
+				SameSite = SameSiteMode.Lax, // Changed from Strict for better compatibility
 				Expires = DateTime.Now.AddMinutes(Convert.ToDouble(_jwtService.GetTokenExpirationTime())),
 				Path = "/"
 			};
@@ -51,8 +51,8 @@ namespace BookingFlightServer.Controllers
 			var refreshTokenCookie = new CookieOptions
 			{
 				HttpOnly = true,
-				Secure = true,
-				SameSite = SameSiteMode.Strict,
+				Secure = Request.IsHttps, // Only secure in production (HTTPS)
+				SameSite = SameSiteMode.Lax, // Changed from Strict for better compatibility
 				Expires = DateTime.Now.AddDays(7),
 				Path = "/"
 			};

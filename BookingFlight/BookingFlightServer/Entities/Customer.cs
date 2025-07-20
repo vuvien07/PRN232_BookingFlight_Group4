@@ -23,7 +23,5 @@ public partial class Customer
 
     public virtual ICollection<Discount> Discounts { get; set; } = new List<Discount>();
 
-    public virtual ICollection<Flight> Flights { get; set; } = new List<Flight>();
-
     public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 }

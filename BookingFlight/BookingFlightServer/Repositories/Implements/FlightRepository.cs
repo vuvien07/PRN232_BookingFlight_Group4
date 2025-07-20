@@ -3,8 +3,10 @@ using BookingFlightServer.DTO.Filter;
 using BookingFlightServer.DTO.Query;
 using BookingFlightServer.Entities;
 using BookingFlightServer.Utils;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace BookingFlightServer.Repositories.Implements
 {
@@ -51,8 +53,8 @@ namespace BookingFlightServer.Repositories.Implements
 				   from ap in apGroup.DefaultIfEmpty()
 				   join fs in _flightContext.FlightSeats on f.FlightId equals fs.FlightId into fsGroup
 				   from fs in fsGroup.DefaultIfEmpty()
-				   join seat in _flightContext.Seats on new { fs.SeatId, p.PlaneId }
-					   equals new { seat.SeatId, seat.PlaneId }
+				   join seat in _flightContext.Seats on new { SeatId = fs != null ? fs.SeatId : 0, PlaneId = (int?)p.PlaneId }
+					   equals new { SeatId = seat.SeatId, PlaneId = seat.PlaneId }
 					   into seatGroup
 				   from seat in seatGroup.DefaultIfEmpty()
 				   join cs in _flightContext.ClassSeats on seat.ClassId equals cs.ClassId into csGroup
@@ -60,6 +62,7 @@ namespace BookingFlightServer.Repositories.Implements
 				   group new { f, dep, arr, p, ap, fs, seat, cs } by new
 				   {
 					   f.FlightId,
+					   f.FlightCode,
 					   From = dep.AirportId,
 					   To = arr.AirportId,
 					   f.DepartureTime,
@@ -75,6 +78,7 @@ namespace BookingFlightServer.Repositories.Implements
 				   select new FlightQueryDTO
 				   {
 					   FlightId = g.Key.FlightId,
+					   FlightCode = g.Key.FlightCode.ToString(),
 					   From = g.Key.From,
 					   To = g.Key.To,
 					   DepartureDate = g.Key.DepartureTime,
@@ -87,6 +91,8 @@ namespace BookingFlightServer.Repositories.Implements
 					   Manufacture = g.Key.Manufacture,
 					   PlaneCode = g.Key.PlaneCode,
 					   BasePrice = g.Key.BasePrice,
+					   DepartureTimeSpan = g.Key.DepartureTime.TimeOfDay,
+					   ArrivalTimeSpan = g.Key.ArrivalTime.TimeOfDay,
 					   Total = g.Select(x => new { x.cs.ClassId, x.fs })
 		 .Where(x => x.fs != null && !x.fs.IsSat && x.ClassId != null)
 		 .Select(x => x.ClassId)
@@ -95,7 +101,7 @@ namespace BookingFlightServer.Repositories.Implements
 				   };
 		}
 
-		private IAsyncEnumerable<FlightQueryDTO> GetByFlightCondition(IQueryable<FlightQueryDTO> query, FilterFlightDTO filterFlightDTO)
+		private IQueryable<FlightQueryDTO> GetByFlightCondition(IQueryable<FlightQueryDTO> query, FilterFlightDTO filterFlightDTO)
 		{
 			var result = FindByCondition(query,a => a.Total > 0);
 			if (!string.IsNullOrEmpty(filterFlightDTO.From) && !string.IsNullOrEmpty(filterFlightDTO.To))
@@ -109,13 +115,33 @@ namespace BookingFlightServer.Repositories.Implements
 			}
 			if (filterFlightDTO.DepartureTime.Count() > 0)
 			{
-				result = FindByCondition(result, r => filterFlightDTO.DepartureTime.Any(range =>
-				UtilHelper.ParseToTime(r.DepartureTime) >= UtilHelper.ParseToTime(UtilHelper.GetFromSplitString(range, "-", 0)) && UtilHelper.ParseToTime(r.DepartureTime) <= UtilHelper.ParseToTime(UtilHelper.GetFromSplitString(range, "-", 1))));
+				var ranges = filterFlightDTO.DepartureTime
+			.Select(range =>
+			{
+			var parts = range.Split('-');
+			return (
+				From: TimeSpan.Parse(parts[0].Trim()),
+				To: TimeSpan.Parse(parts[1].Trim())
+			);
+			})
+		.ToList();
+				var expression = BuildTimeRangeExpression(ranges, "DepartureTimeSpan");
+				result = FindByCondition(result, expression);
 			}
 			if (filterFlightDTO.ArrivalTime.Count() > 0)
 			{
-				result = FindByCondition(result, r => filterFlightDTO.ArrivalTime.Any(range =>
-				UtilHelper.ParseToTime(r.ArrivalTime) >= UtilHelper.ParseToTime(UtilHelper.GetFromSplitString(range, "-", 0)) && UtilHelper.ParseToTime(r.ArrivalTime) <= UtilHelper.ParseToTime(UtilHelper.GetFromSplitString(range, "-", 1))));
+				var ranges = filterFlightDTO.DepartureTime
+			.Select(range =>
+			{
+			var parts = range.Split('-');
+			return (
+				From: TimeSpan.Parse(parts[0].Trim()),
+				To: TimeSpan.Parse(parts[1].Trim())
+				);
+			})
+		.ToList();
+				var expression = BuildTimeRangeExpression(ranges, "ArrivalTimeSpan");
+				result = FindByCondition(result, expression);
 			}
 			if (filterFlightDTO.Brands.Count() > 0)
 			{
@@ -139,10 +165,8 @@ namespace BookingFlightServer.Repositories.Implements
 				var expression = BuildPriceRangeExpression(filterFlightDTO.Prices);
 				result = FindByCondition(result, expression);
 			}
-			return result.AsAsyncEnumerable();
+			return result;
 		}
-
-
 		private Expression<Func<FlightQueryDTO, bool>> BuildPriceRangeExpression(List<string> priceRangeStrings)
 		{
 			var parameter = Expression.Parameter(typeof(FlightQueryDTO), "r");
@@ -170,5 +194,59 @@ namespace BookingFlightServer.Repositories.Implements
 				: r => true;
 		}
 
+		public static Expression<Func<FlightQueryDTO, bool>> BuildTimeRangeExpression(
+	List<(TimeSpan From, TimeSpan To)> timeRanges,
+	string propertyName
+)
+		{
+			var parameter = Expression.Parameter(typeof(FlightQueryDTO), "r");
+			var property = Expression.Property(parameter, propertyName);
+			Expression? finalExpr = null;
+
+			foreach (var range in timeRanges)
+			{
+				var fromConst = Expression.Constant(range.From, typeof(TimeSpan));
+				var toConst = Expression.Constant(range.To, typeof(TimeSpan));
+				var minExpr = Expression.GreaterThanOrEqual(property, fromConst);
+				var maxExpr = Expression.LessThanOrEqual(property, toConst);
+				var rangeExpr = Expression.AndAlso(minExpr, maxExpr);
+				finalExpr = finalExpr == null ? rangeExpr : Expression.OrElse(finalExpr, rangeExpr);
+			}
+
+			return finalExpr != null
+				? Expression.Lambda<Func<FlightQueryDTO, bool>>(finalExpr, parameter)
+				: r => true;
+		}
+
+		public async Task<List<FlightQueryDTO>> GetAllFlights(FilterFlightDTO filterFlightDTO)
+		{
+			var query = BuildFlightQuery(_repositoryDbContext);
+			var result = GetByFlightCondition(query, filterFlightDTO);
+			result = result.OrderBy(f => f.FlightId);
+			int totalRecords = await result.CountAsync();
+			int totalPages = (int)Math.Ceiling((double)totalRecords / 5);
+
+			// Nếu trang hợp lệ, áp dụng phân trang
+			if (filterFlightDTO.Page <= totalPages)
+			{
+				result = result.Skip((filterFlightDTO.Page - 1) * 5).Take(5);
+			}
+			var results = await result.ToListAsync();
+			return results;
+		}
+
+		public async Task<List<FlightQueryDTO>> GetAllFlightsWithGemini(FilterFlightDTO filterFlightDTO)
+		{
+			var query = BuildFlightQuery(_repositoryDbContext);
+			var result = GetByFlightCondition(query, filterFlightDTO);
+
+			result = result.OrderBy(f => f.FlightId);
+			return await result.ToListAsync();
+		}
+
+		public Task<List<FlightQueryDTO>> GetAllFlights()
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

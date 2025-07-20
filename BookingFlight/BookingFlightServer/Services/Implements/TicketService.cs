@@ -31,5 +31,11 @@ namespace BookingFlightServer.Services.Implements
 				return null;
 			}
 		}
+
+		public async Task<TicketDTO?> GetByTicketNumber(string? ticketNumber)
+		{
+			Ticket? ticket = await _ticketRepository.GetTicketByTicketNumber(ticketNumber);
+			return _mapper.Map<TicketDTO>(ticket);
+		}
 	}
 }

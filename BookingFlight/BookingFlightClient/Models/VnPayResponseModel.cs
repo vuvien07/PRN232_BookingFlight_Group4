@@ -1,14 +1,17 @@
-﻿namespace BookingFlightClient.Models
+namespace BookingFlightClient.Models
 {
-	public class VnPayResponseModel
-	{
-		public string OrderDescription { get; set; } = null!;
-		public string TransactionId { get; set; } = null!;
-		public string OrderId { get; set; } = null!;
-		public string PaymentMethod { get; set; } = null!;
-		public string PaymentId { get; set; } = null!;
-		public bool Success { get; set; }
-		public string Token { get; set; } = null!;
-		public string VnPayResponseCode { get; set; } = null!;
-	}
+    public class VnPayResponseModel
+    {
+        public bool Success { get; set; }
+        public string PaymentStatus { get; set; } = string.Empty;
+        public string OrderDescription { get; set; } = string.Empty;
+        public string OrderId { get; set; } = string.Empty;
+        public string PaymentId { get; set; } = string.Empty;
+        public string TransactionId { get; set; } = string.Empty;
+        public string Token { get; set; } = string.Empty;
+        public string VnPayResponseCode { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+        public decimal Amount { get; set; }
+        public DateTime PaymentTime { get; set; }
+    }
 }
