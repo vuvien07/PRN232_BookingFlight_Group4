@@ -60,9 +60,57 @@ namespace BookingFlightClient.Controllers
             };
         }
 
-        public IActionResult Dashboard()
+        // Helper method để lấy dữ liệu Dashboard
+        private async Task LoadDashboardDataAsync()
+        {
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                var baseUrl = _configuration.GetValue<string>("ServerSettings:BaseUrl") ?? "http://localhost:5077";
+                
+                // Lấy dữ liệu Seat
+                var seatResponse = await httpClient.GetAsync($"{baseUrl}/api/Seat");
+                if (seatResponse.IsSuccessStatusCode)
+                {
+                    var seatJson = await seatResponse.Content.ReadAsStringAsync();
+                    var seats = JsonSerializer.Deserialize<List<SeatListDTO>>(seatJson, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    }) ?? new List<SeatListDTO>();
+                    
+                    // Thống kê Seat
+                    ViewBag.TotalSeats = seats.Count;
+                    ViewBag.AvailableSeats = seats.Count(s => s.StatusName == "Available");
+                    ViewBag.BookedSeats = seats.Count(s => s.StatusName == "Booked");
+                    ViewBag.MaintenanceSeats = seats.Count(s => s.StatusName == "Maintenance");
+                }
+                else
+                {
+                    // Default values nếu API không hoạt động
+                    ViewBag.TotalSeats = 0;
+                    ViewBag.AvailableSeats = 0;
+                    ViewBag.BookedSeats = 0;
+                    ViewBag.MaintenanceSeats = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading dashboard data: {ex.Message}");
+                // Default values nếu có lỗi
+                ViewBag.TotalSeats = 0;
+                ViewBag.AvailableSeats = 0;
+                ViewBag.BookedSeats = 0;
+                ViewBag.MaintenanceSeats = 0;
+            }
+        }
+
+        public async Task<IActionResult> Dashboard()
         {
             SetUserRole();
+            
+            // Lấy dữ liệu thống kê cho Dashboard
+            await LoadDashboardDataAsync();
+            
             return View();
         }
 
@@ -607,5 +655,16 @@ namespace BookingFlightClient.Controllers
         public string? Search { get; set; }
         public int? StatusId { get; set; }
         public int? ManagerId { get; set; }
+    }
+
+    // DTO cho Seat Dashboard Statistics
+    public class SeatListDTO
+    {
+        public int SeatId { get; set; }
+        public string SeatNumber { get; set; } = string.Empty;
+        public string PlaneName { get; set; } = string.Empty;
+        public string ClassName { get; set; } = string.Empty;
+        public string StatusName { get; set; } = string.Empty;
+        public string StatusColor { get; set; } = string.Empty;
     }
 }
