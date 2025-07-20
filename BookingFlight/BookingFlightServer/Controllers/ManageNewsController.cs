@@ -9,7 +9,7 @@ namespace BookingFlightServer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = Constants.RoleAdmin)]
+    //[Authorize(Roles = Constants.RoleAdmin)]
     public class ManageNewsController : ControllerBase
     {
         private readonly IManageNewsService manageNewsService;
@@ -81,6 +81,23 @@ namespace BookingFlightServer.Controllers
             }
             // Return a NoContent response if update was successful
             return NoContent();
+        }
+
+        [HttpGet]
+        [Route("news/{newId:int}")]
+        public async Task<IActionResult> GetNewsById(int newId)
+        {
+            // call the service to get news by ID
+            var responseNewsDTO = await manageNewsService.GetNewsByIdAsync(newId);
+
+            // Check if the news was found
+            if (responseNewsDTO == null)
+            {
+                return NotFound(new { message = "News not found." });
+            }
+
+            // Return the news details
+            return Ok(responseNewsDTO);
         }
     }
 }
