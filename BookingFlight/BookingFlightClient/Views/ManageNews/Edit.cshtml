@@ -1,81 +1,305 @@
 ﻿@model BookingFlightClient.Models.DTO.ResponseNewsDTO
 
 @{
-    ViewData["Title"] = "Chi tiết & Chỉnh sửa tin tức";
+    ViewData["Title"] = "Chỉnh Sửa Bản Tin";
 }
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.css" rel="stylesheet">
+<link href="~/css/manage-news-edit.css" rel="stylesheet" />
 
-<div class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-dark fw-bold">
-            <i class="bi bi-pencil-square"></i> Chỉnh sửa Tin tức
-        </h2>
-        <a href="@Url.Action("Index", "ManageNews")" class="btn btn-secondary shadow-sm">
-            <i class="bi bi-arrow-left"></i> Quay lại danh sách
-        </a>
-    </div>
-
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <form asp-action="Edit" method="post" enctype="multipart/form-data">
-                <input type="hidden" asp-for="NewId" />
-
-                <div class="mb-3">
-                    <label asp-for="Title" class="form-label fw-semibold">Tiêu đề</label>
-                    <input asp-for="Title" class="form-control" placeholder="Nhập tiêu đề..." />
-                    <span asp-validation-for="Title" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Hình ảnh hiện tại</label><br />
-                    <img src="~/images/@Model.Image" alt="@Model.Title" class="rounded shadow-sm" style="width: 200px; height: auto;" />
-                </div>
-
-                <div class="mb-3">
-                    <label for="ImageUpload" class="form-label fw-semibold">Cập nhật hình ảnh</label>
-                    <input type="file" name="ImageUpload" class="form-control" />
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Content" class="form-label fw-semibold">Nội dung</label>
-                    <textarea asp-for="Content" rows="6" class="form-control" placeholder="Nhập nội dung..."></textarea>
-                    <span asp-validation-for="Content" class="text-danger"></span>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Category" class="form-label fw-semibold">Danh mục</label>
-                        <input asp-for="Category" class="form-control" placeholder="Danh mục" />
-                        <span asp-validation-for="Category" class="text-danger"></span>
+<div class="edit-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-10">
+                <div class="edit-main-card">
+                    <!-- Header -->
+                    <div class="edit-header">
+                        <h2><i class="bi bi-pencil-square me-3"></i>Chỉnh Sửa Bản Tin</h2>
+                        <p>Cập nhật thông tin và nội dung bản tin</p>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Author" class="form-label fw-semibold">Tác giả</label>
-                        <input asp-for="Author" class="form-control" placeholder="Tác giả" />
-                        <span asp-validation-for="Author" class="text-danger"></span>
-                    </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="AccountName" class="form-label fw-semibold">Tên tài khoản</label>
-                        <input asp-for="AccountName" class="form-control" readonly />
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="AccountId" class="form-label fw-semibold">ID Tài khoản</label>
-                        <input asp-for="AccountId" class="form-control" readonly />
-                    </div>
-                </div>
+                    <!-- Form Container -->
+                    <div class="form-container">
+                        <form asp-action="Edit" method="post" enctype="multipart/form-data" id="editForm">
+                            <input type="hidden" asp-for="NewId" />
+                            <input type="hidden" asp-for="AccountId" />
+                            <input type="hidden" asp-for="AccountName" />
+                            <input type="hidden" name="CurrentImage" value="@Model.Image" />
 
-                <div class="d-flex justify-content-end mt-4">
-                    <button type="submit" class="btn btn-primary me-2 shadow-sm">
-                        <i class="bi bi-save"></i> Lưu thay đổi
-                    </button>
-                    <a href="@Url.Action("Index", "ManageNews")" class="btn btn-outline-secondary shadow-sm">
-                        <i class="bi bi-x-circle"></i> Hủy
-                    </a>
+                            <!-- Alert Messages -->
+                            @if (TempData["MessageNotification"] != null)
+                            {
+                                <div class="alert alert-@(TempData["AlertType"]?.ToString() ?? "info") alert-dismissible fade show mb-4" role="alert">
+                                    <i class="bi bi-@(TempData["AlertType"]?.ToString() == "success" ? "check-circle" : "exclamation-triangle") me-2"></i>
+                                    @TempData["MessageNotification"]
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            }
+
+                            <!-- Validation Summary -->
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-dismissible fade show" role="alert" style="display: @(ViewData.ModelState?.IsValid == false ? "block" : "none")">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <strong>Vui lòng kiểm tra lại thông tin:</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+
+                            <!-- Basic Information Section -->
+                            <div class="form-section">
+                                <h3 class="section-title">
+                                    <i class="bi bi-info-circle-fill"></i>
+                                    Thông tin cơ bản
+                                </h3>
+
+                                <!-- Title Field -->
+                                <div class="form-group">
+                                    <label asp-for="Title" class="form-label">
+                                        <i class="bi bi-card-heading"></i>
+                                        Tiêu đề bản tin
+                                        <span class="required-asterisk">*</span>
+                                    </label>
+                                    <div class="input-wrapper">
+                                        <input asp-for="Title" class="form-control" 
+                                               placeholder="Nhập tiêu đề bản tin..." 
+                                               maxlength="200" />
+                                    </div>
+                                    <span asp-validation-for="Title" class="validation-message"></span>
+                                </div>
+
+                                <!-- Category and Author Row -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label asp-for="Category" class="form-label">
+                                                <i class="bi bi-tags-fill"></i>
+                                                Danh mục
+                                                <span class="required-asterisk">*</span>
+                                            </label>
+                                            <div class="input-wrapper">
+                                                <input asp-for="Category" class="form-control" 
+                                                       placeholder="Nhập danh mục..." 
+                                                       maxlength="100" />
+                                            </div>
+                                            <span asp-validation-for="Category" class="validation-message"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label asp-for="Author" class="form-label">
+                                                <i class="bi bi-person-fill"></i>
+                                                Tác giả
+                                                <span class="required-asterisk">*</span>
+                                            </label>
+                                            <div class="input-wrapper">
+                                                <input asp-for="Author" class="form-control" 
+                                                       placeholder="Nhập tên tác giả..." 
+                                                       maxlength="100" />
+                                            </div>
+                                            <span asp-validation-for="Author" class="validation-message"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Image Section -->
+                            <div class="form-section">
+                                <h3 class="section-title">
+                                    <i class="bi bi-image-fill"></i>
+                                    Hình ảnh bản tin
+                                </h3>
+
+                                <div class="image-section">
+                                    @if (!string.IsNullOrEmpty(Model.Image))
+                                    {
+                                        <div class="mb-3">
+                                            <label class="form-label">Hình ảnh hiện tại:</label>
+                                            <div class="text-center">
+                                                <img src="~/images/@Model.Image" alt="Current Image" class="current-image" />
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <i class="bi bi-cloud-upload-fill"></i>
+                                            Chọn hình ảnh mới (tùy chọn)
+                                        </label>
+                                        <div class="file-upload-wrapper">
+                                            <button type="button" class="file-upload-btn w-100">
+                                                <i class="bi bi-upload me-2"></i>Chọn hình ảnh
+                                            </button>
+                                            <input type="file" name="ImageFile" accept="image/*" class="file-upload-input" onchange="previewImage(event)" />
+                                        </div>
+                                        <div class="image-preview" id="imagePreview"></div>
+                                        <small class="text-muted mt-2 d-block">
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            Chấp nhận: JPG, PNG, GIF. Kích thước tối đa: 5MB
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Content Section -->
+                            <div class="form-section">
+                                <h3 class="section-title">
+                                    <i class="bi bi-file-text-fill"></i>
+                                    Nội dung bản tin
+                                </h3>
+
+                                <div class="form-group">
+                                    <label asp-for="Content" class="form-label">
+                                        <i class="bi bi-textarea-resize"></i>
+                                        Nội dung
+                                        <span class="required-asterisk">*</span>
+                                    </label>
+                                    <div class="summernote-container">
+                                        <textarea asp-for="Content" class="form-control" id="contentEditor"></textarea>
+                                    </div>
+                                    <span asp-validation-for="Content" class="validation-message"></span>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="action-buttons">
+                                <a asp-action="Index" class="btn-secondary-custom">
+                                    <i class="bi bi-arrow-left me-2"></i>Hủy bỏ
+                                </a>
+                                
+                                <button type="submit" class="btn-primary-custom" id="submitBtn">
+                                    <span class="spinner-wrapper">
+                                        <div class="loading-spinner" id="loadingSpinner"></div>
+                                        <i class="bi bi-check-circle me-2" id="submitIcon"></i>
+                                        <span id="submitText">Cập nhật bản tin</span>
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Initialize Summernote
+            $('#contentEditor').summernote({
+                height: 400,
+                placeholder: 'Nhập nội dung chi tiết của bản tin...',
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'italic', 'clear']],
+                    ['fontname', ['fontname']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Helvetica', 'Times New Roman', 'Verdana'],
+                fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18', '24', '36', '48'],
+                callbacks: {
+                    onChange: function(contents) {
+                        // Auto save functionality could be added here
+                        console.log('Content changed:', contents);
+                    }
+                }
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(() => {
+                const alerts = document.querySelectorAll('.alert-dismissible');
+                alerts.forEach(alert => {
+                    if (alert.classList.contains('show')) {
+                        const closeBtn = alert.querySelector('.btn-close');
+                        if (closeBtn) closeBtn.click();
+                    }
+                });
+            }, 5000);
+        });
+
+        // Image preview function
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `
+                        <h6 class="text-success mb-2">
+                            <i class="bi bi-check-circle me-2"></i>Xem trước hình ảnh mới:
+                        </h6>
+                        <img src="${e.target.result}" alt="Preview" style="max-width: 250px; max-height: 200px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);" />
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Tên file: ${file.name} | Kích thước: ${(file.size / 1024 / 1024).toFixed(2)} MB
+                            </small>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+                
+                // Update file upload button text
+                const uploadBtn = event.target.parentElement.querySelector('.file-upload-btn');
+                uploadBtn.innerHTML = `<i class="bi bi-check-circle me-2"></i>Đã chọn: ${file.name}`;
+                uploadBtn.style.background = 'linear-gradient(45deg, #48bb78, #68d391)';
+            } else {
+                preview.innerHTML = '';
+                const uploadBtn = event.target.parentElement.querySelector('.file-upload-btn');
+                uploadBtn.innerHTML = `<i class="bi bi-upload me-2"></i>Chọn hình ảnh`;
+                uploadBtn.style.background = 'linear-gradient(45deg, #ff9a9e, #fecfef)';
+            }
+        }
+
+        // Form submission handler
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const submitIcon = document.getElementById('submitIcon');
+            const submitText = document.getElementById('submitText');
+            
+            // Show loading state
+            loadingSpinner.style.display = 'block';
+            submitIcon.style.display = 'none';
+            submitText.textContent = 'Đang cập nhật...';
+            submitBtn.disabled = true;
+            
+            // Get content from Summernote
+            const content = $('#contentEditor').summernote('code');
+            document.querySelector('[name="Content"]').value = content;
+            
+            // Reset state if form validation fails
+            setTimeout(() => {
+                if (!this.checkValidity()) {
+                    loadingSpinner.style.display = 'none';
+                    submitIcon.style.display = 'inline';
+                    submitText.textContent = 'Cập nhật bản tin';
+                    submitBtn.disabled = false;
+                }
+            }, 100);
+        });
+
+        // Input validation styling
+        document.querySelectorAll('.form-control, .form-select').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value.trim() && this.checkValidity()) {
+                    this.style.borderColor = '#48bb78';
+                } else if (this.value.trim()) {
+                    this.style.borderColor = '#f56565';
+                }
+            });
+            input.addEventListener('focus', function() {
+                this.style.borderColor = '#ff9a9e';
+            });
+        });
+    </script>
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

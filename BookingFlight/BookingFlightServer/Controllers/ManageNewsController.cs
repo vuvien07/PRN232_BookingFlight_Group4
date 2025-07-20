@@ -37,8 +37,8 @@ namespace BookingFlightServer.Controllers
             return Ok(responseNewsDTO);
         }
 
-        // POST: api/managenews/add-news
-        [HttpPost("add-news")]
+        // POST: api/managenews/news
+        [HttpPost("news")]
         public async Task<IActionResult> AddNews([FromBody] RequestAddNewsDTO requestAddNewsDTO)
         {
             var responseNewsDTO = await manageNewsService.CreateNewsAsync(requestAddNewsDTO);
@@ -53,8 +53,8 @@ namespace BookingFlightServer.Controllers
             return StatusCode(StatusCodes.Status201Created, responseNewsDTO);
         }
 
-        // DELETE: api/managenews/delete-news/{newsId}
-        [HttpDelete("delete-news/{newsId}")]
+        // DELETE: api/managenews/news/{newsId}
+        [HttpDelete("news/{newsId}")]
         public async Task<IActionResult> DeleteNews(int newsId)
         {
             // Call the service to delete the news
@@ -68,10 +68,16 @@ namespace BookingFlightServer.Controllers
             return NoContent();
         }
 
-        // PUT: api/managenews/update-news
-        [HttpPut("update-news")]
-        public async Task<IActionResult> UpdateNews([FromBody] RequestUpdateNewsDTO requestUpdateNewsDTO)
+        // PUT: api/managenews/news/{newsId}
+        [HttpPut("news/{newsId}")]
+        public async Task<IActionResult> UpdateNews(int newsId, [FromBody] RequestUpdateNewsDTO requestUpdateNewsDTO)
         {
+            // Ensure the ID matches
+            if (newsId != requestUpdateNewsDTO.NewId)
+            {
+                return BadRequest(new { message = "ID mismatch." });
+            }
+
             // Call the service to update the news
             var isUpdated = await manageNewsService.UpdateNewsAsync(requestUpdateNewsDTO);
             // Check if the update was successful

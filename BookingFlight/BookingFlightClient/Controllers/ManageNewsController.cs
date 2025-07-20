@@ -51,8 +51,86 @@ namespace BookingFlightClient.Controllers
 
         public async Task<IActionResult> Create()
         {
-
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(RequestAddNewsDTO newsDTO, IFormFile? imageUpload)
+        {
+            try
+            {
+                // Handle image upload if provided
+                if (imageUpload != null && imageUpload.Length > 0)
+                {
+                    var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "news");
+                    if (!Directory.Exists(uploadsPath))
+                    {
+                        Directory.CreateDirectory(uploadsPath);
+                    }
+
+                    var fileName = $"{Guid.NewGuid()}_{imageUpload.FileName}";
+                    var filePath = Path.Combine(uploadsPath, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await imageUpload.CopyToAsync(stream);
+                    }
+
+                    newsDTO.Image = $"/images/news/{fileName}";
+                }
+
+                // Get current user's account ID from session or claims
+                if (Request.Cookies.TryGetValue("UserId", out var userIdStr))
+                {
+                    if (int.TryParse(userIdStr, out var userId))
+                    {
+                        newsDTO.AccountId = userId;
+                    }
+                }
+
+                var client = httpClientFactory.CreateClient();
+
+                // Add Authorization token if available
+                if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var jsonOptions = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+
+                var jsonContent = JsonSerializer.Serialize(newsDTO, jsonOptions);
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                var response = await client.PostAsync("http://localhost:5077/api/managenews/news", content);
+
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return RedirectToAction("Index", "Login");
+                }
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["AlertType"] = "success";
+                    TempData["MessageNotification"] = "Tạo bản tin thành công.";
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    TempData["AlertType"] = "danger";
+                    TempData["MessageNotification"] = "Tạo bản tin thất bại.";
+                    return View(newsDTO);
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["AlertType"] = "danger";
+                TempData["MessageNotification"] = $"Có lỗi xảy ra: {ex.Message}";
+                return View(newsDTO);
+            }
         }
 
         public async Task<IActionResult> Details(int newId)
@@ -155,19 +233,170 @@ namespace BookingFlightClient.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(ResponseNewsDTO newsDTO, IFormFile? imageUpload)
         {
-            RequestUpdateNewsDTO requestEditNewsDTO = new RequestUpdateNewsDTO
+            try
             {
-                NewId = newsDTO.NewId,
-                Title = newsDTO.Title,
-                Content = newsDTO.Content,
-                Category = newsDTO.Category,
-                Author = newsDTO.Author,
-                Image = newsDTO.Image                                                             
-            };
+                RequestUpdateNewsDTO requestEditNewsDTO = new RequestUpdateNewsDTO
+                {
+                    NewId = newsDTO.NewId,
+                    Title = newsDTO.Title,
+                    Content = newsDTO.Content,
+                    Category = newsDTO.Category,
+                    Author = newsDTO.Author,
+                    Image = newsDTO.Image
+                };
 
+                // Handle image upload if provided
+                if (imageUpload != null && imageUpload.Length > 0)
+                {
+                    var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "news");
+                    if (!Directory.Exists(uploadsPath))
+                    {
+                        Directory.CreateDirectory(uploadsPath);
+                    }
 
+                    var fileName = $"{Guid.NewGuid()}_{imageUpload.FileName}";
+                    var filePath = Path.Combine(uploadsPath, fileName);
 
-            return RedirectToAction(nameof(Index));
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await imageUpload.CopyToAsync(stream);
+                    }
+
+                    requestEditNewsDTO.Image = $"/images/news/{fileName}";
+                }
+
+                var client = httpClientFactory.CreateClient();
+
+                // Add Authorization token if available
+                if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var jsonOptions = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+
+                var jsonContent = JsonSerializer.Serialize(requestEditNewsDTO, jsonOptions);
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                var response = await client.PutAsync($"http://localhost:5077/api/managenews/news/{requestEditNewsDTO.NewId}", content);
+
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return RedirectToAction("Index", "Login");
+                }
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["AlertType"] = "success";
+                    TempData["MessageNotification"] = "Cập nhật bản tin thành công.";
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    TempData["AlertType"] = "danger";
+                    TempData["MessageNotification"] = "Cập nhật bản tin thất bại.";
+                    return View(newsDTO);
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["AlertType"] = "danger";
+                TempData["MessageNotification"] = $"Có lỗi xảy ra: {ex.Message}";
+                return View(newsDTO);
+            }
         }
+
+        public async Task<IActionResult> DeleteConfirmation(int newId)
+        {
+            if (newId == 0)
+            {
+                return NotFound();
+            }
+
+            // Get news details for confirmation
+            var client = httpClientFactory.CreateClient();
+
+            // Add Authorization token if available
+            if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+
+            var response = await client.GetAsync($"http://localhost:5077/api/managenews/news/{newId}");
+
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["AlertType"] = "danger";
+                TempData["MessageNotification"] = "Không tìm thấy bản tin.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var jsonData = await response.Content.ReadAsStringAsync();
+            var newsDTO = JsonSerializer.Deserialize<ResponseNewsDTO>(jsonData, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            return View(newsDTO);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int newId)
+        {
+            try
+            {
+                var client = httpClientFactory.CreateClient();
+
+                // Add Authorization token if available
+                if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var response = await client.DeleteAsync($"http://localhost:5077/api/managenews/news/{newId}");
+
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return RedirectToAction("Index", "Login");
+                }
+
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["AlertType"] = "success";
+                    TempData["MessageNotification"] = "Xóa bản tin thành công!";
+                }
+                else
+                {
+                    TempData["AlertType"] = "danger";
+                    TempData["MessageNotification"] = "Xóa bản tin thất bại. Vui lòng thử lại.";
+                }
+
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["AlertType"] = "danger";
+                TempData["MessageNotification"] = $"Có lỗi xảy ra: {ex.Message}";
+                return RedirectToAction("Index");
+            }
+        }
+
+        // Remove the old DeleteConfirmed method since we're not using it anymore
+        /*
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(int newId)
+        {
+            // This method is no longer needed
+        }
+        */
     }
 }

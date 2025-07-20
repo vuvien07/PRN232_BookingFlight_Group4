@@ -5,81 +5,266 @@
 }
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+<link href="~/css/manage-news-details.css" rel="stylesheet" />
 
-<style>
-    .news-header {
-        background: linear-gradient(to right, #4facfe, #00f2fe);
-        color: #fff;
-        padding: 50px 20px;
-        text-align: center;
-        border-radius: 12px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    }
+<div class="details-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-10">
+                <div class="details-main-card">
+                    <!-- Header -->
+                    <div class="details-header">
+                        <h1>@Model.Title</h1>
+                    </div>
 
-    .news-image {
-        width: 100%;
-        max-height: 500px;
-        object-fit: cover;
-        border-radius: 12px;
-        margin-bottom: 30px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
+                    <!-- Meta Information Bar -->
+                    <div class="details-meta-bar">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="meta-item">
+                                    <i class="bi bi-tags-fill"></i>
+                                    <span><strong>Danh mục:</strong> @Model.Category</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="meta-item">
+                                    <i class="bi bi-person-fill"></i>
+                                    <span><strong>Tác giả:</strong> @Model.Author</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="meta-item">
+                                    <i class="bi bi-person-badge-fill"></i>
+                                    <span><strong>Tài khoản:</strong> @Model.AccountName</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-    .news-content {
-        font-size: 1.1rem;
-        line-height: 1.8;
-        color: #333;
-    }
+                    <!-- Image Section -->
+                    @if (!string.IsNullOrEmpty(Model.Image))
+                    {
+                        <div class="news-image-container">
+                            <img src="~/images/@Model.Image" alt="@Model.Title" class="news-image" />
+                        </div>
+                    }
 
-    .news-footer {
-        background-color: #f8f9fa;
-        border-top: 1px solid #ddd;
-        margin-top: 40px;
-        padding: 20px;
-        border-radius: 0 0 12px 12px;
-    }
+                    <!-- Content Section -->
+                    <div class="news-content-section">
+                        <div class="news-content">
+                            @Html.Raw(Model.Content)
+                        </div>
+                    </div>
 
-    .news-meta i {
-        color: #0d6efd;
-        margin-right: 6px;
-    }
-</style>
-
-<div class="container my-5">
-    <!-- Back Button -->
-    <div class="mb-3">
-        <a href="@Url.Action("Index", "ManageNews")" class="btn btn-outline-primary shadow-sm">
-            <i class="bi bi-arrow-left"></i> Quay lại danh sách
-        </a>
-    </div>
-
-    <!-- News Header -->
-    <div class="news-header">
-        <h1 class="fw-bold">@Model.Title</h1>
-    </div>
-
-    <!-- News Image -->
-    <div class="text-center mt-4">
-        <img src="~/images/@Model.Image" alt="@Model.Title" class="news-image" />
-    </div>
-
-    <!-- News Content -->
-    <div class="news-content mt-4">
-        @Html.Raw(Model.Content.Replace("\n", "<br />"))
-    </div>
-
-    <!-- News Footer -->
-    <div class="news-footer mt-5">
-        <div class="row">
-            <div class="col-md-6 news-meta mb-2">
-                <i class="bi bi-tags"></i> <strong>Danh mục:</strong> @Model.Category
-            </div>
-            <div class="col-md-6 news-meta mb-2">
-                <i class="bi bi-person"></i> <strong>Tác giả:</strong> @Model.Author
-            </div>
-            <div class="col-md-6 news-meta">
-                <i class="bi bi-person-badge"></i> <strong>Tài khoản:</strong> @Model.AccountName (ID: @Model.AccountId)
+                    <!-- Action Bar -->
+                    <div class="action-bar">
+                        <a href="@Url.Action("Index", "ManageNews")" class="btn-back">
+                            <i class="bi bi-arrow-left me-2"></i>Quay lại danh sách
+                        </a>
+                        
+                        <div class="btn-group d-flex gap-3">
+                            <a href="@Url.Action("Edit", "ManageNews", new { newId = Model.NewId })" class="btn-edit">
+                                <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa
+                            </a>
+                            <a href="@Url.Action("DeleteConfirmation", "ManageNews", new { newId = Model.NewId })" class="btn-delete">
+                                <i class="bi bi-trash3 me-2"></i>Xóa bản tin
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Progressive image loading with fade-in effect
+            const newsImage = document.querySelector('.news-image');
+            if (newsImage) {
+                newsImage.style.opacity = '0';
+                newsImage.style.transition = 'opacity 0.8s ease-in-out, transform 0.3s ease';
+                
+                newsImage.addEventListener('load', function() {
+                    this.style.opacity = '1';
+                });
+
+                // Add click to zoom functionality
+                newsImage.addEventListener('click', function() {
+                    if (this.style.transform === 'scale(1.5)') {
+                        this.style.transform = 'scale(1)';
+                        this.style.cursor = 'zoom-in';
+                        this.parentElement.style.overflow = 'hidden';
+                    } else {
+                        this.style.transform = 'scale(1.5)';
+                        this.style.cursor = 'zoom-out';
+                        this.parentElement.style.overflow = 'visible';
+                    }
+                });
+
+                // Initial cursor
+                newsImage.style.cursor = 'zoom-in';
+            }
+
+            // Smooth scroll animation for action buttons
+            document.querySelectorAll('.btn-back, .btn-edit, .btn-delete').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    // Add ripple effect
+                    const ripple = document.createElement('span');
+                    ripple.style.position = 'absolute';
+                    ripple.style.width = '20px';
+                    ripple.style.height = '20px';
+                    ripple.style.background = 'rgba(255, 255, 255, 0.5)';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.transform = 'scale(0)';
+                    ripple.style.animation = 'ripple 0.6s linear';
+                    ripple.style.left = (e.offsetX - 10) + 'px';
+                    ripple.style.top = (e.offsetY - 10) + 'px';
+                    
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+
+            // Add reading progress indicator
+            const progressBar = document.createElement('div');
+            progressBar.style.position = 'fixed';
+            progressBar.style.top = '0';
+            progressBar.style.left = '0';
+            progressBar.style.width = '0%';
+            progressBar.style.height = '3px';
+            progressBar.style.background = 'linear-gradient(90deg, #4facfe, #00f2fe)';
+            progressBar.style.zIndex = '9999';
+            progressBar.style.transition = 'width 0.3s ease';
+            document.body.appendChild(progressBar);
+
+            window.addEventListener('scroll', function() {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                progressBar.style.width = scrolled + '%';
+            });
+
+            // Copy content functionality
+            document.querySelector('.news-content').addEventListener('dblclick', function() {
+                const range = document.createRange();
+                range.selectNodeContents(this);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                
+                // Show temporary feedback
+                const feedback = document.createElement('div');
+                feedback.innerHTML = '<i class="bi bi-check-circle me-2"></i>Nội dung đã được chọn! Nhấn Ctrl+C để sao chép.';
+                feedback.style.position = 'fixed';
+                feedback.style.top = '20px';
+                feedback.style.right = '20px';
+                feedback.style.background = '#48bb78';
+                feedback.style.color = 'white';
+                feedback.style.padding = '12px 20px';
+                feedback.style.borderRadius = '8px';
+                feedback.style.zIndex = '9999';
+                feedback.style.boxShadow = '0 4px 15px rgba(72, 187, 120, 0.3)';
+                feedback.style.animation = 'slideInRight 0.3s ease';
+                
+                document.body.appendChild(feedback);
+                
+                setTimeout(() => {
+                    feedback.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => feedback.remove(), 300);
+                }, 3000);
+            });
+
+            // Keyboard navigation shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            document.querySelector('.btn-back').click();
+                            break;
+                        case 'e':
+                            e.preventDefault();
+                            document.querySelector('.btn-edit').click();
+                            break;
+                        case 'Delete':
+                            e.preventDefault();
+                            if (confirm('Bạn có chắc chắn muốn xóa bản tin này?')) {
+                                document.querySelector('.btn-delete').click();
+                            }
+                            break;
+                    }
+                }
+            });
+
+            // Show keyboard shortcuts help
+            let helpShown = false;
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'F1' || (e.key === '?' && e.shiftKey)) {
+                    e.preventDefault();
+                    if (!helpShown) {
+                        const helpModal = document.createElement('div');
+                        helpModal.innerHTML = `
+                            <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+                                <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; box-shadow: 0 25px 50px rgba(0,0,0,0.3);">
+                                    <h4 style="margin-bottom: 20px; color: #2d3748;"><i class="bi bi-keyboard me-2"></i>Phím tắt hữu ích</h4>
+                                    <ul style="list-style: none; padding: 0; color: #4a5568;">
+                                        <li style="margin-bottom: 10px;"><strong>Ctrl + ←</strong>: Quay lại danh sách</li>
+                                        <li style="margin-bottom: 10px;"><strong>Ctrl + E</strong>: Chỉnh sửa bản tin</li>
+                                        <li style="margin-bottom: 10px;"><strong>Ctrl + Delete</strong>: Xóa bản tin</li>
+                                        <li style="margin-bottom: 10px;"><strong>Double-click</strong>: Chọn nội dung để sao chép</li>
+                                        <li style="margin-bottom: 10px;"><strong>Click ảnh</strong>: Phóng to/thu nhỏ</li>
+                                        <li><strong>F1 hoặc Shift + ?</strong>: Hiện hướng dẫn này</li>
+                                    </ul>
+                                    <button onclick="this.parentElement.parentElement.remove(); helpShown = false;" style="background: #4facfe; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; float: right; margin-top: 15px;">Đóng</button>
+                                </div>
+                            </div>
+                        `;
+                        document.body.appendChild(helpModal);
+                        helpShown = true;
+                    }
+                }
+            });
+        });
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @@keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+            
+            @@keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @@keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+}
