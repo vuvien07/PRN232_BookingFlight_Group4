@@ -360,7 +360,7 @@
     // Load plane statuses for dropdowns
     function loadPlaneStatuses() {
         $.ajax({
-            url: '/Manager/GetPlaneStatuses',
+            url: 'http://localhost:5077/api/Manager/planes/statuses',
             type: 'GET',
             success: function(response) {
                 if (response.success) {
@@ -396,7 +396,7 @@
         console.log('Frontend request:', request);
 
         $.ajax({
-            url: '/Manager/GetPlanes',
+            url: 'http://localhost:5077/api/Manager/planes/list',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(request),
@@ -528,7 +528,7 @@
         
         // Load plane data
         $.ajax({
-            url: `/Manager/GetPlane?id=${planeId}`,
+            url: `http://localhost:5077/api/Manager/planes/${planeId}`,
             type: 'GET',
             success: function(response) {
                 console.log('Edit plane response:', response);
@@ -587,8 +587,10 @@
             formData.managerId = currentPlaneManagerId || 1; // Use stored manager ID or fallback
         }
 
-        const url = isEditing ? `/Manager/UpdatePlane/${formData.planeId}` : '/Manager/CreatePlane';
-        const method = 'POST';
+        const url = isEditing ? 
+            `http://localhost:5077/api/Manager/planes/${formData.planeId}` : 
+            'http://localhost:5077/api/Manager/planes';
+        const method = isEditing ? 'PUT' : 'POST';
 
         console.log('Saving plane with data:', formData);
         console.log('URL:', url);
@@ -621,7 +623,7 @@
     function deletePlane(planeId) {
         // First check if plane can be deleted
         $.ajax({
-            url: `/Manager/CanDeletePlane?id=${planeId}`,
+            url: `http://localhost:5077/api/Manager/planes/${planeId}/can-delete`,
             type: 'GET',
             success: function(response) {
                 if (response.success && response.canDelete) {
@@ -641,8 +643,8 @@
     // Perform actual delete
     function performDeletePlane(planeId) {
         $.ajax({
-            url: `/Manager/DeletePlane?id=${planeId}`,
-            type: 'POST',
+            url: `http://localhost:5077/api/Manager/planes/${planeId}`,
+            type: 'DELETE',
             success: function(response) {
                 if (response.success) {
                     showAlert('success', 'Plane deleted successfully');
