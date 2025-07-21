@@ -1,147 +1,250 @@
-﻿@model BookingFlightClient.Models.ViewModels.ManageAccountAddVM
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@model BookingFlightClient.Models.ViewModels.ManageAccountAddVM
 
-@* @{
-    ViewData["Title"] = "Tài khoản mới";
-} *@
+@{
+    ViewData["Title"] = "Tạo Tài Khoản Mới";
+}
 
-<style>
-    body {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        min-height: 100vh;
-    }
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+<link href="~/css/manage-account-add.css" rel="stylesheet" />
 
-    .card {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
-    }
+<div class="create-account-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="main-card">
+                    <!-- Header -->
+                    <div class="create-header">
+                        <h2><i class="bi bi-person-plus-fill me-3"></i>Tạo Tài Khoản Mới</h2>
+                        <p>Thêm tài khoản người dùng mới vào hệ thống</p>
+                    </div>
 
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-    .card-header {
-        border-radius: 12px 12px 0 0;
-        background: linear-gradient(to right, #007bff, #00d4ff);
-    }
-
-    .form-label {
-        color: #333;
-        font-weight: 500;
-    }
-
-    .form-control, .form-select {
-        border-radius: 8px;
-        border: 1px solid #ced4da;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-        .form-control:focus, .form-select:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
-        }
-
-    .input-group-text {
-        background-color: #f8f9fa;
-        border-radius: 8px 0 0 8px;
-    }
-
-    .btn-primary {
-        background: linear-gradient(to right, #007bff, #00d4ff);
-        border: none;
-        border-radius: 8px;
-        padding: 10px 20px;
-        transition: opacity 0.3s ease;
-    }
-
-        .btn-primary:hover {
-            opacity: 0.9;
-        }
-
-    .btn-outline-secondary {
-        border-radius: 8px;
-        padding: 10px 20px;
-        transition: background-color 0.3s ease;
-    }
-
-        .btn-outline-secondary:hover {
-            background-color: #f8f9fa;
-        }
-
-    .alert {
-        border-radius: 8px;
-    }
-</style>
-
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card">
-                <div class="card-header text-white">
-                    <h3 class="mb-0 text-center">Thêm tài khoản mới</h3>
-                </div>
-                <div class="card-body p-4">
-                    @* Hiển thị thông báo nếu có *@
-                    @if (TempData["MessageNotification"] != null)
-                    {
-                        <div class="alert alert-@TempData["AlertType"] alert-dismissible fade show" role="alert">
-                            @TempData["MessageNotification"]
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    }
-                    <form asp-action="Add" method="post">
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert" style="display: @(ViewData.ModelState.IsValid ? "none" : "block")"></div>
-
-                        <div class="mb-4">
-                            <label asp-for="Username" class="form-label">Tên đăng nhập</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                <input asp-for="Username" class="form-control" placeholder="Nhập tên đăng nhập" />
+                    <!-- Form Container -->
+                    <div class="form-container">
+                        <!-- Alert Messages -->
+                        @if (TempData["MessageNotification"] != null)
+                        {
+                            <div class="alert alert-@(TempData["AlertType"]?.ToString() ?? "info") alert-custom alert-dismissible fade show" role="alert">
+                                <i class="bi bi-@(TempData["AlertType"]?.ToString() == "success" ? "check-circle" : "exclamation-triangle") me-2"></i>
+                                @TempData["MessageNotification"]
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
                             </div>
-                            <span asp-validation-for="Username" class="text-danger"></span>
-                        </div>
+                        }
 
-                        <div class="mb-4">
-                            <label asp-for="Password" class="form-label">Mật khẩu</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input asp-for="Password" class="form-control" type="password" placeholder="Nhập mật khẩu" />
+                        <form asp-action="Add" method="post" id="accountForm">
+                            <!-- Validation Summary -->
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-custom" role="alert" style="display: @(ViewData.ModelState?.IsValid == false ? "block" : "none")">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <strong>Vui lòng kiểm tra lại thông tin:</strong>
                             </div>
-                            <span asp-validation-for="Password" class="text-danger"></span>
-                        </div>
 
-                        <div class="mb-4">
-                            <label asp-for="RoleId" class="form-label">Vai trò</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-shield-check"></i></span>
-                                <select asp-for="RoleId" class="form-select"
-                                        asp-items="@(new SelectList(Model.roles, "RoleId", "RoleName"))">
-                                    <option value="">Chọn vai trò</option>
-                                </select>
+                            <!-- Username Field -->
+                            <div class="form-group">
+                                <label asp-for="Username" class="form-label">
+                                    <i class="bi bi-person"></i>
+                                    Tên đăng nhập
+                                    <span class="required-asterisk">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <input asp-for="Username" class="form-control" 
+                                           placeholder="Nhập tên đăng nhập (ít nhất 3 ký tự)" 
+                                           maxlength="50" />
+                                    <i class="bi bi-person input-icon"></i>
+                                </div>
+                                <span asp-validation-for="Username" class="validation-message"></span>
+                                <div class="form-help-text">
+                                    Tên đăng nhập phải có ít nhất 3 ký tự và không chứa ký tự đặc biệt
+                                </div>
                             </div>
-                            <span asp-validation-for="RoleId" class="text-danger"></span>
-                        </div>
 
-                        <div class="d-flex justify-content-end gap-3">
-                            <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a>
-                            <button type="submit" class="btn btn-primary" id="submitBtn">
-                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="display: none;"></span>
-                                Tạo
-                            </button>
-                        </div>
-                    </form>
+                            <!-- Password Field -->
+                            <div class="form-group">
+                                <label asp-for="Password" class="form-label">
+                                    <i class="bi bi-lock"></i>
+                                    Mật khẩu
+                                    <span class="required-asterisk">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <input asp-for="Password" type="password" class="form-control" 
+                                           placeholder="Nhập mật khẩu (ít nhất 6 ký tự)" 
+                                           id="passwordInput" />
+                                    <button type="button" class="password-toggle" onclick="togglePassword()">
+                                        <i class="bi bi-eye" id="toggleIcon"></i>
+                                    </button>
+                                </div>
+                                <div class="strength-meter">
+                                    <div class="strength-fill" id="strengthFill"></div>
+                                </div>
+                                <span asp-validation-for="Password" class="validation-message"></span>
+                                <div class="form-help-text" id="passwordHelp">
+                                    Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số
+                                </div>
+                            </div>
+
+                            <!-- Role Field -->
+                            <div class="form-group">
+                                <label asp-for="RoleId" class="form-label">
+                                    <i class="bi bi-shield-check"></i>
+                                    Vai trò
+                                    <span class="required-asterisk">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <select asp-for="RoleId" class="form-select"
+                                            asp-items="@(new SelectList(Model?.roles ?? new List<BookingFlightClient.Models.DTO.RoleDTO>(), "RoleId", "RoleName"))"
+                                            onchange="updateRoleInfo(this)">
+                                        <option value="">-- Chọn vai trò --</option>
+                                    </select>
+                                    <i class="bi bi-chevron-down input-icon"></i>
+                                </div>
+                                <span asp-validation-for="RoleId" class="validation-message"></span>
+                                <div class="role-info" id="roleInfo" style="display: none;">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    <span id="roleDescription">Chọn vai trò để xem mô tả</span>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex justify-content-between align-items-center mt-4 pt-3" style="border-top: 1px solid #e2e8f0;">
+                                <a asp-action="Index" class="btn btn-secondary-custom">
+                                    <i class="bi bi-arrow-left me-2"></i>Quay Lại
+                                </a>
+                                
+                                <button type="submit" class="btn btn-primary-custom" id="submitBtn">
+                                    <span class="spinner-wrapper">
+                                        <div class="loading-spinner" id="loadingSpinner"></div>
+                                        <i class="bi bi-check-circle me-2" id="submitIcon"></i>
+                                        <span id="submitText">Tạo Tài Khoản</span>
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+@section Scripts {
+    <script>
+        // Toggle password visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('passwordInput');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.className = 'bi bi-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.className = 'bi bi-eye';
+            }
+        }
 
-<script>
-    document.querySelector('form').addEventListener('submit', function() {
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.querySelector('.spinner-border').style.display = 'inline-block';
-        submitBtn.disabled = true;
-    });
-</script>
+        // Password strength checker
+        document.getElementById('passwordInput').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strengthFill = document.getElementById('strengthFill');
+            const passwordHelp = document.getElementById('passwordHelp');
+            
+            let strength = 0;
+            let helpText = '';
+            
+            if (password.length >= 6) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+            if (/[^a-zA-Z\d]/.test(password)) strength++;
+            
+            strengthFill.className = 'strength-fill';
+            
+            if (password.length === 0) {
+                helpText = 'Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số';
+            } else if (strength < 3) {
+                strengthFill.classList.add('strength-weak');
+                helpText = 'Mật khẩu yếu - Thêm chữ hoa, số và ký tự đặc biệt';
+            } else if (strength < 4) {
+                strengthFill.classList.add('strength-medium');
+                helpText = 'Mật khẩu trung bình - Thêm ký tự đặc biệt để tăng cường độ';
+            } else {
+                strengthFill.classList.add('strength-strong');
+                helpText = 'Mật khẩu mạnh - Đủ điều kiện bảo mật';
+            }
+            
+            passwordHelp.textContent = helpText;
+        });
+
+        // Role info updater
+        function updateRoleInfo(select) {
+            const roleInfo = document.getElementById('roleInfo');
+            const roleDescription = document.getElementById('roleDescription');
+            const selectedText = select.options[select.selectedIndex].text;
+            
+            if (select.value) {
+                const descriptions = {
+                    'Admin': 'Quản trị viên hệ thống - Có quyền truy cập toàn bộ chức năng',
+                    'Manager': 'Quản lý - Có quyền quản lý thông tin chuyến bay và đặt vé',
+                    'Staff': 'Nhân viên - Có quyền hỗ trợ khách hàng và xử lý vé',
+                    'Customer': 'Khách hàng - Có quyền đặt vé và quản lý thông tin cá nhân'
+                };
+                
+                roleDescription.textContent = descriptions[selectedText] || 'Mô tả vai trò';
+                roleInfo.style.display = 'block';
+            } else {
+                roleInfo.style.display = 'none';
+            }
+        }
+
+        // Form submission handler
+        document.getElementById('accountForm').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const submitIcon = document.getElementById('submitIcon');
+            const submitText = document.getElementById('submitText');
+            
+            // Show loading state
+            loadingSpinner.style.display = 'block';
+            submitIcon.style.display = 'none';
+            submitText.textContent = 'Đang tạo...';
+            submitBtn.disabled = true;
+            
+            // Reset state if form validation fails
+            setTimeout(() => {
+                if (!this.checkValidity()) {
+                    loadingSpinner.style.display = 'none';
+                    submitIcon.style.display = 'inline';
+                    submitText.textContent = 'Tạo Tài Khoản';
+                    submitBtn.disabled = false;
+                }
+            }, 100);
+        });
+
+        // Input validation styling
+        document.querySelectorAll('.form-control, .form-select').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value.trim() && this.checkValidity()) {
+                    this.style.borderColor = '#48bb78';
+                } else if (this.value.trim()) {
+                    this.style.borderColor = '#f56565';
+                }
+            });
+            
+            input.addEventListener('focus', function() {
+                this.style.borderColor = '#4facfe';
+            });
+        });
+
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert-dismissible');
+            alerts.forEach(alert => {
+                if (alert.classList.contains('show')) {
+                    const closeBtn = alert.querySelector('.btn-close');
+                    if (closeBtn) closeBtn.click();
+                }
+            });
+        }, 5000);
+    </script>
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

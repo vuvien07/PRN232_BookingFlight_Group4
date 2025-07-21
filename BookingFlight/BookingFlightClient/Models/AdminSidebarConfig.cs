@@ -53,6 +53,7 @@ namespace BookingFlightClient.Models
                 {
                     SectionTitle = "Management",
                     Items = new List<SidebarMenuItem>
+                    
                     {
                         new SidebarMenuItem
                         {
@@ -90,6 +91,20 @@ namespace BookingFlightClient.Models
                             Icon = "fas fa-plane",
                             Url = "/Admin/Aircraft",
                             Action = "Aircraft"
+                        },
+                        new SidebarMenuItem
+                        {
+                            Title = "News",
+                            Icon = "fas fa-newspaper",
+                            Url = "/ManageNews",
+                            Action = "Index"
+                        },
+                        new SidebarMenuItem
+                        {
+                            Title = "Account",
+                            Icon = "fas fa-user-cog",
+                            Url = "/ManageAccount",
+                            Action = "Index"
                         }
                     }
                 },

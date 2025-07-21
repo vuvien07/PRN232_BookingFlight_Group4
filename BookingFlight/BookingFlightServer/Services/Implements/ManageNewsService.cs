@@ -82,6 +82,27 @@ namespace BookingFlightServer.Services.Implements
             return responseNewsDTOList;
         }
 
+        public async Task<ResponseNewsDTO?> GetNewsByIdAsync(int newsId)
+        {
+            var news = await manageNewsRepository.GetNewsByIdAsync(newsId);
+
+            // If the news is null, return null
+            if (news == null) return null;
+
+            // Map the News entity to ResponseNewsDTO
+            return new ResponseNewsDTO
+            {
+                NewId = news.NewId,
+                Title = news.Title,
+                Image = news.Image,
+                Content = news.Content,
+                Category = news.Category,
+                Author = news.Author,
+                AccountId = news.AccountId,
+                AccountName = news.Account?.Username ?? "Unknown"
+            };
+        }
+
         public async Task<bool> UpdateNewsAsync(RequestUpdateNewsDTO requestUpdateNewsDTO)
         {
             // Validate the request
@@ -98,7 +119,6 @@ namespace BookingFlightServer.Services.Implements
                 Content = requestUpdateNewsDTO.Content,
                 Category = requestUpdateNewsDTO.Category,
                 Author = requestUpdateNewsDTO.Author,
-                AccountId = requestUpdateNewsDTO.AccountId
             });
 
             return isUpdated;
