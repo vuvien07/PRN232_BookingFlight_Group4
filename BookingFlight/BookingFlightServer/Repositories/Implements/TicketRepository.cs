@@ -158,5 +158,40 @@ namespace BookingFlightServer.Repositories.Implements
 			}
 			return false;
 		}
+
+		public async Task<List<Ticket>> GetTicketsByCustomerIdAsync(int customerId)
+		{
+			return await FindAll(ticket => ticket.Include(ticket => ticket.ClassSeat)
+				.Include(ticket => ticket.Flight).ThenInclude(flight => flight.DepartureAirport)
+				.Include(ticket => ticket.Flight).ThenInclude(flight => flight.ArrivalAirport)
+				.Include(ticket => ticket.Flight).ThenInclude(flight => flight.Plane)
+				.Include(ticket => ticket.Customer)
+				.Include(ticket => ticket.Status)
+				.Include(ticket => ticket.TicketItems).ThenInclude(ticketItem => ticketItem.Item))
+				.Where(ticket => ticket.CustomerId == customerId)
+				.OrderByDescending(ticket => ticket.BookingDate)
+				.ToListAsync();
+		}
+
+		public async Task<(List<Ticket> tickets, int totalCount)> GetTicketsByCustomerIdPaginatedAsync(int customerId, int page, int pageSize)
+		{
+			var query = _repositoryDbContext.Tickets.AsQueryable()
+				.Include(ticket => ticket.ClassSeat)
+				.Include(ticket => ticket.Flight).ThenInclude(flight => flight.DepartureAirport)
+				.Include(ticket => ticket.Flight).ThenInclude(flight => flight.ArrivalAirport)
+				.Include(ticket => ticket.Flight).ThenInclude(flight => flight.Plane)
+				.Include(ticket => ticket.Customer)
+				.Include(ticket => ticket.Status)
+				.Include(ticket => ticket.TicketItems).ThenInclude(ticketItem => ticketItem.Item)
+				.Where(ticket => ticket.CustomerId == customerId);
+
+			var totalCount = await query.CountAsync();
+			var tickets = await query.OrderByDescending(ticket => ticket.BookingDate)
+				.Skip((page - 1) * pageSize)
+				.Take(pageSize)
+				.ToListAsync();
+
+			return (tickets, totalCount);
+		}
 	}
 }

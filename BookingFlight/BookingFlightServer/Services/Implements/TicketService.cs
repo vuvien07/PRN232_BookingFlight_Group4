@@ -201,5 +201,44 @@ namespace BookingFlightServer.Services.Implements
 				return false;
 			}
 		}
+
+		public async Task<List<TicketDTO>> GetTicketsByCustomerId(int customerId)
+		{
+			try
+			{
+				var tickets = await _ticketRepository.GetTicketsByCustomerIdAsync(customerId);
+				return _mapper.Map<List<TicketDTO>>(tickets);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error getting tickets by customer ID: {Message}", ex.Message);
+				return new List<TicketDTO>();
+			}
+		}
+
+		public async Task<PaginatedTicketResult> GetTicketsByCustomerIdPaginated(int customerId, int page, int pageSize)
+		{
+			try
+			{
+				var (tickets, totalCount) = await _ticketRepository.GetTicketsByCustomerIdPaginatedAsync(customerId, page, pageSize);
+				var ticketDTOs = _mapper.Map<List<TicketDTO>>(tickets);
+
+				return new PaginatedTicketResult
+				{
+					Tickets = ticketDTOs,
+					TotalCount = totalCount,
+					Page = page,
+					PageSize = pageSize,
+					TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+					HasNextPage = page * pageSize < totalCount,
+					HasPreviousPage = page > 1
+				};
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error getting paginated tickets by customer ID: {Message}", ex.Message);
+				return new PaginatedTicketResult();
+			}
+		}
 	}
 }

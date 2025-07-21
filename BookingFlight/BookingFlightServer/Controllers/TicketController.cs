@@ -85,5 +85,19 @@ namespace BookingFlightServer.Controllers
             }
             return BadRequest(new { message = "Failed to delete ticket" });
         }
+
+        [Route("getByCustomerId/{customerId}")]
+        [HttpGet]
+        public async Task<IActionResult> GetTicketsByCustomerId(int customerId)
+        {
+            return Ok(await _ticketService.GetTicketsByCustomerId(customerId));
+        }
+
+        [Route("getByCustomerIdPaginated/{customerId}")]
+        [HttpGet]
+        public async Task<IActionResult> GetTicketsByCustomerIdPaginated(int customerId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            return Ok(await _ticketService.GetTicketsByCustomerIdPaginated(customerId, page, pageSize));
+        }
     }
 }

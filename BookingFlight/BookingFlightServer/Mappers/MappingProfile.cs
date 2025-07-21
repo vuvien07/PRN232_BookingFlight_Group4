@@ -17,6 +17,18 @@ namespace BookingFlightServer.Mappers
 				.ForMember(c => c.PlaneCode, opt => opt.MapFrom(c => c.Plane.PlaneCode))
 				.ForMember(c => c.Model, opt => opt.MapFrom(c => c.Plane.Model))
 				.ReverseMap();
+
+			// New detailed DTOs for ticket display
+			CreateMap<Airport, AirportDTO>().ReverseMap();
+			CreateMap<Plane, PlaneDTO>()
+				.ForMember(dest => dest.PlaneModel, opt => opt.MapFrom(src => src.Model))
+				.ReverseMap();
+			CreateMap<Flight, DetailedFlightDTO>()
+				.ForMember(dest => dest.DepartureAirport, opt => opt.MapFrom(src => src.DepartureAirport))
+				.ForMember(dest => dest.ArrivalAirport, opt => opt.MapFrom(src => src.ArrivalAirport))
+				.ForMember(dest => dest.Plane, opt => opt.MapFrom(src => src.Plane))
+				.ReverseMap();
+
 			CreateMap<ClassSeat, ClassSeatDTO>().ReverseMap();
 			CreateMap<Customer, CustomerDTO>().ReverseMap();
 			CreateMap<Item,  ItemDTO>().ReverseMap();
@@ -29,7 +41,6 @@ namespace BookingFlightServer.Mappers
 				ForMember(c => c.TicketItems, opt => opt.MapFrom(c => c.TicketItems)).
 				ForMember(c => c.CustomerDTO, opt => opt.MapFrom(c => c.Customer)).
 				ForMember(c => c.FlightDTO, opt => opt.MapFrom(c => c.Flight)).
-				ForMember(c => c.ClassSeatDTO, opt => opt.MapFrom(c => c.ClassSeat)).
 				ReverseMap();
 
 

@@ -1,0 +1,676 @@
+@model BookingFlightClient.Controllers.TicketViewModel
+
+@{
+    ViewData["Title"] = "Ticket Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="~/css/common/Footer.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/common/Header.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            margin-top: 9%;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @@keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ticket-detail-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .ticket-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+            transition: all 0.4s ease;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .ticket-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 80px rgba(102, 126, 234, 0.2);
+        }
+
+        .ticket-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        }
+
+        .ticket-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='7' cy='7' r='7'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .ticket-header > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .ticket-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .ticket-status {
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .flight-route {
+            font-size: 1.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .route-arrow {
+            font-size: 2rem;
+            opacity: 0.8;
+        }
+
+        .ticket-content {
+            padding: 50px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Tăng từ 250px lên 300px */
+            gap: 40px; /* Tăng từ 30px lên 40px */
+            margin-bottom: 50px;
+        }
+
+        /* Layout 2 cột cho desktop rộng */
+        @@media (min-width: 1200px) {
+            .info-grid {
+                grid-template-columns: repeat(3, 1fr); /* 3 cột trên desktop rộng */
+            }
+        }
+
+        .info-section {
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        .info-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 50%;
+            transform: translate(30px, -30px);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, rgba(102, 126, 234, 0.3));
+            margin-left: 15px;
+        }
+
+        .info-item {
+            margin-bottom: 18px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover {
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 6px;
+            padding: 10px;
+            margin: 0 -10px 18px;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-label::before {
+            content: '▶';
+            font-size: 0.7rem;
+            color: #667eea;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            font-weight: 600;
+            padding-left: 16px;
+        }
+
+        .price-highlight {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-radius: 12px;
+            margin: 30px 0;
+        }
+
+        .services-section {
+            margin-top: 40px;
+        }
+
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .service-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .service-price {
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .back-button:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            padding: 30px 0;
+            border-top: 1px solid #e9ecef;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        @@media (max-width: 768px) {
+            .ticket-detail-container {
+                padding: 15px;
+            }
+
+            .ticket-content {
+                padding: 25px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .flight-route {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .route-arrow {
+                transform: rotate(90deg);
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        .boarding-pass {
+            background: white;
+            border: 2px dashed #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .boarding-pass::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 5px,
+                #667eea 5px,
+                #667eea 10px
+            );
+            transform: translateY(-50%);
+        }
+
+        .qr-placeholder {
+            width: 80px;
+            height: 80px;
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            color: #666;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+    <partial name="~/Views/Common/_Header.cshtml" />
+
+    <div class="ticket-detail-container">
+        <a href="@Url.Action("Index", "BookingHistory")" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            <span data-vn="Quay lại" data-en="Back to History" data-zh="返回历史">Quay lại lịch sử</span>
+        </a>
+
+        @if (Model != null)
+        {
+            <div class="ticket-card">
+                <div class="ticket-header">
+                    <div class="ticket-number">@Model.TicketNumber</div>
+                    <div class="ticket-status">@GetStatusText(Model.StatusId)</div>
+                    <div class="flight-route">
+                        <span>@Model.FlightDTO.DepartureAirport.City</span>
+                        <i class="fas fa-plane route-arrow"></i>
+                        <span>@Model.FlightDTO.ArrivalAirport.City</span>
+                    </div>
+                </div>
+
+                <div class="ticket-content">
+                    <div class="info-grid">
+                        <!-- Flight Information -->
+                        <div class="info-section">
+                            <div class="section-title">
+                                <i class="fas fa-plane-departure"></i>
+                                <span data-vn="Thông tin chuyến bay" data-en="Flight Information" data-zh="航班信息">Thông tin chuyến bay</span>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label" data-vn="Mã chuyến bay" data-en="Flight Code" data-zh="航班代码">Mã chuyến bay</div>
+                                <div class="info-value">@Model.FlightDTO.FlightCode</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label" data-vn="Khởi hành" data-en="Departure" data-zh="出发">Khởi hành</div>
+                                <div class="info-value">@Model.FlightDTO.DepartureTime.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label" data-vn="Đến nơi" data-en="Arrival" data-zh="到达">Đến nơi</div>
+                                <div class="info-value">@Model.FlightDTO.ArrivalTime.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label" data-vn="Máy bay" data-en="Aircraft" data-zh="飞机">Máy bay</div>
+                                <div class="info-value">@Model.FlightDTO.Plane.PlaneModel (@Model.FlightDTO.Plane.PlaneCode)</div>
+                            </div>
+                        </div>
+
+                        <!-- Passenger Information -->
+                        <div class="info-section">
+                            <div class="section-title">
+                                <i class="fas fa-user"></i>
+                                <span data-vn="Thông tin hành khách" data-en="Passenger Information" data-zh="乘客信息">Thông tin hành khách</span>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label" data-vn="Họ và tên" data-en="Full Name" data-zh="姓名">Họ và tên</div>
+                                <div class="info-value">@Model.FullName</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label" data-vn="Ngày sinh" data-en="Date of Birth" data-zh="出生日期">Ngày sinh</div>
+                                <div class="info-value">@Model.DateOfBirth.ToString("dd/MM/yyyy")</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label" data-vn="Giới tính" data-en="Gender" data-zh="性别">Giới tính</div>
+                                <div class="info-value">@(Model.Gender == "male" ? "Nam" : "Nữ")</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label" data-vn="Hạng vé" data-en="Class" data-zh="舱位等级">Hạng vé</div>
+                                <div class="info-value">@Model.ClassSeatDTO.ClassName</div>
+                            </div>
+                        </div>
+
+                        <!-- Booking Information -->
+                        <div class="info-section">
+                            <div class="section-title">
+                                <i class="fas fa-calendar-check"></i>
+                                <span data-vn="Thông tin đặt vé" data-en="Booking Information" data-zh="预订信息">Thông tin đặt vé</span>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label" data-vn="Ngày đặt" data-en="Booking Date" data-zh="预订日期">Ngày đặt</div>
+                                <div class="info-value">@Model.BookingDate.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label" data-vn="Trạng thái" data-en="Status" data-zh="状态">Trạng thái</div>
+                                <div class="info-value">@GetStatusText(Model.StatusId)</div>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        @if (!string.IsNullOrEmpty(Model.ContactFullName))
+                        {
+                            <div class="info-section">
+                                <div class="section-title">
+                                    <i class="fas fa-address-card"></i>
+                                    <span data-vn="Thông tin liên hệ" data-en="Contact Information" data-zh="联系信息">Thông tin liên hệ</span>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label" data-vn="Người liên hệ" data-en="Contact Person" data-zh="联系人">Người liên hệ</div>
+                                    <div class="info-value">@Model.ContactFullName</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label" data-vn="Điện thoại" data-en="Phone" data-zh="电话">Điện thoại</div>
+                                    <div class="info-value">@Model.ContactPhone</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label" data-vn="Email" data-en="Email" data-zh="邮箱">Email</div>
+                                    <div class="info-value">@Model.ContactEmail</div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(Model.ContactAddress))
+                                {
+                                    <div class="info-item">
+                                        <div class="info-label" data-vn="Địa chỉ" data-en="Address" data-zh="地址">Địa chỉ</div>
+                                        <div class="info-value">@Model.ContactAddress</div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Price Information -->
+                    <div class="price-highlight">
+                        <div style="font-size: 1rem; color: #666; margin-bottom: 10px;">
+                            <span data-vn="Tổng tiền" data-en="Total Amount" data-zh="总金额">Tổng tiền</span>
+                        </div>
+                        @Model.TotalPrice.ToString("C0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))
+                    </div>
+
+                    <!-- Additional Services -->
+                    @if (Model.TicketItems.Any())
+                    {
+                        <div class="services-section">
+                            <div class="section-title">
+                                <i class="fas fa-plus-circle"></i>
+                                <span data-vn="Dịch vụ bổ sung" data-en="Additional Services" data-zh="附加服务">Dịch vụ bổ sung</span>
+                            </div>
+                            @foreach (var item in Model.TicketItems)
+                            {
+                                <div class="service-item">
+                                    <span class="service-name">@item.Name (x@item.Quantity)</span>
+                                    <span class="service-price">@((item.Price * item.Quantity).ToString("C0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")))</span>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <!-- Boarding Pass -->
+                    @if (Model.StatusId == 1 && Model.FlightDTO.DepartureTime > DateTime.Now)
+                    {
+                        <div class="boarding-pass">
+                            <h4 style="text-align: center; color: #667eea; margin-bottom: 20px;">
+                                <i class="fas fa-plane"></i>
+                                <span data-vn="Thẻ lên máy bay" data-en="Boarding Pass" data-zh="登机牌">Thẻ lên máy bay</span>
+                            </h4>
+                            <div class="qr-placeholder">
+                                <i class="fas fa-qrcode fa-2x"></i>
+                            </div>
+                            <p style="text-align: center; color: #666; margin-top: 10px;">
+                                <span data-vn="Vui lòng xuất trình thẻ này khi lên máy bay" data-en="Please present this pass when boarding" data-zh="登机时请出示此通行证">
+                                    Vui lòng xuất trình thẻ này khi lên máy bay
+                                </span>
+                            </p>
+                        </div>
+                    }
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        @if (Model.StatusId == 1 && Model.FlightDTO.DepartureTime > DateTime.Now.AddDays(1))
+                        {
+                            <button onclick="cancelTicket(@Model.TicketId)" class="btn btn-danger">
+                                <i class="fas fa-times"></i>
+                                <span data-vn="Hủy vé" data-en="Cancel Ticket" data-zh="取消机票">Hủy vé</span>
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="ticket-card">
+                <div class="ticket-content" style="text-align: center; padding: 60px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: #ffc107; margin-bottom: 20px;"></i>
+                    <h3 data-vn="Không tìm thấy vé" data-en="Ticket Not Found" data-zh="未找到机票">Không tìm thấy vé</h3>
+                    <p data-vn="Vé bạn tìm kiếm không tồn tại hoặc đã bị xóa." data-en="The ticket you're looking for doesn't exist or has been deleted." data-zh="您查找的机票不存在或已被删除。">
+                        Vé bạn tìm kiếm không tồn tại hoặc đã bị xóa.
+                    </p>
+                </div>
+            </div>
+        }
+        
+        <!-- Action Buttons for valid ticket -->
+        @if (Model != null)
+        {
+            <div class="action-buttons text-center" style="margin-top: 40px; padding: 30px;">
+                <a asp-action="Index" class="btn btn-outline-secondary btn-lg" style="
+                    border-radius: 25px;
+                    padding: 12px 30px;
+                    font-weight: 600;
+                    border: 2px solid #6c757d;
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.background='#6c757d'; this.style.color='white'; this.style.transform='translateY(-2px)'" 
+                   onmouseout="this.style.background='transparent'; this.style.color='#6c757d'; this.style.transform='translateY(0)'">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                </a>
+            </div>
+        }
+        
+        <!-- Floating decorative elements -->
+        <div class="floating-elements">
+            <div class="floating-circle" style="
+                position: fixed;
+                top: 10%;
+                right: 5%;
+                width: 80px;
+                height: 80px;
+                background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+                border-radius: 50%;
+                animation: float 6s ease-in-out infinite;
+                z-index: -1;
+            "></div>
+            <div class="floating-circle" style="
+                position: fixed;
+                bottom: 15%;
+                left: 8%;
+                width: 60px;
+                height: 60px;
+                background: linear-gradient(135deg, rgba(118, 75, 162, 0.1) 0%, rgba(102, 126, 234, 0.1) 100%);
+                border-radius: 50%;
+                animation: float 8s ease-in-out infinite reverse;
+                z-index: -1;
+            "></div>
+        </div>
+    </div>
+
+    <style>
+        @@keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+
+    <partial name="~/Views/Common/_Footer.cshtml" />
+
+    <script src="~/js/lib/bootstrap.bundle.min.js"></script>
+    <script src="~/js/common/LanguageUtils.js" asp-append-version="true"></script>
+    <script src="~/js/common/Snackbar.js" asp-append-version="true"></script>
+    <script>
+        function cancelTicket(ticketId) {
+            if (confirm('Bạn có chắc chắn muốn hủy vé này không? Hành động này không thể hoàn tác.')) {
+                // Add cancel ticket logic here
+                console.log('Cancel ticket:', ticketId);
+                showSnackbar('Chức năng hủy vé đang được phát triển', 'info');
+            }
+        }
+
+        // Initialize language utils
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.LanguageUtils) {
+                window.LanguageUtils.updatePageLanguage();
+            }
+        });
+    </script>
+</body>
+</html>
+
+@functions {
+    private string GetStatusText(int statusId)
+    {
+        return statusId switch
+        {
+            1 => "Đã xác nhận",
+            2 => "Đã hủy",
+            _ => "Chờ xử lý"
+        };
+    }
+}

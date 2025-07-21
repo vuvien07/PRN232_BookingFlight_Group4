@@ -17,5 +17,7 @@ namespace BookingFlightServer.Repositories
 		Task<(List<Ticket> tickets, int totalCount)> GetTicketsByDateRangePaginatedAsync(DateTime startDate, DateTime endDate, int page, int pageSize);
 		Task<bool> UpdateTicketAsync(Ticket ticket);
 		Task<bool> DeleteTicketAsync(int ticketId);
+		Task<List<Ticket>> GetTicketsByCustomerIdAsync(int customerId);
+		Task<(List<Ticket> tickets, int totalCount)> GetTicketsByCustomerIdPaginatedAsync(int customerId, int page, int pageSize);
 	}
 }
