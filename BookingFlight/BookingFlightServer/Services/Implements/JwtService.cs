@@ -130,7 +130,8 @@ namespace BookingFlightServer.Services.Implements
 			{
 				new Claim(ClaimTypes.Name, accountDTO.Username.ToString()),
 				new Claim(ClaimTypes.Role, accountDTO?.Role?.RoleName.ToString() ?? string.Empty),
-				new Claim("RoleId", accountDTO?.Role?.RoleId.ToString() ?? "0")
+				new Claim("RoleId", accountDTO?.Role?.RoleId.ToString() ?? "0"),
+				new Claim("AccountId", accountDTO.AccountId.ToString())
 			};
 
 			// Add ManagerId claim if it exists
