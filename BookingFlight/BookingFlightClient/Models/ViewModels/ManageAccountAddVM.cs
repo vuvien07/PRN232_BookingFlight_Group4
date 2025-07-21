@@ -19,6 +19,8 @@ namespace BookingFlightClient.Models.ViewModels
         [Range(1, int.MaxValue, ErrorMessage = "Vui lòng chọn vai trò hợp lệ")]
         public int RoleId { get; set; }
 
-        public List<RoleDTO> roles { get; set; } = new List<RoleDTO>();
+        public int StatusId { get; set; } = 1;
+
+		public List<RoleDTO> roles { get; set; } = new List<RoleDTO>();
     }
 }
