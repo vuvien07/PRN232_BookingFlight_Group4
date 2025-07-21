@@ -8,5 +8,6 @@ namespace BookingFlightServer.Repositories
         Task<News?> CreateNewsAsync(News news);
         Task<bool> DeleteNewsAsync(int newsId);
         Task<bool> UpdateNewsAsync(News news);
+        Task<News?> GetNewsByIdAsync(int newsId);
     }
 }

@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using BookingFlightClient.Models.DTO;
+using BookingFlightClient.Models.ViewModels;
 
 namespace BookingFlightClient.Controllers
 {
+    [Authorize]
     public class ManagerController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -573,6 +576,213 @@ namespace BookingFlightClient.Controllers
             {
                 Console.WriteLine($"Error getting plane: {ex.Message}");
                 return Json(new { success = false, message = "An error occurred while getting plane details" });
+            }
+        }
+
+        // Ticket Management Actions
+        public IActionResult TicketManage(int page = 1, int pageSize = 10)
+        {
+            SetUserRole();
+            var viewModel = new TicketManageViewModel
+            {
+                CurrentPage = page,
+                PageSize = pageSize
+            };
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [Route("Manager/GetAllTickets")]
+        public async Task<IActionResult> GetAllTickets()
+        {
+            try
+            {
+                using var httpClient = _httpClientFactory.CreateClient();
+                var baseUrl = _configuration["ApiBaseUrl"] ?? "http://localhost:5077/";
+                httpClient.BaseAddress = new Uri(baseUrl);
+
+                var token = Request.Cookies["X-Access-Token"] ?? Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var response = await httpClient.GetAsync("api/Ticket/getAllTickets");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    return Content(responseContent, "application/json");
+                }
+                else
+                {
+                    Console.WriteLine($"API call failed with status: {response.StatusCode}");
+                    return Json(new { success = false, message = $"API call failed: {response.StatusCode}" });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting all tickets: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while getting tickets" });
+            }
+        }
+
+        [HttpPost]
+        [Route("Manager/GetTicketsPaginated")]
+        public async Task<IActionResult> GetTicketsPaginated(int page = 1, int pageSize = 10)
+        {
+            try
+            {
+                using var httpClient = _httpClientFactory.CreateClient();
+                var baseUrl = _configuration["ApiBaseUrl"] ?? "http://localhost:5077/";
+                httpClient.BaseAddress = new Uri(baseUrl);
+
+                var token = Request.Cookies["X-Access-Token"] ?? Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var response = await httpClient.GetAsync($"api/Ticket/getTicketsPaginated?page={page}&pageSize={pageSize}");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    return Content(responseContent, "application/json");
+                }
+                else
+                {
+                    Console.WriteLine($"API call failed with status: {response.StatusCode}");
+                    return Json(new { success = false, message = $"API call failed: {response.StatusCode}" });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting paginated tickets: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while getting tickets" });
+            }
+        }
+
+        [HttpGet]
+        [Route("Manager/GetTicketsByStatus/{statusId}")]
+        public async Task<IActionResult> GetTicketsByStatus(int statusId)
+        {
+            try
+            {
+                using var httpClient = _httpClientFactory.CreateClient();
+                var baseUrl = _configuration["ApiBaseUrl"] ?? "http://localhost:5077/";
+                httpClient.BaseAddress = new Uri(baseUrl);
+
+                var token = Request.Cookies["X-Access-Token"] ?? Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var response = await httpClient.GetAsync($"api/Ticket/getTicketsByStatus/{statusId}");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    return Content(responseContent, "application/json");
+                }
+                else
+                {
+                    Console.WriteLine($"API call failed with status: {response.StatusCode}");
+                    return Json(new { success = false, message = $"API call failed: {response.StatusCode}" });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting tickets by status: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while getting tickets" });
+            }
+        }
+
+        [HttpGet]
+        [Route("Manager/GetTicketsByDateRange")]
+        public async Task<IActionResult> GetTicketsByDateRange([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        {
+            try
+            {
+                using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"] ?? "http://localhost:5077/");
+
+                var token = Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var response = await httpClient.GetAsync($"api/Ticket/getTicketsByDateRange?startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}");
+                var responseContent = await response.Content.ReadAsStringAsync();
+                
+                return Content(responseContent, "application/json");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting tickets by date range: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while getting tickets" });
+            }
+        }
+
+        [HttpPut]
+        [Route("Manager/UpdateTicketStatus")]
+        public async Task<IActionResult> UpdateTicketStatus([FromQuery] int ticketId, [FromQuery] int statusId)
+        {
+            try
+            {
+                using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"] ?? "http://localhost:5077/");
+
+                var token = Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var response = await httpClient.PutAsync($"api/Ticket/updateTicketStatus?ticketId={ticketId}&statusId={statusId}", null);
+                var responseContent = await response.Content.ReadAsStringAsync();
+                
+                return Content(responseContent, "application/json");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating ticket status: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while updating ticket status" });
+            }
+        }
+
+        [HttpDelete]
+        [Route("Manager/DeleteTicket/{ticketId}")]
+        public async Task<IActionResult> DeleteTicket(int ticketId)
+        {
+            try
+            {
+                using var httpClient = _httpClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(_configuration["ApiBaseUrl"] ?? "http://localhost:5077/");
+
+                var token = Request.Cookies["AccessToken"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                }
+
+                var response = await httpClient.DeleteAsync($"api/Ticket/deleteTicket/{ticketId}");
+                var responseContent = await response.Content.ReadAsStringAsync();
+                
+                return Content(responseContent, "application/json");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting ticket: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while deleting ticket" });
             }
         }
 

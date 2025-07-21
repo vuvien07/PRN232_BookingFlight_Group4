@@ -39,6 +39,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="/Manager/TicketManage" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "TicketManage" ? "active" : "")">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span>Manage Tickets</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/Manager/Services" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Services" ? "active" : "")">
                         <i class="fas fa-cogs"></i>
                         <span>Services</span>
