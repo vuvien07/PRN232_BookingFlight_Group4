@@ -11,7 +11,7 @@ namespace BookingFlightServer.Repositories.Implements
 		{
 		}
 
-		public async Task<Account?> findByUsernameAndPassword(string? username, string password)
+        public async Task<Account?> findByUsernameAndPassword(string? username, string password)
         {
             var findAccount = await GetByCondition(
                  account =>
@@ -21,9 +21,7 @@ namespace BookingFlightServer.Repositories.Implements
                   account.StatusId == 1, (account => account.Include(account => account.Role).Include(account => account.Manager))
                 );
             return findAccount;
-        }
-
-        public async Task UpdateAccountAsync(Account account)
+        }        public async Task UpdateAccountAsync(Account account)
         {
             await Update(account);
         }

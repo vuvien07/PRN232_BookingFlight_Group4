@@ -65,6 +65,12 @@
                 </li>
 
                 <li class="nav-item">
+                    <a href="/SeatManagement" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "SeatManagement" ? "active" : "")">
+                        <i class="fas fa-chair"></i>
+                        <span>Manage Seats</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/DiscountManage/Discounts" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "DiscountManage" ? "active" : "")">
                         <i class="fas fa-percent"></i>
                         <span>Manage Discounts</span>

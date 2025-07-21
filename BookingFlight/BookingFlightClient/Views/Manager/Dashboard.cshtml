@@ -28,12 +28,12 @@
             <div class="dashboard-card">
                 <div class="card-header">
                     <div>
-                        <h6 class="card-title">Total Services</h6>
-                        <div class="card-value">24</div>
-                        <p class="card-description">Active services running</p>
+                        <h6 class="card-title">Total Seats</h6>
+                        <div class="card-value">@(ViewBag.TotalSeats ?? 0)</div>
+                        <p class="card-description">All seats in system</p>
                     </div>
                     <div class="card-icon primary">
-                        <i class="fas fa-cogs"></i>
+                        <i class="fas fa-chair"></i>
                     </div>
                 </div>
             </div>
@@ -41,12 +41,12 @@
             <div class="dashboard-card">
                 <div class="card-header">
                     <div>
-                        <h6 class="card-title">Managed Items</h6>
-                        <div class="card-value">156</div>
-                        <p class="card-description">Items under management</p>
+                        <h6 class="card-title">Available Seats</h6>
+                        <div class="card-value">@(ViewBag.AvailableSeats ?? 0)</div>
+                        <p class="card-description">Ready for booking</p>
                     </div>
                     <div class="card-icon secondary">
-                        <i class="fas fa-boxes"></i>
+                        <i class="fas fa-check-circle"></i>
                     </div>
                 </div>
             </div>
@@ -54,12 +54,12 @@
             <div class="dashboard-card">
                 <div class="card-header">
                     <div>
-                        <h6 class="card-title">Monthly Reports</h6>
-                        <div class="card-value">12</div>
-                        <p class="card-description">Reports generated this month</p>
+                        <h6 class="card-title">Booked Seats</h6>
+                        <div class="card-value">@(ViewBag.BookedSeats ?? 0)</div>
+                        <p class="card-description">Currently occupied</p>
                     </div>
                     <div class="card-icon success">
-                        <i class="fas fa-chart-bar"></i>
+                        <i class="fas fa-user-check"></i>
                     </div>
                 </div>
             </div>
@@ -67,12 +67,12 @@
             <div class="dashboard-card">
                 <div class="card-header">
                     <div>
-                        <h6 class="card-title">System Health</h6>
-                        <div class="card-value">98%</div>
-                        <p class="card-description">Overall system performance</p>
+                        <h6 class="card-title">Maintenance</h6>
+                        <div class="card-value">@(ViewBag.MaintenanceSeats ?? 0)</div>
+                        <p class="card-description">Under maintenance</p>
                     </div>
                     <div class="card-icon warning">
-                        <i class="fas fa-heartbeat"></i>
+                        <i class="fas fa-tools"></i>
                     </div>
                 </div>
             </div>
@@ -229,6 +229,9 @@
                         {
                             <a href="/Manager/Services" class="btn btn-outline-primary btn-block mb-2">
                                 <i class="fas fa-cogs me-2"></i>Manage Services
+                            </a>
+                            <a href="/SeatManagement" class="btn btn-outline-info btn-block mb-2">
+                                <i class="fas fa-chair me-2"></i>Manage Seats
                             </a>
                             <a href="/Manager/ManageItems" class="btn btn-outline-secondary btn-block mb-2">
                                 <i class="fas fa-boxes me-2"></i>Manage Items
