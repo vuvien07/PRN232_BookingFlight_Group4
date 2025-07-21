@@ -324,6 +324,261 @@ namespace BookingFlightClient.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+        // Get Flight Details
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetFlightDetails(int id)
+        {
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                var serverBaseUrl = _configuration["ServerSettings:BaseUrl"] ?? "http://localhost:5077";
+                var authToken = GetAuthToken();
+
+                if (!string.IsNullOrEmpty(authToken))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
+                }
+
+                var response = await httpClient.GetAsync($"{serverBaseUrl}/api/FlightManage/{id}");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    return Content(responseContent, "application/json");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    return StatusCode((int)response.StatusCode, errorContent);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetFlightDetails: {ex.Message}");
+                return StatusCode(500, new { success = false, message = "Error communicating with server" });
+            }
+        }
+
+        // Get Available Services
+        [HttpGet("services")]
+        public async Task<IActionResult> GetAvailableServices()
+        {
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                var serverBaseUrl = _configuration["ServerSettings:BaseUrl"] ?? "http://localhost:5077";
+                var authToken = GetAuthToken();
+
+                if (!string.IsNullOrEmpty(authToken))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
+                }
+
+                var response = await httpClient.GetAsync($"{serverBaseUrl}/api/FlightManage/services");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    return Content(responseContent, "application/json");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    return StatusCode((int)response.StatusCode, errorContent);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetAvailableServices: {ex.Message}");
+                return StatusCode(500, new { success = false, message = "Error communicating with server" });
+            }
+        }
+
+        // Get Flight Services
+        [HttpGet("{flightId}/services")]
+        public async Task<IActionResult> GetFlightServices(int flightId)
+        {
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                var serverBaseUrl = _configuration["ServerSettings:BaseUrl"] ?? "http://localhost:5077";
+                var authToken = GetAuthToken();
+
+                if (!string.IsNullOrEmpty(authToken))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
+                }
+
+                var response = await httpClient.GetAsync($"{serverBaseUrl}/api/FlightManage/{flightId}/services");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    return Content(responseContent, "application/json");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    return StatusCode((int)response.StatusCode, errorContent);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetFlightServices: {ex.Message}");
+                return StatusCode(500, new { success = false, message = "Error communicating with server" });
+            }
+        }
+
+        // Get Flight Seats
+        [HttpGet("{flightId}/seats")]
+        public async Task<IActionResult> GetFlightSeats(int flightId)
+        {
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                var serverBaseUrl = _configuration["ServerSettings:BaseUrl"] ?? "http://localhost:5077";
+                var authToken = GetAuthToken();
+
+                if (!string.IsNullOrEmpty(authToken))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
+                }
+
+                var response = await httpClient.GetAsync($"{serverBaseUrl}/api/FlightManage/{flightId}/seats");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    return Content(responseContent, "application/json");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    return StatusCode((int)response.StatusCode, errorContent);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetFlightSeats: {ex.Message}");
+                return StatusCode(500, new { success = false, message = "Error communicating with server" });
+            }
+        }
+
+        // Add Service to Flight
+        [HttpPost("{flightId}/services")]
+        public async Task<IActionResult> AddServiceToFlight(int flightId, [FromBody] AddServiceRequest request)
+        {
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                var serverBaseUrl = _configuration["ServerSettings:BaseUrl"] ?? "http://localhost:5077";
+                var authToken = GetAuthToken();
+
+                if (!string.IsNullOrEmpty(authToken))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
+                }
+
+                var jsonContent = JsonSerializer.Serialize(request);
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                var response = await httpClient.PostAsync($"{serverBaseUrl}/api/FlightManage/{flightId}/services", content);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    return Content(responseContent, "application/json");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    return StatusCode((int)response.StatusCode, errorContent);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in AddServiceToFlight: {ex.Message}");
+                return StatusCode(500, new { success = false, message = "Error communicating with server" });
+            }
+        }
+
+        // Remove Service from Flight
+        [HttpDelete("{flightId}/services/{serviceId}")]
+        public async Task<IActionResult> RemoveServiceFromFlight(int flightId, int serviceId)
+        {
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                var serverBaseUrl = _configuration["ServerSettings:BaseUrl"] ?? "http://localhost:5077";
+                var authToken = GetAuthToken();
+
+                if (!string.IsNullOrEmpty(authToken))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
+                }
+
+                var response = await httpClient.DeleteAsync($"{serverBaseUrl}/api/FlightManage/{flightId}/services/{serviceId}");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    return Content(responseContent, "application/json");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    return StatusCode((int)response.StatusCode, errorContent);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in RemoveServiceFromFlight: {ex.Message}");
+                return StatusCode(500, new { success = false, message = "Error communicating with server" });
+            }
+        }
+
+        // Regenerate Flight Seats
+        [HttpPost("{flightId}/seats/regenerate")]
+        public async Task<IActionResult> RegenerateFlightSeats(int flightId)
+        {
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                var serverBaseUrl = _configuration["ServerSettings:BaseUrl"] ?? "http://localhost:5077";
+                var authToken = GetAuthToken();
+
+                if (!string.IsNullOrEmpty(authToken))
+                {
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
+                }
+
+                var response = await httpClient.PostAsync($"{serverBaseUrl}/api/FlightManage/{flightId}/seats/regenerate", null);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    return Content(responseContent, "application/json");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    return StatusCode((int)response.StatusCode, errorContent);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in RegenerateFlightSeats: {ex.Message}");
+                return StatusCode(500, new { success = false, message = "Error communicating with server" });
+            }
+        }
     }
 
     // DTO classes for Flight Management API requests
@@ -372,5 +627,17 @@ namespace BookingFlightClient.Controllers
         public int PlaneId { get; set; }
         public int CustomerId { get; set; }
         public int StatusId { get; set; }
+    }
+
+    public class AddServiceRequest
+    {
+        public int ServiceId { get; set; }
+    }
+
+    public class FlightSeatUpdateRequest
+    {
+        public int SeatId { get; set; }
+        public bool IsSat { get; set; }
+        public int? TicketId { get; set; }
     }
 }

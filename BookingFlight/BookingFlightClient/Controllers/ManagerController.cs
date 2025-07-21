@@ -342,6 +342,13 @@ namespace BookingFlightClient.Controllers
             return View();
         }
 
+        public IActionResult FlightDetails(int id)
+        {
+            SetUserRole();
+            ViewBag.FlightId = id;
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> GetPlanes([FromBody] PlaneListRequest request)
         {

@@ -14,5 +14,6 @@ namespace BookingFlightServer.Services
         Task<FlightConflictResultDTO> CheckFlightConflicts(FlightConflictCheckRequestDTO request);
         Task<List<FlightManageDTO>> GetFlightsByManagerId(int managerId);
         Task<List<StatusDTO>> GetFlightStatuses();
+        Task RegenerateFlightSeats(int flightId, int planeId);
     }
 }
