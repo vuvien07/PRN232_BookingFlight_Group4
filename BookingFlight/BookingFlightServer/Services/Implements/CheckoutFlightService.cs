@@ -3,6 +3,7 @@ using BookingFlightServer.Entities;
 using BookingFlightServer.Repositories;
 using BookingFlightServer.Repositories.Implements;
 using BookingFlightServer.UnitOfWork;
+using BookingFlightServer.Utils;
 
 namespace BookingFlightServer.Services.Implements
 {
@@ -58,6 +59,7 @@ namespace BookingFlightServer.Services.Implements
 					if (flightSeats == null || flightSeats.Count == 0) return false;
 					var passengerInformationFormDTO = flightCheckoutRequestDTO.PassengerInformationForms[i];
 					var preorderFlightDTO = flightCheckoutRequestDTO.PreorderFlights[i];
+					if (preorderFlightDTO.Quantity == 0) continue;
 					Ticket ticket = GenerateTicket(preorderFlightDTO, passengerInformationFormDTO, flightCheckoutRequestDTO);
 					await _ticketRepository.CreateTicketAsync(ticket);
 					flightSeats[0]!.IsSat = true;
@@ -87,7 +89,7 @@ namespace BookingFlightServer.Services.Implements
 			var ticket = new Ticket();
 			ticket.FullName = passengerInformationFormDTO.FullName;
 			ticket.StatusId = 1;
-			ticket.TicketNumber = Guid.NewGuid().ToString("N");
+			ticket.TicketNumber = UtilHelper.GenerateRandomString(4) + "-" + UtilHelper.GenerateRandomString(4) + "-" + UtilHelper.GenerateRandomString(4) + "-" + UtilHelper.GenerateRandomString(4);
 			ticket.FlightId = flightCheckoutRequestDTO.Flight.FlightId;
 			ticket.Gender = passengerInformationFormDTO.Gender;
 			ticket.DateOfBirth = DateOnly.TryParse(passengerInformationFormDTO.DateOfBirth, out var date) ? date : DateOnly.MinValue;

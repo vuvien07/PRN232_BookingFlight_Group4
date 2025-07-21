@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using BookingFlightServer.Validations;
 
 namespace BookingFlightServer.DTO.Manager
 {
@@ -15,8 +16,6 @@ namespace BookingFlightServer.DTO.Manager
         public string? PlaneName { get; set; }
         public int ManagerId { get; set; }
         public string? ManagerName { get; set; }
-        public int CustomerId { get; set; }
-        public string? CustomerName { get; set; }
         public int DepartureAirportId { get; set; }
         public string? DepartureAirportName { get; set; }
         public string? DepartureAirportCode { get; set; }
@@ -27,6 +26,42 @@ namespace BookingFlightServer.DTO.Manager
         public int TotalSeats { get; set; }
         public int BookedSeats { get; set; }
         public int AvailableSeats { get; set; }
+        
+        /// <summary>
+        /// Services associated with this flight
+        /// </summary>
+        public List<FlightServiceDTO> Services { get; set; } = new List<FlightServiceDTO>();
+        
+        /// <summary>
+        /// Flight seats information
+        /// </summary>
+        public List<FlightSeatDTO> FlightSeats { get; set; } = new List<FlightSeatDTO>();
+    }
+
+    public class FlightServiceDTO
+    {
+        public int ServiceId { get; set; }
+        public string ServiceName { get; set; } = null!;
+        public string? Detail { get; set; }
+        public int ManagerId { get; set; }
+        public string? ManagerName { get; set; }
+        public int? StatusId { get; set; }
+        public string? StatusName { get; set; }
+    }
+
+    public class FlightSeatDTO
+    {
+        public int FlightId { get; set; }
+        public int SeatId { get; set; }
+        public string SeatNumber { get; set; } = null!;
+        public bool IsSat { get; set; }
+        public int? TicketId { get; set; }
+        public string? TicketCode { get; set; }
+        public int ClassId { get; set; }
+        public string? ClassName { get; set; }
+        public decimal? ClassPrice { get; set; }
+        public int SeatStatusId { get; set; }
+        public string? SeatStatusName { get; set; }
     }
 
     public class FlightListRequestDTO
@@ -61,16 +96,19 @@ namespace BookingFlightServer.DTO.Manager
         [Required(ErrorMessage = "Plane is required")]
         public int PlaneId { get; set; }
 
-        [Required(ErrorMessage = "Customer is required")]
-        public int CustomerId { get; set; }
-
         [Required(ErrorMessage = "Departure airport is required")]
         public int DepartureAirportId { get; set; }
 
         [Required(ErrorMessage = "Arrival airport is required")]
+        [DifferentAirports(nameof(DepartureAirportId), ErrorMessage = "Arrival airport must be different from departure airport")]
         public int ArrivalAirportId { get; set; }
 
         public int StatusId { get; set; } = 1; // Default to active
+
+        /// <summary>
+        /// List of Service IDs to be associated with this flight
+        /// </summary>
+        public List<int> ServiceIds { get; set; } = new List<int>();
     }
 
     public class FlightUpdateRequestDTO
@@ -95,17 +133,17 @@ namespace BookingFlightServer.DTO.Manager
         [Required(ErrorMessage = "Plane is required")]
         public int PlaneId { get; set; }
 
-        [Required(ErrorMessage = "Customer is required")]
-        public int CustomerId { get; set; }
-
         [Required(ErrorMessage = "Departure airport is required")]
         public int DepartureAirportId { get; set; }
 
         [Required(ErrorMessage = "Arrival airport is required")]
+        [DifferentAirports(nameof(DepartureAirportId), ErrorMessage = "Arrival airport must be different from departure airport")]
         public int ArrivalAirportId { get; set; }
 
-        [Required(ErrorMessage = "Status is required")]
-        public int StatusId { get; set; }
+        /// <summary>
+        /// List of Service IDs to be associated with this flight
+        /// </summary>
+        public List<int> ServiceIds { get; set; } = new List<int>();
     }
 
     public class FlightConflictCheckRequestDTO
@@ -134,5 +172,29 @@ namespace BookingFlightServer.DTO.Manager
         public DateTime ArrivalTime { get; set; }
         public string ConflictType { get; set; } = null!; // "PlaneConflict", "AirportConflict", "TimeConflict"
         public string Description { get; set; } = null!;
+    }
+
+    public class AddServiceToFlightRequestDTO
+    {
+        [Required(ErrorMessage = "Service ID is required")]
+        public int ServiceId { get; set; }
+    }
+
+    public class FlightSeatUpdateRequestDTO
+    {
+        [Required(ErrorMessage = "Seat ID is required")]
+        public int SeatId { get; set; }
+        
+        [Required(ErrorMessage = "IsSat status is required")]
+        public bool IsSat { get; set; }
+        
+        public int? TicketId { get; set; }
+    }
+
+    public class ChangeFlightStatusRequestDTO
+    {
+        [Required(ErrorMessage = "Status ID is required")]
+        [Range(1, 2, ErrorMessage = "Status ID must be 1 (Active) or 2 (Inactive)")]
+        public int StatusId { get; set; }
     }
 }

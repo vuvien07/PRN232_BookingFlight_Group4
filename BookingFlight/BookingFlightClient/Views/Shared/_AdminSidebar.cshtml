@@ -71,6 +71,18 @@
                         <span class="nav-text">Aircraft</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="/ManageAccount/Index" class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "ManageAccount" ? "active" : "")">
+                        <span class="nav-icon"><i class="fas fa-user-cog"></i></span>
+                        <span class="nav-text">Account</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/ManageNews/Index" class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "ManageNews" ? "active" : "")">
+                        <span class="nav-icon"><i class="fas fa-newspaper"></i></span>
+                        <span class="nav-text">News</span>
+                    </a>
+                </li>
             </ul>
         </div>
 

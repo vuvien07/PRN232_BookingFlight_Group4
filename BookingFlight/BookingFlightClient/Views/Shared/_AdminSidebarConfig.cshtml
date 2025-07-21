@@ -54,6 +54,18 @@
                     Icon = "fas fa-plane", 
                     Url = "/Admin/Aircraft", 
                     Action = "Aircraft" 
+                },
+                new { 
+                    Title = "Account", 
+                    Icon = "fas fa-user-cog", 
+                    Url = "/ManageAccount/Index", 
+                    Action = "Index" 
+                },
+                new { 
+                    Title = "News", 
+                    Icon = "fas fa-newspaper", 
+                    Url = "/ManageNews/Index", 
+                    Action = "Index" 
                 }
             }
         },
@@ -122,6 +134,7 @@
     };
     
     var currentAction = ViewContext.RouteData.Values["Action"]?.ToString();
+    var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
 }
 
 <!-- Admin Sidebar -->
@@ -147,7 +160,22 @@
                 <ul class="nav-menu">
                     @foreach (var item in menuSection.Items)
                     {
-                        var isActive = currentAction == item.Action;
+                        var isActive = false;
+
+                        // Special handling for Account and News controllers
+                        if (item.Title == "Account" && currentController == "ManageAccount")
+                        {
+                            isActive = true;
+                        }
+                        else if (item.Title == "News" && currentController == "ManageNews")
+                        {
+                            isActive = true;
+                        }
+                        else
+                        {
+                            isActive = currentAction == item.Action;
+                        }
+                        
                         var linkClass = "nav-link";
                         
                         if (isActive)

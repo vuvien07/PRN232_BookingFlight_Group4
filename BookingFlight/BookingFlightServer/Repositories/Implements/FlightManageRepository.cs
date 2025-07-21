@@ -21,7 +21,6 @@ namespace BookingFlightServer.Repositories.Implements
                 .Include(f => f.ArrivalAirport)
                 .Include(f => f.Plane)
                 .Include(f => f.Manager)
-                .Include(f => f.Customer)
                 .Include(f => f.Status)
                 .AsQueryable();
 
@@ -134,8 +133,19 @@ namespace BookingFlightServer.Repositories.Implements
                 .Include(f => f.ArrivalAirport)
                 .Include(f => f.Plane)
                 .Include(f => f.Manager)
-                .Include(f => f.Customer)
                 .Include(f => f.Status)
+                .Include(f => f.Services)
+                    .ThenInclude(s => s.Manager)
+                .Include(f => f.Services)
+                    .ThenInclude(s => s.Status)
+                .Include(f => f.FlightSeats)
+                    .ThenInclude(fs => fs.Seat)
+                    .ThenInclude(s => s.Class)
+                .Include(f => f.FlightSeats)
+                    .ThenInclude(fs => fs.Seat)
+                    .ThenInclude(s => s.Status)
+                .Include(f => f.FlightSeats)
+                    .ThenInclude(fs => fs.Ticket)
                 .FirstOrDefaultAsync(f => f.FlightId == flightId);
         }
 
@@ -204,26 +214,12 @@ namespace BookingFlightServer.Repositories.Implements
 
             var requestDeparture = request.DepartureTime;
             var requestArrival = request.ArrivalTime;
-            
-            // Add buffer time for airport conflicts (2 hours)
-            var departureBufferStart = requestDeparture.AddHours(-2);
-            var departureBufferEnd = requestDeparture.AddHours(2);
-            var arrivalBufferStart = requestArrival.AddHours(-2);
-            var arrivalBufferEnd = requestArrival.AddHours(2);
 
-            // Check for conflicts
+            // Check for conflicts - ONLY same aircraft/plane conflicts
             var conflicts = await query.Where(f =>
                 // Plane conflict - same plane at overlapping times
-                (f.PlaneId == request.PlaneId &&
-                 ((f.DepartureTime < requestArrival && f.ArrivalTime > requestDeparture))) ||
-                
-                // Airport conflict - same departure airport with close departure times (within 2 hours)
-                (f.DepartureAirportId == request.DepartureAirportId &&
-                 f.DepartureTime >= departureBufferStart && f.DepartureTime <= departureBufferEnd) ||
-                
-                // Airport conflict - same arrival airport with close arrival times (within 2 hours)
-                (f.ArrivalAirportId == request.ArrivalAirportId &&
-                 f.ArrivalTime >= arrivalBufferStart && f.ArrivalTime <= arrivalBufferEnd))
+                f.PlaneId == request.PlaneId &&
+                ((f.DepartureTime < requestArrival && f.ArrivalTime > requestDeparture)))
                 .ToListAsync();
 
             return conflicts;

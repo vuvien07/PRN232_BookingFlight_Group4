@@ -3,6 +3,7 @@
 	public class FlightQueryDTO
 	{
 		public int FlightId { get; set; }
+		public string FlightCode { get; set; } = null!;
 		public int From { get; set; }
 		public int To { get; set; }
 		public DateTime DepartureDate { get; set; }
@@ -17,5 +18,7 @@
 		public decimal BasePrice { get; set; }
 		public int AirportId { get; set; }
 		public int Total { get; set; }
+		public TimeSpan DepartureTimeSpan { get; set; }
+		public TimeSpan ArrivalTimeSpan { get; set; }
 	}
 }
