@@ -571,6 +571,14 @@
                                 <span data-vn="Hủy vé" data-en="Cancel Ticket" data-zh="取消机票">Hủy vé</span>
                             </button>
                         }
+
+                        @if (Model.StatusId == 1 && Model.FlightDTO.ArrivalTime < DateTime.Now)
+                        {
+                            <a href="@Url.Action("Create", "Feedback", new { ticketId = Model.TicketId, ticketNumber = Model.TicketNumber })" class="btn btn-primary">
+                                <i class="fas fa-comment-alt"></i>
+                                <span data-vn="Gửi Feedback" data-en="Send Feedback" data-zh="发送反馈">Gửi Feedback</span>
+                            </a>
+                        }
                     </div>
                 </div>
             </div>

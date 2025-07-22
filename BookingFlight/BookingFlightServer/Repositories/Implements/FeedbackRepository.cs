@@ -45,5 +45,60 @@ namespace BookingFlightServer.Repositories.Implements
 			query = query.Skip((filterFeedbackDTO.Page - 1) * filterFeedbackDTO.PageSize).Take(filterFeedbackDTO.PageSize);
 			return await query.ToListAsync();
 		}
+
+		public async Task<Feedback> CreateAsync(Feedback feedback)
+		{
+			_flightContext.Feedbacks.Add(feedback);
+			await _flightContext.SaveChangesAsync();
+			return feedback;
+		}
+
+		public async Task<List<Feedback>> GetAllAsync()
+		{
+			return await _flightContext.Feedbacks
+				.Include(f => f.Account)
+				.OrderByDescending(f => f.CreateAt)
+				.ToListAsync();
+		}
+
+		public async Task<List<Feedback>> GetFeedbacksByAccountIdAsync(int accountId)
+		{
+			return await _flightContext.Feedbacks
+				.Include(f => f.Account)
+				.Where(f => f.AccountId == accountId)
+				.OrderByDescending(f => f.CreateAt)
+				.ToListAsync();
+		}
+
+		public async Task<Feedback?> GetByIdAsync(int id)
+		{
+			return await _flightContext.Feedbacks
+				.Include(f => f.Account)
+				.FirstOrDefaultAsync(f => f.FeedbackId == id);
+		}
+
+		public async Task<bool> HasCustomerAlreadyFeedback(int accountId)
+		{
+			return await _flightContext.Feedbacks
+				.AnyAsync(f => f.AccountId == accountId);
+		}
+
+		public async Task<Feedback> UpdateAsync(Feedback feedback)
+		{
+			_flightContext.Feedbacks.Update(feedback);
+			await _flightContext.SaveChangesAsync();
+			return feedback;
+		}
+
+		public async Task<bool> DeleteAsync(int id)
+		{
+			var feedback = await _flightContext.Feedbacks.FindAsync(id);
+			if (feedback == null)
+				return false;
+
+			_flightContext.Feedbacks.Remove(feedback);
+			await _flightContext.SaveChangesAsync();
+			return true;
+		}
 	}
 }

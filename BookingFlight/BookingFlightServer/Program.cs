@@ -68,6 +68,10 @@ namespace BookingFlightServer
 			// Manual registration for Seat Management services
 			builder.Services.AddScoped<ISeatRepository, SeatRepository>();
 			builder.Services.AddScoped<ISeatService, SeatService>();
+
+			// Feedback services
+			builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+			builder.Services.AddScoped<IFeedbackService, BookingFlightServer.Services.Implements.FeedbackService>();
 			
 			// Manual registration for Discount services
 			builder.Services.AddScoped<IDiscountService, BookingFlightServer.Services.Implements.DiscountService>();

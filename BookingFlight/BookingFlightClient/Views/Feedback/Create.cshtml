@@ -1,0 +1,392 @@
+@model BookingFlightClient.Models.ViewModels.FeedbackViewModel
+
+@{
+    ViewData["Title"] = "Gửi Feedback";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="~/css/common/Footer.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/common/Header.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            margin-top: 9%;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .feedback-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .feedback-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .feedback-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .feedback-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .feedback-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .feedback-content {
+            padding: 50px;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .star {
+            font-size: 2rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .star:hover,
+        .star.active {
+            color: #ffc107;
+            transform: scale(1.1);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .ticket-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .ticket-info h5 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .validation-summary-errors {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .validation-summary-errors ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        @@media (max-width: 768px) {
+            .feedback-container {
+                padding: 15px;
+            }
+
+            .feedback-content {
+                padding: 25px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <partial name="~/Views/Common/_Header.cshtml" />
+
+    <div class="feedback-container">
+        <div class="feedback-card">
+            <div class="feedback-header">
+                <div class="feedback-title">
+                    <i class="fas fa-comment-alt"></i>
+                    <span data-vn="Gửi Feedback" data-en="Send Feedback" data-zh="发送反馈">Gửi Feedback</span>
+                </div>
+                <div class="feedback-subtitle">
+                    <span data-vn="Chia sẻ trải nghiệm của bạn với chúng tôi" data-en="Share your experience with us" data-zh="与我们分享您的体验">
+                        Chia sẻ trải nghiệm của bạn với chúng tôi
+                    </span>
+                </div>
+            </div>
+
+            <div class="feedback-content">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" style="border-radius: 12px; border-left: 5px solid #28a745;">
+                        <i class="fas fa-check-circle me-2" style="color: #28a745;"></i>
+                        <strong>Thành công!</strong> @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert" style="border-radius: 12px; border-left: 5px solid #dc3545;">
+                        <i class="fas fa-exclamation-circle me-2" style="color: #dc3545;"></i>
+                        <strong>Lỗi!</strong> @TempData["ErrorMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="validation-summary-errors"></div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.TicketNumber))
+                {
+                    <div class="ticket-info">
+                        <h5><i class="fas fa-ticket-alt"></i> Thông tin vé</h5>
+                        <p><strong>Mã vé:</strong> @Model.TicketNumber</p>
+                    </div>
+                }
+
+                <form asp-action="Create" method="post">
+                    @Html.HiddenFor(m => m.TicketId)
+                    @Html.HiddenFor(m => m.TicketNumber)
+
+                    <div class="form-group">
+                        <label asp-for="Title" class="form-label">
+                            <i class="fas fa-heading"></i>
+                            <span data-vn="Tiêu đề" data-en="Title" data-zh="标题">Tiêu đề</span>
+                        </label>
+                        <input asp-for="Title" class="form-control" placeholder="Nhập tiêu đề feedback..." />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-star"></i>
+                            <span data-vn="Đánh giá" data-en="Rating" data-zh="评分">Đánh giá</span>
+                        </label>
+                        <div class="star-rating">
+                            <i class="fas fa-star star" data-rating="1"></i>
+                            <i class="fas fa-star star" data-rating="2"></i>
+                            <i class="fas fa-star star" data-rating="3"></i>
+                            <i class="fas fa-star star" data-rating="4"></i>
+                            <i class="fas fa-star star" data-rating="5"></i>
+                        </div>
+                        <input asp-for="Rate" type="hidden" id="ratingValue" />
+                        <span asp-validation-for="Rate" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Content" class="form-label">
+                            <i class="fas fa-comment"></i>
+                            <span data-vn="Nội dung" data-en="Content" data-zh="内容">Nội dung</span>
+                        </label>
+                        <textarea asp-for="Content" class="form-control" rows="6" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                        <span asp-validation-for="Content" class="text-danger"></span>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                            <span data-vn="Gửi Feedback" data-en="Send Feedback" data-zh="发送反馈">Gửi Feedback</span>
+                        </button>
+                        <a href="@Url.Action("Index", "BookingHistory")" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i>
+                            <span data-vn="Quay lại" data-en="Back" data-zh="返回">Quay lại</span>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <partial name="~/Views/Common/_Footer.cshtml" />
+
+    <script src="~/js/lib/bootstrap.bundle.min.js"></script>
+    <script>
+        // Star rating functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-hide alerts after 5 seconds
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    if (alert && alert.classList.contains('show')) {
+                        alert.classList.remove('show');
+                        alert.classList.add('fade');
+                        setTimeout(function() {
+                            if (alert.parentNode) {
+                                alert.parentNode.removeChild(alert);
+                            }
+                        }, 500);
+                    }
+                }, 5000); // 5 seconds
+            });
+
+            const stars = document.querySelectorAll('.star');
+            const ratingInput = document.getElementById('ratingValue');
+
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    ratingInput.value = rating;
+                    
+                    // Update star display
+                    stars.forEach((s, index) => {
+                        if (index < rating) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+
+                star.addEventListener('mouseover', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    stars.forEach((s, index) => {
+                        if (index < rating) {
+                            s.style.color = '#ffc107';
+                        } else {
+                            s.style.color = '#ddd';
+                        }
+                    });
+                });
+            });
+
+            // Reset star colors on mouse leave
+            document.querySelector('.star-rating').addEventListener('mouseleave', function() {
+                const currentRating = parseInt(ratingInput.value) || 0;
+                stars.forEach((s, index) => {
+                    if (index < currentRating) {
+                        s.style.color = '#ffc107';
+                    } else {
+                        s.style.color = '#ddd';
+                    }
+                });
+            });
+
+            // Set initial rating if exists
+            const initialRating = parseInt('@Model.Rate') || 0;
+            if (initialRating > 0) {
+                ratingInput.value = initialRating;
+                stars.forEach((s, index) => {
+                    if (index < initialRating) {
+                        s.classList.add('active');
+                    }
+                });
+            }
+
+            // Initialize language utils
+            if (window.LanguageUtils) {
+                window.LanguageUtils.updateDOMElements(window.LanguageUtils.getCurrentLanguage());
+            }
+        });
+    </script>
+</body>
+</html>
