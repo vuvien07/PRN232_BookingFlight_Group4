@@ -242,7 +242,7 @@ namespace BookingFlightServer.Services.Implements
             {
                 Planes = planes.Select(p => new PlaneOptionDTO
                 {
-                    PlaneId = p.PlaneId,
+                    PlaneId = p.PlaneId ?? 0,
                     PlaneName = p.PlaneCode ?? "",
                     PlaneModel = p.Model ?? "",
                     CurrentSeats = 0 // TODO: Tính từ database

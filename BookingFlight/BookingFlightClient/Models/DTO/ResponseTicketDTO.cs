@@ -33,6 +33,7 @@ namespace BookingFlightClient.Models.DTO
 
 		public string? ContactAddress { get; set; }
 		public FlightDTO FlightDTO { get; set; } = null!;
+		public SeatDTO Seat { get; set; } = null!;
 		public List<TicketItemDTO> TicketItems { get; set; } = new List<TicketItemDTO>();
 	}
 }

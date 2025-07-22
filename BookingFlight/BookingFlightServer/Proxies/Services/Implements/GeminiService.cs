@@ -23,7 +23,7 @@ namespace BookingFlightServer.Proxies.Services.Implements
 
 		public async Task<string> AskGeminiAsync(GeminiConversationDTO geminiConversationDTO, HttpContext httpContext, FlightSearchSessionStore flightSearchSessionStore)
 		{
-			var apiKey = _configuration["Gemini:ApiKey"];
+			var apiKey = _configuration["GeminiAI:ApiKey"];
 			var requestUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={apiKey}";
 			var internalContext = "";
 			string? sessionId = httpContext.Request.Headers["X-Session-Token"];

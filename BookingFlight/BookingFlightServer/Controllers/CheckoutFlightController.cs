@@ -140,7 +140,8 @@ namespace BookingFlightServer.Controllers
 			{
 				return BadRequest(UtilHelper.GetModelStateErrors(ModelState));
 			}
-			bool result = await _checkoutFlightService.IsSavedPassengerInformation(flightCheckoutRequestDTO);
+			int customerId = await _checkoutFlightService.GetCustomerIdByCredentials(HttpContext);
+			bool result = await _checkoutFlightService.IsSavedPassengerInformation(flightCheckoutRequestDTO, customerId);
 			if (!result) throw new AppException("Save passenger information failed.");
 			return Ok();
 		}
