@@ -1,5 +1,6 @@
 ﻿using BookingFlightClient.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace BookingFlightClient.Controllers
 {
@@ -16,8 +17,18 @@ namespace BookingFlightClient.Controllers
         public async Task<IActionResult> Index([FromQuery] string? ticketNumber)
         {
             var apiUrl = $"http://localhost:5077/api/Ticket/getByTicketNumber?ticketNumber={ticketNumber}";
-			var ticket = await _httpClient.GetFromJsonAsync<ResponseTicketDTO>(apiUrl);
-            return View("~/Views/Ticket.cshtml", ticket);
+            var response = await _httpClient.GetAsync(apiUrl);
+			var content = await response.Content.ReadAsStringAsync();
+			var options = new JsonSerializerOptions
+			{
+				PropertyNameCaseInsensitive = true
+			};
+			ResponseTicketDTO? responseTicketDTO = null;
+			if (response.IsSuccessStatusCode)
+			{
+				responseTicketDTO = JsonSerializer.Deserialize<ResponseTicketDTO>(content, options);
+			}
+            return View("~/Views/Ticket.cshtml", responseTicketDTO);
         }
     }
 }

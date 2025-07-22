@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text;
@@ -6,6 +7,7 @@ using BookingFlightClient.Models.DTO;
 
 namespace BookingFlightClient.Controllers
 {
+    [Authorize(Roles = "Manager, Admin")]
     public class ManagerController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
