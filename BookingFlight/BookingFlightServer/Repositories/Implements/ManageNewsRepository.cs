@@ -44,6 +44,14 @@ namespace BookingFlightServer.Repositories.Implements
             return newsList == null ? null : newsList;
         }
 
+        public async Task<News?> GetNewsByIdAsync(int newsId)
+        {
+            var news = await bookingFlightContext.News
+                                                .Include(n => n.Account)
+                                                .FirstOrDefaultAsync(n => n.NewId == newsId);
+            return news == null ? null : news;
+        }
+
         public async Task<bool> UpdateNewsAsync(News news)
         {
             // Find the existing news item by its ID

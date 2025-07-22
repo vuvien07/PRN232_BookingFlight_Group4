@@ -37,5 +37,169 @@ namespace BookingFlightServer.Services.Implements
 			Ticket? ticket = await _ticketRepository.GetTicketByTicketNumber(ticketNumber);
 			return _mapper.Map<TicketDTO>(ticket);
 		}
+
+		public async Task<List<TicketDTO>> GetAllTickets()
+		{
+			try
+			{
+				var tickets = await _ticketRepository.GetAllTicketsAsync();
+				return _mapper.Map<List<TicketDTO>>(tickets);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error getting all tickets: {Message}", ex.Message);
+				return new List<TicketDTO>();
+			}
+		}
+
+		public async Task<List<TicketDTO>> GetTicketsByStatus(int statusId)
+		{
+			try
+			{
+				var tickets = await _ticketRepository.GetTicketsByStatusAsync(statusId);
+				return _mapper.Map<List<TicketDTO>>(tickets);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error getting tickets by status: {Message}", ex.Message);
+				return new List<TicketDTO>();
+			}
+		}
+
+		public async Task<List<TicketDTO>> GetTicketsByDateRange(DateTime startDate, DateTime endDate)
+		{
+			try
+			{
+				var tickets = await _ticketRepository.GetTicketsByDateRangeAsync(startDate, endDate);
+				return _mapper.Map<List<TicketDTO>>(tickets);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error getting tickets by date range: {Message}", ex.Message);
+				return new List<TicketDTO>();
+			}
+		}
+
+		public async Task<TicketDTO?> GetTicketById(int ticketId)
+		{
+			try
+			{
+				var ticket = await _ticketRepository.GetTicketByIdAsync(ticketId);
+				return _mapper.Map<TicketDTO>(ticket);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error getting ticket by id: {Message}", ex.Message);
+				return null;
+			}
+		}
+
+		public async Task<PaginatedTicketResult> GetTicketsPaginated(int page, int pageSize)
+		{
+			try
+			{
+				var (tickets, totalCount) = await _ticketRepository.GetTicketsPaginatedAsync(page, pageSize);
+				var ticketDTOs = _mapper.Map<List<TicketDTO>>(tickets);
+
+				return new PaginatedTicketResult
+				{
+					Tickets = ticketDTOs,
+					TotalCount = totalCount,
+					Page = page,
+					PageSize = pageSize,
+					TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+					HasNextPage = page < Math.Ceiling(totalCount / (double)pageSize),
+					HasPreviousPage = page > 1
+				};
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error getting tickets paginated: {Message}", ex.Message);
+				return new PaginatedTicketResult();
+			}
+		}
+
+		public async Task<PaginatedTicketResult> GetTicketsByStatusPaginated(int statusId, int page, int pageSize)
+		{
+			try
+			{
+				var (tickets, totalCount) = await _ticketRepository.GetTicketsByStatusPaginatedAsync(statusId, page, pageSize);
+				var ticketDTOs = _mapper.Map<List<TicketDTO>>(tickets);
+
+				return new PaginatedTicketResult
+				{
+					Tickets = ticketDTOs,
+					TotalCount = totalCount,
+					Page = page,
+					PageSize = pageSize,
+					TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+					HasNextPage = page < Math.Ceiling(totalCount / (double)pageSize),
+					HasPreviousPage = page > 1
+				};
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error getting tickets by status paginated: {Message}", ex.Message);
+				return new PaginatedTicketResult();
+			}
+		}
+
+		public async Task<PaginatedTicketResult> GetTicketsByDateRangePaginated(DateTime startDate, DateTime endDate, int page, int pageSize)
+		{
+			try
+			{
+				var (tickets, totalCount) = await _ticketRepository.GetTicketsByDateRangePaginatedAsync(startDate, endDate, page, pageSize);
+				var ticketDTOs = _mapper.Map<List<TicketDTO>>(tickets);
+
+				return new PaginatedTicketResult
+				{
+					Tickets = ticketDTOs,
+					TotalCount = totalCount,
+					Page = page,
+					PageSize = pageSize,
+					TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+					HasNextPage = page < Math.Ceiling(totalCount / (double)pageSize),
+					HasPreviousPage = page > 1
+				};
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error getting tickets by date range paginated: {Message}", ex.Message);
+				return new PaginatedTicketResult();
+			}
+		}
+
+		public async Task<bool> UpdateTicketStatus(int ticketId, int statusId)
+		{
+			try
+			{
+				var ticket = await _ticketRepository.GetTicketByIdAsync(ticketId);
+				if (ticket != null)
+				{
+					ticket.StatusId = statusId;
+					await _ticketRepository.UpdateTicketAsync(ticket);
+					return true;
+				}
+				return false;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error updating ticket status: {Message}", ex.Message);
+				return false;
+			}
+		}
+
+		public async Task<bool> DeleteTicket(int ticketId)
+		{
+			try
+			{
+				return await _ticketRepository.DeleteTicketAsync(ticketId);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error deleting ticket: {Message}", ex.Message);
+				return false;
+			}
+		}
 	}
 }

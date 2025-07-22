@@ -1,4 +1,4 @@
-﻿namespace BookingFlightServer.DTO.ManageNews
+﻿namespace BookingFlightClient.Models.DTO
 {
     public class RequestUpdateNewsDTO
     {
@@ -13,6 +13,5 @@
         public string Category { get; set; }
 
         public string Author { get; set; }
-
     }
 }
