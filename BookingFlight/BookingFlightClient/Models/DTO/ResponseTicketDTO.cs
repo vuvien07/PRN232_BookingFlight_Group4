@@ -20,7 +20,6 @@ namespace BookingFlightClient.Models.DTO
 		public DateOnly DateOfBirth { get; set; }
 
 		public string FullName { get; set; } = null!;
-
 		public ClassSeatDTO ClassSeatDTO { get; set; } = null!;
 
 		public string? ContactFullName { get; set; }
@@ -31,6 +30,7 @@ namespace BookingFlightClient.Models.DTO
 
 		public string? ContactAddress { get; set; }
 		public FlightDTO FlightDTO { get; set; } = null!;
+		public SeatDTO Seat { get; set; } = null!;
 		public List<TicketItemDTO> TicketItems { get; set; } = new List<TicketItemDTO>();
 	}
 }
