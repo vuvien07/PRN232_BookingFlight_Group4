@@ -24,6 +24,10 @@
 			{
 				context.Request.Headers["X-Session-Token"] = sessionToken;
 			}
+			if (context.Request.Cookies.TryGetValue("X-RequiredRoles", out var requiredRoles))
+			{
+				context.Request.Headers["X-RequiredRoles"] = requiredRoles;
+			}
 
 			await _next(context);
 		}
