@@ -8,6 +8,7 @@ namespace BookingFlightServer.Mappers
 	{
 		public MappingProfile()
 		{
+			CreateMap<Seat, SeatDTO>().ReverseMap();
 			CreateMap<Flight, FlightDTO>()
 				.ForMember(c => c.FromCode, opt => opt.MapFrom(c => c.DepartureAirport.AirportCode))
 				.ForMember(c => c.ToCode, opt => opt.MapFrom(c => c.ArrivalAirport.AirportCode))
@@ -16,6 +17,8 @@ namespace BookingFlightServer.Mappers
 				.ForMember(c => c.Manufacture, opt => opt.MapFrom(c => c.Plane.Manufacture))
 				.ForMember(c => c.PlaneCode, opt => opt.MapFrom(c => c.Plane.PlaneCode))
 				.ForMember(c => c.Model, opt => opt.MapFrom(c => c.Plane.Model))
+				.ForMember(c => c.DepartureTime, opt => opt.MapFrom(c => c.DepartureTime.ToString()))
+				.ForMember(c => c.ArrivalTime, opt => opt.MapFrom(c => c.ArrivalTime.ToString()))
 				.ReverseMap();
 			CreateMap<ClassSeat, ClassSeatDTO>().ReverseMap();
 			CreateMap<Customer, CustomerDTO>().ReverseMap();
