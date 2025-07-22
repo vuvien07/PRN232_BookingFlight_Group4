@@ -543,6 +543,9 @@ async function editFlight(flightId) {
         const result = await response.json();
         if (result.success) {
             const flight = result.data;
+            console.log('Flight data from server:', flight); // Debug log
+            console.log('Departure time:', flight.departureTime); // Debug log
+            console.log('Arrival time:', flight.arrivalTime); // Debug log
             
             // Check if departure time is in the past
             const departureTime = new Date(flight.departureTime);
@@ -1011,8 +1014,74 @@ function formatDateTime(dateTimeString) {
 
 function formatDateTimeForInput(dateTimeString) {
     if (!dateTimeString) return '';
-    const date = new Date(dateTimeString);
-    return date.toISOString().slice(0, 16);
+    
+    console.log('formatDateTimeForInput input:', dateTimeString); // Debug log
+    
+    try {
+        // Handle different date formats from server
+        let result;
+        
+        if (dateTimeString.includes('T')) {
+            // ISO format: 2025-08-01T04:00:00
+            console.log('Parsing ISO format');
+            
+            // Extract datetime parts directly to avoid timezone conversion
+            const isoMatch = dateTimeString.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+            if (isoMatch) {
+                const [, year, month, day, hour, minute] = isoMatch;
+                result = `${year}-${month}-${day}T${hour}:${minute}`;
+                console.log('Direct ISO extraction result:', result);
+            } else {
+                // Fallback to normal parsing
+                const date = new Date(dateTimeString);
+                result = date.toISOString().slice(0, 16);
+            }
+        } else if (dateTimeString.includes('/')) {
+            // Vietnamese format: 31/07/2025 09:00 CH
+            console.log('Parsing Vietnamese format');
+            const parts = dateTimeString.split(' ');
+            console.log('Date parts:', parts);
+            
+            if (parts.length >= 2) {
+                const datePart = parts[0]; // 31/07/2025
+                const timePart = parts[1]; // 09:00
+                const ampm = parts[2] || ''; // CH or SA
+                
+                console.log('Date part:', datePart, 'Time part:', timePart, 'AMPM:', ampm);
+                
+                const [day, month, year] = datePart.split('/');
+                let [hour, minute] = timePart.split(':');
+                
+                console.log('Parsed:', { day, month, year, hour, minute, ampm });
+                
+                // Convert Vietnamese AM/PM to 24-hour format
+                let hourInt = parseInt(hour);
+                if (ampm === 'CH' && hourInt !== 12) {
+                    hourInt = hourInt + 12;
+                } else if (ampm === 'SA' && hourInt === 12) {
+                    hourInt = 0;
+                }
+                
+                // Create result directly without Date object to avoid timezone issues
+                result = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${hourInt.toString().padStart(2, '0')}:${minute}`;
+                console.log('Vietnamese format result:', result);
+            } else {
+                console.log('Fallback to direct parsing');
+                const date = new Date(dateTimeString);
+                result = date.toISOString().slice(0, 16);
+            }
+        } else {
+            console.log('Direct parsing');
+            const date = new Date(dateTimeString);
+            result = date.toISOString().slice(0, 16);
+        }
+        
+        console.log('formatDateTimeForInput result:', result);
+        return result;
+    } catch (error) {
+        console.error('Error parsing date:', dateTimeString, error);
+        return '';
+    }
 }
 
 // UI State functions
