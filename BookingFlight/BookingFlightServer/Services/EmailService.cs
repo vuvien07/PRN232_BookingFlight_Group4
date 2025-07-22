@@ -16,6 +16,7 @@ namespace BookingFlightServer.Services
 		Task<bool> IsEmailExistsAsync(string email);
 		Task TestSendMailAsync(string email);
         Task<bool> SendTicketCodeByEmailAsync(List<string> ticketCodes,FlightCheckoutRequestDTO flightCheckoutRequest);
+        Task<bool> SendFlightUpdateNotificationAsync(string toEmail, string subject, string body);
 	}
 
     public class EmailService : IEmailService
@@ -263,6 +264,42 @@ namespace BookingFlightServer.Services
 			catch (Exception ex)
 			{
 				Console.WriteLine($"Failed to send verification email: {ex.Message}");
+				return false;
+			}
+		}
+		public async Task<bool> SendFlightUpdateNotificationAsync(string toEmail, string subject, string body)
+		{
+			try
+			{
+				var smtpSettings = _configuration.GetSection("SmtpSettings");
+				var fromEmail = smtpSettings["FromEmail"];
+				var fromPassword = smtpSettings["FromPassword"];
+				var smtpHost = smtpSettings["Host"];
+				var smtpPort = int.Parse(smtpSettings["Port"]);
+
+				var mailMessage = new MailMessage
+				{
+					From = new MailAddress(fromEmail, "BookingFlight Support"),
+					Subject = subject,
+					Body = body,
+					IsBodyHtml = true
+				};
+
+				mailMessage.To.Add(toEmail);
+
+				using var smtpClient = new SmtpClient(smtpHost, smtpPort)
+				{
+					Credentials = new NetworkCredential(fromEmail, fromPassword),
+					EnableSsl = true
+				};
+
+				await smtpClient.SendMailAsync(mailMessage);
+				Console.WriteLine($"Flight update notification email sent successfully to {toEmail}");
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Failed to send flight update notification email: {ex.Message}");
 				return false;
 			}
 		}

@@ -903,12 +903,63 @@ function hideLoadingSpinner() {
 }
 
 function formatDateTime(dateString) {
-    return new Date(dateString).toLocaleString();
+    return new Date(dateString).toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
 }
 
 function formatDateTimeForInput(dateString) {
-    const date = new Date(dateString);
-    return date.toISOString().slice(0, 16);
+    try {
+        // Handle different date formats from server
+        let date;
+        if (dateString.includes('T')) {
+            // ISO format: 2025-07-31T09:00:00
+            date = new Date(dateString);
+        } else if (dateString.includes('/')) {
+            // Vietnamese format: 31/07/2025 09:00 CH
+            // Parse manually to avoid locale issues
+            const parts = dateString.split(' ');
+            if (parts.length >= 2) {
+                const datePart = parts[0]; // 31/07/2025
+                const timePart = parts[1]; // 09:00
+                const ampm = parts[2]; // CH
+                
+                const [day, month, year] = datePart.split('/');
+                let [hour, minute] = timePart.split(':');
+                
+                // Convert Vietnamese AM/PM to 24-hour format
+                if (ampm === 'CH' && hour !== '12') {
+                    hour = parseInt(hour) + 12;
+                } else if (ampm === 'SA' && hour === '12') {
+                    hour = '00';
+                }
+                
+                // Create ISO format string
+                const isoString = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${hour.toString().padStart(2, '0')}:${minute}:00`;
+                date = new Date(isoString);
+            } else {
+                date = new Date(dateString);
+            }
+        } else {
+            date = new Date(dateString);
+        }
+        
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+            console.error('Invalid date:', dateString);
+            return '';
+        }
+        
+        return date.toISOString().slice(0, 16);
+    } catch (error) {
+        console.error('Error parsing date:', dateString, error);
+        return '';
+    }
 }
 
 function formatCurrency(amount) {

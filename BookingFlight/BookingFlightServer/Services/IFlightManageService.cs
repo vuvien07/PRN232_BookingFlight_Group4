@@ -15,5 +15,11 @@ namespace BookingFlightServer.Services
         Task<List<FlightManageDTO>> GetFlightsByManagerId(int managerId);
         Task<List<StatusDTO>> GetFlightStatuses();
         Task RegenerateFlightSeats(int flightId, int planeId);
+        Task SendFlightChangeNotificationAsync(
+            string flightCode,
+            string changeType,
+            object oldValue,
+            object newValue,
+            Dictionary<string, object>? additionalContext = null);
     }
 }
