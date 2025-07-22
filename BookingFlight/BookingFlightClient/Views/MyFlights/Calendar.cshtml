@@ -1,0 +1,483 @@
+@{
+    ViewData["Title"] = "Lịch Chuyến Bay";
+    Layout = "_Layout";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - CloudNine</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="~/css/MyFlights/MyFlights.css" asp-append-version="true" rel="stylesheet">
+    <link href="~/css/MyFlights/MyFlightsExtended.css" asp-append-version="true" rel="stylesheet">
+    <link href="~/css/common/Header.css" asp-append-version="true" rel="stylesheet">
+    <style>
+        /* Modern Airline Calendar Theme */
+        :root {
+            --primary-airline: #1e40af;
+            --secondary-airline: #0ea5e9;
+            --accent-gold: #f59e0b;
+            --success-green: #10b981;
+            --warm-gray: #f8fafc;
+            --light-blue: #e0f2fe;
+        }
+        
+        .airline-header {
+            background: linear-gradient(135deg, var(--primary-airline) 0%, var(--secondary-airline) 100%);
+            color: white;
+            padding: 2rem 0;
+            border-radius: 0 0 24px 24px;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .calendar-legend {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 2rem;
+            font-weight: 500;
+            color: #64748b;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .legend-color.upcoming { background: var(--secondary-airline); }
+        .legend-color.completed { background: var(--success-green); }
+        .legend-color.cancelled { background: #ef4444; }
+        
+        /* Compact Calendar Design */
+        .calendar-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        
+        .calendar-header {
+            background: var(--warm-gray);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: white;
+        }
+        
+        .calendar-day-header {
+            background: #f1f5f9;
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+            font-weight: 600;
+            color: #64748b;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .calendar-day {
+            min-height: 90px;
+            padding: 0.5rem;
+            border-right: 1px solid #f1f5f9;
+            border-bottom: 1px solid #f1f5f9;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .calendar-day:hover {
+            background: #fafbfc;
+        }
+        
+        .calendar-day.today {
+            background: rgba(30, 64, 175, 0.05);
+            border: 2px solid var(--primary-airline);
+        }
+        
+        .calendar-day.has-flights {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.08) 0%, rgba(16, 185, 129, 0.08) 100%);
+            border-left: 3px solid var(--secondary-airline);
+        }
+        
+        .day-number {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+        
+        .flight-count {
+            background: var(--secondary-airline);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 0.25rem;
+        }
+        
+        .calendar-legend {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn-nav-modern {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: var(--primary-airline);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-nav-modern:hover {
+            background: var(--primary-airline);
+            color: white;
+            border-color: var(--primary-airline);
+            transform: scale(1.05);
+        }
+        
+        .calendar-title {
+            color: var(--primary-airline);
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .view-options .btn {
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+
+        /* Flight Detail Modal Styling */
+        #flightDetailModal .modal-dialog {
+            max-width: 900px;
+        }
+        
+        #flightDetailModal .modal-content {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(30, 64, 175, 0.15);
+        }
+        
+        #flightDetailModal .modal-header {
+            background: linear-gradient(135deg, var(--primary-airline), var(--secondary-airline));
+            color: white;
+            border-radius: 16px 16px 0 0;
+            padding: 1.5rem 2rem;
+        }
+        
+        #flightDetailModal .modal-title {
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+        
+        #flightDetailModal .btn-close {
+            background: none;
+            filter: brightness(0) invert(1);
+            opacity: 0.8;
+        }
+        
+        #flightDetailModal .modal-body {
+            padding: 2rem;
+            background: var(--warm-gray);
+        }
+        
+        #flightDetailModal .modal-footer {
+            border-top: 2px solid #e2e8f0;
+            padding: 1.5rem 2rem;
+            background: white;
+            border-radius: 0 0 16px 16px;
+        }
+        
+        #flightDetailModal .card {
+            transition: all 0.3s ease;
+        }
+        
+        #flightDetailModal .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(30, 64, 175, 0.1);
+        }
+        
+        #flightDetailModal .card-header {
+            font-weight: 600;
+            color: var(--primary-airline);
+        }
+
+        /* Calendar Day Modal Styling */
+        #dayDetailModal .modal-dialog {
+            max-width: 800px;
+        }
+        
+        #dayDetailModal .modal-content {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(30, 64, 175, 0.15);
+            overflow: hidden;
+        }
+        
+        #dayDetailModal .btn-close-white {
+            filter: brightness(0) invert(1);
+            opacity: 0.8;
+        }
+        
+        #dayDetailModal .btn-close-white:hover {
+            opacity: 1;
+        }
+        
+        .flights-list-container {
+            background: white;
+        }
+        
+        .list-header {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9) !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+        }
+        
+        .flight-list-item {
+            background: white;
+            border: 2px solid #f1f5f9 !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .flight-list-item:hover {
+            border-color: var(--primary-airline, #1e40af) !important;
+            box-shadow: 0 8px 25px rgba(30, 64, 175, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .flight-list-item:hover .hover-overlay {
+            opacity: 1 !important;
+        }
+        
+        .flight-list-item .airport-code {
+            font-family: 'Monaco', 'Consolas', monospace;
+            letter-spacing: 0.1em;
+        }
+        
+        .flight-list-item .duration-line {
+            margin: 0.5rem 0;
+        }
+        
+        .flight-list-item .duration-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .flight-status-active {
+            background: linear-gradient(135deg, var(--success-green, #10b981), #00CC55);
+            color: white;
+            border: none;
+        }
+        
+        .flight-status-confirmed {
+            background: linear-gradient(135deg, var(--primary-airline, #1e40af), #0080FF);
+            color: white;
+            border: none;
+        }
+        
+        .flight-status-cancelled {
+            background: linear-gradient(135deg, #ef4444, #FF6666);
+            color: white;
+            border: none;
+        }
+        
+        .empty-day-state {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            margin: 2rem;
+            border-radius: 12px;
+        }
+        
+        /* Animation for modal transitions */
+        #dayDetailModal.fade .modal-dialog {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Mobile responsiveness */
+        @@media (max-width: 768px) {
+            #dayDetailModal .modal-dialog {
+                max-width: 95%;
+                margin: 1rem auto;
+            }
+            
+            .flight-list-item {
+                padding: 1rem !important;
+            }
+            
+            .flight-list-item .airport-code {
+                font-size: 1rem !important;
+            }
+            
+            .flight-route-compact .col-4 {
+                padding: 0 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <partial name="~/Views/Common/_Header.cshtml" />
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <!-- Airline Header -->
+            <div class="airline-header">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-3">
+                                    <i class="fas fa-calendar-alt" style="font-size: 3rem; opacity: 0.9;"></i>
+                                </div>
+                                <div>
+                                    <h1 class="page-title mb-0">
+                                        <span data-vn="Lịch Chuyến Bay" data-en="Flight Calendar" data-zh="航班日历">Lịch Chuyến Bay</span>
+                                    </h1>
+                                    <p class="page-subtitle mb-0" data-vn="Xem lịch chuyến bay theo tháng" data-en="View your flights by month" data-zh="按月查看您的航班">
+                                        Xem lịch chuyến bay theo tháng
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a href="/MyFlights" class="btn btn-light btn-lg rounded-pill">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                <span data-vn="Quay lại" data-en="Back" data-zh="返回">Quay lại</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container">
+            <!-- Calendar Legend -->
+            <div class="calendar-legend d-flex justify-content-center">
+                <div class="d-flex align-items-center">
+                    <div class="legend-item">
+                        <div class="legend-color upcoming"></div>
+                        <span data-vn="Sắp khởi hành" data-en="Upcoming" data-zh="即将出发">Sắp khởi hành</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color completed"></div>
+                        <span data-vn="Đã hoàn thành" data-en="Completed" data-zh="已完成">Đã hoàn thành</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color cancelled"></div>
+                        <span data-vn="Đã hủy" data-en="Cancelled" data-zh="已取消">Đã hủy</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar Section -->
+            <div class="calendar-section">
+                <div class="calendar-header">
+                    <div class="calendar-navigation">
+                        <button class="btn btn-nav-modern" id="prevMonth" onclick="navigateMonth(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <h4 class="calendar-title" id="calendarTitle">Tháng @ViewBag.Month, @ViewBag.Year</h4>
+                        <button class="btn btn-nav-modern" id="nextMonth" onclick="navigateMonth(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div class="view-options">
+                        <button class="btn btn-light border btn-sm" onclick="goToToday()">
+                            <i class="fas fa-calendar-day"></i>
+                            <span data-vn="Hôm nay" data-en="Today" data-zh="今天">Hôm nay</span>
+                        </button>
+                        <button class="btn btn-light border btn-sm" onclick="exportCalendar()">
+                            <i class="fas fa-download"></i>
+                            <span data-vn="Xuất lịch" data-en="Export" data-zh="导出">Xuất lịch</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="calendar-container" id="flightCalendar">
+                    <div id="calendarGrid" class="calendar-grid"></div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flight Detail Modal -->
+    <div class="modal fade" id="flightDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="color: var(--primary-airline);">
+                        <i class="fas fa-plane"></i>
+                        <span data-vn="Chi tiết chuyến bay" data-en="Flight Details" data-zh="航班详情">Chi tiết chuyến bay</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="flightDetailContent">
+                    <!-- Flight detail will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i>
+                        <span data-vn="Đóng" data-en="Close" data-zh="关闭">Đóng</span>
+                    </button>
+                    <button type="button" class="btn btn-primary" style="background: var(--primary-airline); border-color: var(--primary-airline);" onclick="printFlightDetail()">
+                        <i class="fas fa-print"></i>
+                        <span data-vn="In" data-en="Print" data-zh="打印">In</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Pass server data to JavaScript
+        window.initialYear = @ViewBag.Year;
+        window.initialMonth = @ViewBag.Month;
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/common/LanguageUtils.js" asp-append-version="true"></script>
+    <script src="~/js/MyFlights/MyFlights.js" asp-append-version="true"></script>
+    <script src="~/js/MyFlights/CalendarExtensions.js" asp-append-version="true"></script>
+</body>
+</html>
