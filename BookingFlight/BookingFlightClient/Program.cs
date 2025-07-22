@@ -1,3 +1,4 @@
+using BookingFlightClient.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -62,6 +63,7 @@ namespace BookingFlightClient
 			app.UseSession();
 			app.UseStaticFiles();
 			app.UseRouting();
+			app.UseMiddleware<GetRequireRoleMiddleware>();
 			app.UseAuthentication();
 			app.UseAuthorization();
 			app.MapControllerRoute(
