@@ -20,5 +20,13 @@ namespace BookingFlightServer.Controllers
         {
             return Ok(await _ticketService.GetByTicketNumber(ticketNumber));
         }
+
+        [HttpPut("cancelTicket")]
+        public async Task<IActionResult> CancelTicket([FromQuery] int ticketId)
+        {
+            bool result = await _ticketService.IsCancelTicketByTicketId(ticketId);
+			if (!result) return BadRequest("Hủy vé không thành công. Xin lỗi về sự bất tiện này");
+			return Ok("Hủy vé thành công");
+		}
     }
 }

@@ -65,10 +65,24 @@ namespace BookingFlightServer.Controllers
 		[HttpGet("refresh-token")]
 		public async Task<IActionResult> RefreshToken()
 		{
+			if (!Request.Cookies.TryGetValue("X-Access-Token", out var accessToken))
+			{
+				return Unauthorized(new { message = "Missing access token" });
+			}
 			if (!Request.Cookies.TryGetValue("X-Refresh-Token", out var token))
 			{
 				return Unauthorized(new { message = "Missing refresh token" });
 			}
+			if (!Request.Cookies.TryGetValue("X-RequiredRoles", out var requiredRoles))
+			{
+				return Unauthorized(new { message = "Missing required roles token" });
+			}
+			string role = _jwtService.DecodeJwtToken(accessToken)["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"].ToString() ?? "Undefined";
+			if (!requiredRoles.Contains(role))
+			{
+				return Unauthorized(new { message = "Refresh token failed" });
+			}
+
 			Account? account = await _accountService.FindByRefreshTokenAsync(token);
 			if(account == null || account.RefreshTokenExpiryTime < DateTime.Now)
 			{
