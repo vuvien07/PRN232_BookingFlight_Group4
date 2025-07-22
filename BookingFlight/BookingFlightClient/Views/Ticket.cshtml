@@ -1,4 +1,7 @@
 ﻿@model BookingFlightClient.Models.DTO.ResponseTicketDTO
+@{
+    int i = 0;
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,139 +14,185 @@
 </head>
 <body>
     <div class="container">
-        <div class="ticket-container">
-            <div class="ticket-header">
-                <h2>Luxury Flight</h2>
-                <p>E-Ticket Confirmation</p>
+        @if (Model != null)
+        {
+            <div class="ticket-container">
+                <div class="ticket-header">
+                    <h2>Luxury Flight</h2>
+                    <p>E-Ticket Confirmation</p>
+                </div>
+
+                <div class="ticket-body">
+                    <!-- Ticket Number & Booking Date -->
+                    <div class="ticket-section">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="section-title">Mã số vé</h4>
+                                <p class="fs-5">@(Model.TicketNumber)</p>
+                            </div>
+
+                            <div class="ticket-section">
+                                <div class="seat-number-display">
+                                    <h4 class="section-title">Mã số ghế</h4>
+                                    <p class="fs-5">@(Model.Seat?.SeatNumber)</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 class="section-title">Ngày đặt</h4>
+                                <p class="fs-5">@(Model.BookingDate.ToString("dd/MM/yyyy"))</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flight Information -->
+                    <div class="ticket-section">
+                        <h4 class="section-title">Thông tin chuyến bay</h4>
+                        <p class="mb-3">
+                            <strong>Chuyến bay:</strong> @(Model.FlightDTO?.PlaneCode)
+                            <span class="badge bg-primary">@(Model.ClassSeatDTO?.ClassName) Class</span>
+                        </p>
+
+                        <div class="flight-details">
+                            <div class="text-center">
+                                <div class="airport-code">@(Model.FlightDTO?.FromCode)</div>
+                                <div class="airport-name">@(Model.FlightDTO?.FromName)</div>
+                                <div class="time">
+                                    @(string.IsNullOrEmpty(Model.FlightDTO?.DepartureTime) ? "" : DateTime.Parse(Model.FlightDTO.DepartureTime).ToString("dd/MM/yyyy HH:mm"))<br />
+                                </div>
+                                <div class="date">
+                                    @(Model.FlightDTO?.DepartureDate)
+                                </div>
+                            </div>
+
+                            <div class="flight-path">
+                                <i class="fas fa-plane fa-2x"></i>
+                                <div class="mt-2">
+                                    <c:set var="depTime" value="${ticket.flight.departureTime}" />
+                                    <c:set var="arrTime" value="${ticket.flight.arrivalTime}" />
+                                    <!-- Flight duration calculation would go here if needed -->
+                                </div>
+                            </div>
+
+                            <div class="text-center">
+                                <div class="airport-code">@(Model.FlightDTO?.ToCode)</div>
+                                <div class="airport-name">@(Model.FlightDTO?.ToName)</div>
+                                <div class="time">
+                                    @(string.IsNullOrEmpty(Model.FlightDTO?.ArrivalTime) ? "" : DateTime.Parse(Model.FlightDTO.ArrivalTime).ToString("dd/MM/yyyy HH:mm"))<br />
+                                </div>
+                                <div class="date">
+                                    <fmt:formatDate value="${arrivalDateTime}" pattern="dd MMM yyyy" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Passenger Information -->
+                    <div class="ticket-section">
+                        <h4 class="section-title">Thông tin khách hàng</h4>
+                        <div class="info-row">
+                            <div class="info-label">Họ:</div>
+                            <div class="info-value">@(Model.FullName)</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Tên đệm:</div>
+                            <div class="info-value">@(Model.ContactFullName)</div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-label">Giới tính:</div>
+                            <div class="info-value">@(Model.Gender.Equals("male", StringComparison.OrdinalIgnoreCase) ? "Nam" : "Nữ")</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Ngày sinh:</div>
+                            <div class="info-value">
+                                @(Model.DateOfBirth.ToString("dd/MM/yyyy"))
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aircraft Information -->
+                    <div class="ticket-section">
+                        <h4 class="section-title">Thông tin máy bay</h4>
+                        <div class="info-row">
+                            <div class="info-label">Máy bay:</div>
+                            <div class="info-value">@(Model.FlightDTO?.PlaneCode) - @(Model.FlightDTO?.Model)</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Nhà sản xuất:</div>
+                            <div class="info-value">@(Model.FlightDTO?.Manufacture)</div>
+                        </div>
+                    </div>
+                    <div class="ticket-section">
+                        <h4 class="section-title">Thông tin các mặt hàng đi kèm</h4>
+                        @if (Model.TicketItems.Count > 0)
+                        {
+                            foreach (var item in Model.TicketItems)
+                            {
+                                <div class="info-row">
+                                    <div class="info-label">Mặt hàng @(i + 1):</div>
+                                    <div class="info-value">@(item.Item.ItemName), Số lượng: @(item.Quantity)</div>
+                                </div>
+                                i++;
+                            }
+                        }
+                        else
+                        {
+                            <div class="info-row">
+                                Không có thông tin các mặt hàng đi kèm.
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Payment Information -->
+                    <div class="ticket-section">
+                        <h4 class="section-title">Thông tin thanh toán</h4>
+                        <div class="info-row">
+                            <div class="info-label">Tống:</div>
+                            <div class="info-value fw-bold">
+                                @(string.Format("{0:0,0} VND", Model.TotalPrice))
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center mb-3 no-print">
+                        <a href="/Home" class="btn btn-secondary me-2">
+                            <i class="fas fa-home me-2"></i>Trở về trang chủ
+                        </a>
+                        <button class="btn btn-danger" onclick="cancelTicket(event, @(Model.TicketId))">
+                            <i class="fas fa-cancel me-2"></i>Hủy vé
+                        </button>
+                    </div>
+                </div>
+
+                <div class="ticket-footer">
+                    <p>For any assistance, please contact our customer service at support@luxuryflight.com</p>
+                </div>
             </div>
-
-            <div class="ticket-body">
-                <!-- Ticket Number & Booking Date -->
-                <div class="ticket-section">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="section-title">Ticket Number</h4>
-                            <p class="fs-5">@(Model.TicketNumber)</p>
-                        </div>
-
-                        <div class="ticket-section">
-                            <div class="seat-number-display">
-                                <h4 class="section-title">Mã số ghế</h4>
-                                <p class="fs-5">@(Model.ClassSeatDTO.ClassName)</p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h4 class="section-title">Booking Date</h4>
-                            <p class="fs-5">@(Model.BookingDate.ToString("dd/MM/yyyy"))</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Flight Information -->
-                <div class="ticket-section">
-                    <h4 class="section-title">Flight Information</h4>
-                    <p class="mb-3">
-                        <strong>Flight:</strong> @(Model.FlightDTO.PlaneCode)
-                        <span class="badge bg-primary">@(Model.ClassSeatDTO.ClassName) Class</span>
-                    </p>
-
-                    <div class="flight-details">
-                        <div class="text-center">
-                            <div class="airport-code">@(Model.FlightDTO.FromCode)</div>
-                            <div class="airport-name">@(Model.FlightDTO.FromName)</div>
-                            <div class="time">
-                                <fmt:parseDate value="${ticket.flight.departureTime}" pattern="yyyy-MM-dd'T'HH:mm" var="departureDateTime" />
-                                <fmt:formatDate value="${departureDateTime}" pattern="HH:mm" />
-                            </div>
-                            <div class="date">
-                                @(Model.FlightDTO.DepartureDate)
-                            </div>
-                        </div>
-
-                        <div class="flight-path">
-                            <i class="fas fa-plane fa-2x"></i>
-                            <div class="mt-2">
-                                <c:set var="depTime" value="${ticket.flight.departureTime}" />
-                                <c:set var="arrTime" value="${ticket.flight.arrivalTime}" />
-                                <!-- Flight duration calculation would go here if needed -->
-                            </div>
-                        </div>
-
-                        <div class="text-center">
-                            <div class="airport-code">@(Model.FlightDTO.ToCode)</div>
-                            <div class="airport-name">@(Model.FlightDTO.ToName)</div>
-                            <div class="time">
-                                <fmt:parseDate value="${ticket.flight.arrivalTime}" pattern="yyyy-MM-dd'T'HH:mm" var="arrivalDateTime" />
-                                <fmt:formatDate value="${arrivalDateTime}" pattern="HH:mm" />
-                            </div>
-                            <div class="date">
-                                <fmt:formatDate value="${arrivalDateTime}" pattern="dd MMM yyyy" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Passenger Information -->
-                <div class="ticket-section">
-                    <h4 class="section-title">Passenger Information</h4>
-                    <div class="info-row">
-                        <div class="info-label">Họ:</div>
-                        <div class="info-value">@(Model.Name)</div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-label">Tên đệm:</div>
-                        <div class="info-value">@(Model.FullName)</div>
-                    </div>
-
-                    <div class="info-row">
-                        <div class="info-label">Giới tính:</div>
-                        <div class="info-value">@(Model.Gender)</div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-label">Date of Birth:</div>
-                        <div class="info-value">
-                            @(Model.DateOfBirth.ToString("dd/MM/yyyy"))
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Aircraft Information -->
-                <div class="ticket-section">
-                    <h4 class="section-title">Thông tin máy bay</h4>
-                    <div class="info-row">
-                        <div class="info-label">Máy bay:</div>
-                        <div class="info-value">@(Model.FlightDTO.PlaneCode) - @(Model.FlightDTO.Model)</div>
-                    </div>
-                    <div class="info-row">
-                        <div class="info-label">Nhà sản xuất:</div>
-                        <div class="info-value">@(Model.FlightDTO.Manufacture)</div>
-                    </div>
-                </div>
-
-                <!-- Payment Information -->
-                <div class="ticket-section">
-                    <h4 class="section-title">Payment Information</h4>
-                    <div class="info-row">
-                        <div class="info-label">Total Price:</div>
-                        <div class="info-value fw-bold">
-                            <fmt:formatNumber value="${ticket.totalPrice}" type="currency" currencySymbol="VNĐ" />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-center mb-3 no-print">
-                    <a href="/Home" class="btn btn-secondary">
-                        <i class="fas fa-home me-2"></i>Return to Home
-                    </a>
-                </div>
-            </div>
-
-            <div class="ticket-footer">
-                <p>For any assistance, please contact our customer service at support@luxuryflight.com</p>
-            </div>
-        </div>
+        }
     </div>
+    <script type="text/javascript">
+        async function cancelTicket(event, ticketId){
+            event.preventDefault();
+             const res = await fetch(`http://${host}:5077/api/ticket/cancelTicket?ticketId=${ticketId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+            try{
+                if(res.ok){
+                     const text = await res.text();
+                    await showSnackbar(text, 'success');
+                }else if(res.status === 400){
+                    const text = await res.text();
+                    await showSnackbar(text, 'error');
+                }
+            }catch(err){
+            }
+        }
+    </script>
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
