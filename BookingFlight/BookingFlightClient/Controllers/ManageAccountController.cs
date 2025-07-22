@@ -102,8 +102,16 @@ namespace BookingFlightClient.Controllers
                 // format json
                 WriteIndented = true
             };
+            
+            RequestAddAccountDTO requestAddAccountDTO = new RequestAddAccountDTO
+            {
+                Username = manageAccountAddVM.Username,
+                Password = manageAccountAddVM.Password,
+                RoleId = manageAccountAddVM.RoleId,
+                StatusId = manageAccountAddVM.StatusId
+            };
 
-            var jsonContent = JsonSerializer.Serialize(manageAccountAddVM, jsonOptions);
+            var jsonContent = JsonSerializer.Serialize(requestAddAccountDTO, jsonOptions);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
             var apiUrl = "http://localhost:5077/api/ManageAccount/add-account";
