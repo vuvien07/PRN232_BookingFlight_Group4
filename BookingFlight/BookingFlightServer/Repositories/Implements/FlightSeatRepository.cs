@@ -1,5 +1,6 @@
 ﻿using BookingFlightServer.Data;
 using BookingFlightServer.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookingFlightServer.Repositories.Implements
 {
@@ -7,6 +8,11 @@ namespace BookingFlightServer.Repositories.Implements
 	{
 		public FlightSeatRepository(BookingFlightContext repositoryDbContext) : base(repositoryDbContext)
 		{
+		}
+
+		public async Task<FlightSeat?> GetFlightSeatByTicketId(int ticketId)
+		{
+			return await GetByCondition(fs => fs.TicketId == ticketId, fs => fs.Include(fs => fs.Seat));
 		}
 
 		public async Task<List<FlightSeat?>> GetFlightSeatsByFlightId(int flightId)

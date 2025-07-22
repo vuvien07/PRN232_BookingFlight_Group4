@@ -6,5 +6,6 @@ namespace BookingFlightServer.Repositories
 	{
 		Task<List<FlightSeat?>> GetFlightSeatsByFlightId(int flightId);
 		Task UpdateFlightSeatAsync(FlightSeat flightSeat);
+		Task<FlightSeat?> GetFlightSeatByTicketId(int ticketId);
 	}
 }
