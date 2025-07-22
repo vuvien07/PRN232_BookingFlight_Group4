@@ -6,6 +6,7 @@ namespace BookingFlightServer.Services
 	{
 		decimal caculateServicePrice(List<ServiceDTO> serviceDTOs);
 		int caculateTotalPerson(List<PreorderFlightDTO> preorderFlightDTOs);
-		Task<bool> IsSavedPassengerInformation(FlightCheckoutRequestDTO flightCheckoutRequestDTO);
+		Task<bool> IsSavedPassengerInformation(FlightCheckoutRequestDTO flightCheckoutRequestDTO, int customerId);
+		Task<int> GetCustomerIdByCredentials(HttpContext httpContext);
 	}
 }

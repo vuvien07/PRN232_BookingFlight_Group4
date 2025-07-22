@@ -7,5 +7,6 @@ namespace BookingFlightServer.Services
 	{
 		Task<TicketDTO?> CreateTicket(Ticket ticket);
 		Task<TicketDTO?> GetByTicketNumber(string? ticketNumber);
+		Task<bool> IsCancelTicketByTicketId(int ticketId);
 	}
 }
