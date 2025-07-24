@@ -9,11 +9,11 @@ namespace BookingFlightServer.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class CustomerController : ControllerBase
+    public class SupporterController : ControllerBase
     {
         private readonly BookingFlightContext _context;
 
-        public CustomerController(BookingFlightContext context)
+        public SupporterController(BookingFlightContext context)
         {
             _context = context;
         }
@@ -28,21 +28,21 @@ namespace BookingFlightServer.Controllers
                     return BadRequest(new { message = "Username is required" });
                 }
 
-                var customer = await _context.Customers
-                    .Include(c => c.Account)
-                    .FirstOrDefaultAsync(c => c.Account.Username == username);
+                var supporter = await _context.Supporters
+                    .Include(s => s.Account)
+                    .FirstOrDefaultAsync(s => s.Account.Username == username);
 
-                if (customer == null)
+                if (supporter == null)
                 {
-                    return NotFound(new { message = "Customer not found" });
+                    return NotFound(new { message = "Supporter not found" });
                 }
 
                 return Ok(new
                 {
-                    CustomerId = customer.CustomerId,
-                    Username = customer.Account.Username,
-                    Fullname = customer.Fullname,
-                    Email = customer.Email
+                    SupporterId = supporter.SupporterId,
+                    Username = supporter.Account.Username,
+                    Fullname = supporter.Fullname,
+                    Email = supporter.Email
                 });
             }
             catch (Exception ex)
@@ -65,21 +65,21 @@ namespace BookingFlightServer.Controllers
                     return Unauthorized(new { message = "Username not found in token" });
                 }
 
-                var customer = await _context.Customers
-                    .Include(c => c.Account)
-                    .FirstOrDefaultAsync(c => c.Account.Username == username);
+                var supporter = await _context.Supporters
+                    .Include(s => s.Account)
+                    .FirstOrDefaultAsync(s => s.Account.Username == username);
 
-                if (customer == null)
+                if (supporter == null)
                 {
-                    return NotFound(new { message = "Customer not found" });
+                    return NotFound(new { message = "Supporter not found" });
                 }
 
                 return Ok(new
                 {
-                    CustomerId = customer.CustomerId,
-                    Username = customer.Account.Username,
-                    Fullname = customer.Fullname,
-                    Email = customer.Email
+                    SupporterId = supporter.SupporterId,
+                    Username = supporter.Account.Username,
+                    Fullname = supporter.Fullname,
+                    Email = supporter.Email
                 });
             }
             catch (Exception ex)
@@ -94,21 +94,21 @@ namespace BookingFlightServer.Controllers
         {
             try
             {
-                var customer = await _context.Customers
-                    .Include(c => c.Account)
-                    .FirstOrDefaultAsync(c => c.AccountId == accountId);
+                var supporter = await _context.Supporters
+                    .Include(s => s.Account)
+                    .FirstOrDefaultAsync(s => s.AccountId == accountId);
 
-                if (customer == null)
+                if (supporter == null)
                 {
-                    return NotFound(new { message = "Customer not found" });
+                    return NotFound(new { message = "Supporter not found" });
                 }
 
                 return Ok(new
                 {
-                    CustomerId = customer.CustomerId,
-                    AccountId = customer.AccountId,
-                    Fullname = customer.Fullname,
-                    Email = customer.Email
+                    SupporterId = supporter.SupporterId,
+                    AccountId = supporter.AccountId,
+                    Fullname = supporter.Fullname,
+                    Email = supporter.Email
                 });
             }
             catch (Exception ex)
