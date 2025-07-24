@@ -114,8 +114,9 @@ namespace BookingFlightServer.Controllers
         {
             try
             {
-                var feedbacks = await _feedbackService.GetFeedbacksByTicketIdAsync(ticketId);
-                return Ok(feedbacks);
+                // Lấy chi tiết feedback (dùng DTO phù hợp với view)
+                var feedbackDetails = await _feedbackService.GetFeedbacksDetailByTicketIdAsync(ticketId);
+                return Ok(feedbackDetails); // Luôn trả về List (có thể rỗng)
             }
             catch (Exception ex)
             {
@@ -248,6 +249,51 @@ namespace BookingFlightServer.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"[DEBUG] Exception in GetFeedbackDetailsByTicketId: {ex.Message}");
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        [HttpGet("ticket/{ticketId}/feedback")]
+        public async Task<IActionResult> GetTicketFeedbackStatus(int ticketId)
+        {
+            try
+            {
+                var accountIdClaim = User.FindFirst("AccountId")?.Value;
+                if (string.IsNullOrEmpty(accountIdClaim) || !int.TryParse(accountIdClaim, out int accountId))
+                {
+                    return Unauthorized("Invalid user token");
+                }
+
+                Console.WriteLine($"[DEBUG] GetTicketFeedbackStatus - TicketId: {ticketId}, AccountId: {accountId}");
+
+                // Check if user has feedback for this ticket
+                var hasFeedback = await _feedbackService.HasFeedbackByTicketIdAsync(ticketId, accountId);
+                
+                if (hasFeedback)
+                {
+                    // Get existing feedback details
+                    var feedbackDetails = await _feedbackService.GetFeedbackDetailsByTicketIdAsync(ticketId, accountId);
+                    
+                    Console.WriteLine($"[DEBUG] Found existing feedback for TicketId {ticketId} and AccountId {accountId}");
+                    
+                    return Ok(new { 
+                        hasFeedback = true,
+                        feedbackDetails = feedbackDetails.FirstOrDefault()
+                    });
+                }
+                else
+                {
+                    Console.WriteLine($"[DEBUG] No feedback found for TicketId {ticketId} and AccountId {accountId}");
+                    
+                    return Ok(new { 
+                        hasFeedback = false,
+                        feedbackDetails = (object?)null
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[DEBUG] Exception in GetTicketFeedbackStatus: {ex.Message}");
                 return StatusCode(500, new { message = "Internal server error", error = ex.Message });
             }
         }

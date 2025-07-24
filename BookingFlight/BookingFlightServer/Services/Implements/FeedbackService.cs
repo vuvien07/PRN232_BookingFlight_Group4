@@ -12,11 +12,13 @@ namespace BookingFlightServer.Services.Implements
     public class FeedbackService : IFeedbackService
     {
         private readonly IFeedbackRepository _feedbackRepository;
+        private readonly IFeedbackTicketMappingService _mappingService;
         private readonly ILogger<FeedbackService> _logger;
 
-        public FeedbackService(IFeedbackRepository feedbackRepository, ILogger<FeedbackService> logger)
+        public FeedbackService(IFeedbackRepository feedbackRepository, IFeedbackTicketMappingService mappingService, ILogger<FeedbackService> logger)
         {
             _feedbackRepository = feedbackRepository;
+            _mappingService = mappingService;
             _logger = logger;
         }
 
@@ -24,24 +26,36 @@ namespace BookingFlightServer.Services.Implements
         {
             try
             {
-                _logger.LogInformation("Creating feedback for account {AccountId}", accountId);
+                _logger.LogInformation("Creating feedback for account {AccountId} for ticket {TicketId}", accountId, createFeedbackDTO.TicketId);
                 
-                // Create new feedback without checking existing ones for per-ticket feedback
-                var feedback = createFeedbackDTO.ToFeedback(accountId);
-                
-                // If TicketId is provided, encode it in the content for later retrieval
+                // Check if user already has feedback for this ticket
                 if (createFeedbackDTO.TicketId.HasValue)
                 {
-                    feedback.Content = $"[TICKET:{createFeedbackDTO.TicketId}]{feedback.Content}";
+                    var existingFeedback = _mappingService.HasFeedbackForTicketAndAccount(createFeedbackDTO.TicketId.Value, accountId);
+                    if (existingFeedback)
+                    {
+                        throw new InvalidOperationException("Bạn đã gửi feedback cho chuyến bay này rồi!");
+                    }
                 }
                 
-                await _feedbackRepository.CreateAsync(feedback);
+                // Create new feedback
+                var feedback = createFeedbackDTO.ToFeedback(accountId);
+                var createdFeedback = await _feedbackRepository.CreateAsync(feedback);
+                
+                // Create mapping between feedback and ticket
+                if (createFeedbackDTO.TicketId.HasValue)
+                {
+                    _mappingService.LinkFeedbackToTicketAndAccount(createdFeedback.FeedbackId, createFeedbackDTO.TicketId.Value, accountId);
+                    _logger.LogInformation("Created mapping: FeedbackId {FeedbackId} -> TicketId {TicketId} for AccountId {AccountId}", 
+                        createdFeedback.FeedbackId, createFeedbackDTO.TicketId.Value, accountId);
+                }
+                
                 return true;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating feedback");
-                return false;
+                throw;
             }
         }
 

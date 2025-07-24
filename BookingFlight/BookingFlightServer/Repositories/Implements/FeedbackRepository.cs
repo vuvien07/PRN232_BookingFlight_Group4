@@ -2,17 +2,23 @@ using BookingFlightServer.Entities;
 using BookingFlightServer.DTO.Request;
 using BookingFlightServer.DTO.Response;
 using BookingFlightServer.Data;
+using BookingFlightServer.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace BookingFlightServer.Repositories
 {
     public class FeedbackRepository : IFeedbackRepository
     {
         private readonly BookingFlightContext _context;
+        private readonly IFeedbackTicketMappingService _mappingService;
+        private readonly ILogger<FeedbackRepository> _logger;
 
-        public FeedbackRepository(BookingFlightContext context)
+        public FeedbackRepository(BookingFlightContext context, IFeedbackTicketMappingService mappingService, ILogger<FeedbackRepository> logger)
         {
             _context = context;
+            _mappingService = mappingService;
+            _logger = logger;
         }
 
         public async Task<List<Feedback>> GetAllAsync()
@@ -77,6 +83,11 @@ namespace BookingFlightServer.Repositories
             return result > 0;
         }
 
+        public async Task<bool> HasCustomerAlreadyFeedback(int accountId)
+        {
+            return await _context.Feedbacks.AnyAsync(f => f.AccountId == accountId);
+        }
+
         // New required methods
         public async Task<double> getAverageFeedback()
         {
@@ -119,29 +130,35 @@ namespace BookingFlightServer.Repositories
 
         public async Task<List<Feedback>> GetFeedbacksByTicketIdAsync(int ticketId)
         {
-            return await _context.FeedbackTickets
-                .Where(ft => ft.TicketId == ticketId)
-                .Include(ft => ft.Feedback)
-                .ThenInclude(f => f.Account)
+            var feedbackIds = _mappingService.GetFeedbackIdsByTicketId(ticketId);
+            
+            if (!feedbackIds.Any())
+                return new List<Feedback>();
+
+            return await _context.Feedbacks
+                .Where(f => feedbackIds.Contains(f.FeedbackId))
+                .Include(f => f.Account)
                 .ThenInclude(a => a.Customer)
-                .Include(ft => ft.Feedback)
-                .ThenInclude(f => f.Account)
+                .Include(f => f.Account)
                 .ThenInclude(a => a.Admin)
-                .Select(ft => ft.Feedback)
                 .OrderByDescending(f => f.CreateAt)
                 .ToListAsync();
         }
 
         public async Task<List<FeedbackDetailDTO>> GetFeedbacksDetailByTicketIdAsync(int ticketId)
         {
-            var query = from feedbackTicket in _context.FeedbackTickets
-                        join feedback in _context.Feedbacks on feedbackTicket.FeedbackId equals feedback.FeedbackId
+            var feedbackIds = _mappingService.GetFeedbackIdsByTicketId(ticketId);
+            
+            if (!feedbackIds.Any())
+                return new List<FeedbackDetailDTO>();
+
+            var query = from feedback in _context.Feedbacks
                         join account in _context.Accounts on feedback.AccountId equals account.AccountId
-                        join ticket in _context.Tickets on feedbackTicket.TicketId equals ticket.TicketId
+                        join ticket in _context.Tickets on ticketId equals ticket.TicketId
                         join flight in _context.Flights on ticket.FlightId equals flight.FlightId
                         join departureAirport in _context.Airports on flight.DepartureAirportId equals departureAirport.AirportId
                         join arrivalAirport in _context.Airports on flight.ArrivalAirportId equals arrivalAirport.AirportId
-                        where feedbackTicket.TicketId == ticketId
+                        where feedbackIds.Contains(feedback.FeedbackId)
                         select new FeedbackDetailDTO
                         {
                             FeedbackId = feedback.FeedbackId,
@@ -170,14 +187,36 @@ namespace BookingFlightServer.Repositories
 
         public async Task<List<FeedbackDetailDTO>> GetFeedbacksDetailByAccountIdAsync(int accountId)
         {
-            var query = from feedbackTicket in _context.FeedbackTickets
-                        join feedback in _context.Feedbacks on feedbackTicket.FeedbackId equals feedback.FeedbackId
+            // Lấy tất cả feedbacks của account này
+            var feedbacks = await _context.Feedbacks
+                .Where(f => f.AccountId == accountId)
+                .ToListAsync();
+
+            var result = new List<FeedbackDetailDTO>();
+
+            foreach (var feedback in feedbacks)
+            {
+                var ticketId = _mappingService.GetTicketIdByFeedbackId(feedback.FeedbackId);
+                if (ticketId.HasValue)
+                {
+                    var detail = await GetFeedbackDetailByIdAndTicketId(feedback.FeedbackId, ticketId.Value);
+                    if (detail != null)
+                        result.Add(detail);
+                }
+            }
+
+            return result.OrderByDescending(f => f.CreateAt).ToList();
+        }
+
+        private async Task<FeedbackDetailDTO?> GetFeedbackDetailByIdAndTicketId(int feedbackId, int ticketId)
+        {
+            var query = from feedback in _context.Feedbacks
                         join account in _context.Accounts on feedback.AccountId equals account.AccountId
-                        join ticket in _context.Tickets on feedbackTicket.TicketId equals ticket.TicketId
+                        join ticket in _context.Tickets on ticketId equals ticket.TicketId
                         join flight in _context.Flights on ticket.FlightId equals flight.FlightId
                         join departureAirport in _context.Airports on flight.DepartureAirportId equals departureAirport.AirportId
                         join arrivalAirport in _context.Airports on flight.ArrivalAirportId equals arrivalAirport.AirportId
-                        where feedback.AccountId == accountId
+                        where feedback.FeedbackId == feedbackId
                         select new FeedbackDetailDTO
                         {
                             FeedbackId = feedback.FeedbackId,
@@ -201,154 +240,127 @@ namespace BookingFlightServer.Repositories
                             FlightDate = DateOnly.FromDateTime(flight.DepartureTime)
                         };
 
-            return await query.OrderByDescending(f => f.CreateAt).ToListAsync();
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task<List<FeedbackDetailDTO>> GetAllFeedbackDetailsAsync()
         {
-            var query = from feedbackTicket in _context.FeedbackTickets
-                        join feedback in _context.Feedbacks on feedbackTicket.FeedbackId equals feedback.FeedbackId
-                        join account in _context.Accounts on feedback.AccountId equals account.AccountId
-                        join ticket in _context.Tickets on feedbackTicket.TicketId equals ticket.TicketId
-                        join flight in _context.Flights on ticket.FlightId equals flight.FlightId
-                        join departureAirport in _context.Airports on flight.DepartureAirportId equals departureAirport.AirportId
-                        join arrivalAirport in _context.Airports on flight.ArrivalAirportId equals arrivalAirport.AirportId
-                        select new FeedbackDetailDTO
-                        {
-                            FeedbackId = feedback.FeedbackId,
-                            Title = feedback.Title,
-                            Rate = feedback.Rate,
-                            Content = feedback.Content,
-                            CreateAt = feedback.CreateAt,
-                            AccountId = account.AccountId,
-                            AccountName = account.Username,
-                            TicketId = ticket.TicketId,
-                            TicketNumber = ticket.TicketNumber,
-                            BookingDate = ticket.BookingDate,
-                            TotalPrice = ticket.TotalPrice,
-                            PassengerName = ticket.FullName,
-                            FlightId = flight.FlightId,
-                            FlightNumber = flight.FlightCode,
-                            DepartureTime = flight.DepartureTime,
-                            ArrivalTime = flight.ArrivalTime,
-                            DepartureAirport = $"{departureAirport.City} ({departureAirport.AirportCode})",
-                            ArrivalAirport = $"{arrivalAirport.City} ({arrivalAirport.AirportCode})",
-                            FlightDate = DateOnly.FromDateTime(flight.DepartureTime)
-                        };
+            // Lấy tất cả feedbacks có mapping với ticket
+            var allFeedbacks = await _context.Feedbacks.ToListAsync();
+            var result = new List<FeedbackDetailDTO>();
 
-            return await query.OrderByDescending(f => f.CreateAt).ToListAsync();
+            foreach (var feedback in allFeedbacks)
+            {
+                var ticketId = _mappingService.GetTicketIdByFeedbackId(feedback.FeedbackId);
+                if (ticketId.HasValue)
+                {
+                    var detail = await GetFeedbackDetailByIdAndTicketId(feedback.FeedbackId, ticketId.Value);
+                    if (detail != null)
+                        result.Add(detail);
+                }
+            }
+
+            return result.OrderByDescending(f => f.CreateAt).ToList();
         }
 
         public async Task<List<FeedbackDetailDTO>> SearchAndFilterFeedbacksAsync(string? searchTerm = null, int? rating = null, DateTime? fromDate = null, DateTime? toDate = null)
         {
-            var query = from feedbackTicket in _context.FeedbackTickets
-                        join feedback in _context.Feedbacks on feedbackTicket.FeedbackId equals feedback.FeedbackId
-                        join account in _context.Accounts on feedback.AccountId equals account.AccountId
-                        join ticket in _context.Tickets on feedbackTicket.TicketId equals ticket.TicketId
-                        join flight in _context.Flights on ticket.FlightId equals flight.FlightId
-                        join departureAirport in _context.Airports on flight.DepartureAirportId equals departureAirport.AirportId
-                        join arrivalAirport in _context.Airports on flight.ArrivalAirportId equals arrivalAirport.AirportId
-                        select new
-                        {
-                            feedback,
-                            account,
-                            ticket,
-                            flight,
-                            departureAirport,
-                            arrivalAirport
-                        };
+            // Lấy tất cả feedbacks và áp dụng filter
+            var query = _context.Feedbacks.AsQueryable();
 
-            // Apply filters
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                query = query.Where(x => x.feedback.Title.Contains(searchTerm) || 
-                                        x.feedback.Content.Contains(searchTerm) ||
-                                        x.account.Username.Contains(searchTerm));
+                // Tìm kiếm theo: Tiêu đề feedback, Tên khách hàng, ID chuyến bay
+                query = query.Where(f => 
+                    f.Title.Contains(searchTerm) || 
+                    (f.Account != null && f.Account.AccountName.Contains(searchTerm)) ||
+                    _context.Tickets
+                        .Where(t => t.TicketId == _context.FeedbackTickets
+                            .Where(ft => ft.FeedbackId == f.FeedbackId)
+                            .Select(ft => ft.TicketId)
+                            .FirstOrDefault())
+                        .Any(t => t.Flight.FlightNumber.Contains(searchTerm))
+                );
             }
 
             if (rating.HasValue)
             {
-                query = query.Where(x => x.feedback.Rate == rating.Value);
+                query = query.Where(f => f.Rate == rating.Value);
             }
 
             if (fromDate.HasValue)
             {
                 var fromDateOnly = DateOnly.FromDateTime(fromDate.Value);
-                query = query.Where(x => x.feedback.CreateAt >= fromDateOnly);
+                query = query.Where(f => f.CreateAt >= fromDateOnly);
             }
 
             if (toDate.HasValue)
             {
                 var toDateOnly = DateOnly.FromDateTime(toDate.Value);
-                query = query.Where(x => x.feedback.CreateAt <= toDateOnly);
+                query = query.Where(f => f.CreateAt <= toDateOnly);
             }
 
-            var result = await query.Select(x => new FeedbackDetailDTO
-            {
-                FeedbackId = x.feedback.FeedbackId,
-                Title = x.feedback.Title,
-                Rate = x.feedback.Rate,
-                Content = x.feedback.Content,
-                CreateAt = x.feedback.CreateAt,
-                AccountId = x.account.AccountId,
-                AccountName = x.account.Username,
-                TicketId = x.ticket.TicketId,
-                TicketNumber = x.ticket.TicketNumber,
-                BookingDate = x.ticket.BookingDate,
-                TotalPrice = x.ticket.TotalPrice,
-                PassengerName = x.ticket.FullName,
-                FlightId = x.flight.FlightId,
-                FlightNumber = x.flight.FlightCode,
-                DepartureTime = x.flight.DepartureTime,
-                ArrivalTime = x.flight.ArrivalTime,
-                DepartureAirport = $"{x.departureAirport.City} ({x.departureAirport.AirportCode})",
-                ArrivalAirport = $"{x.arrivalAirport.City} ({x.arrivalAirport.AirportCode})",
-                FlightDate = DateOnly.FromDateTime(x.flight.DepartureTime)
-            }).OrderByDescending(f => f.CreateAt).ToListAsync();
+            var feedbacks = await query.ToListAsync();
+            var result = new List<FeedbackDetailDTO>();
 
-            return result;
+            foreach (var feedback in feedbacks)
+            {
+                var ticketId = _mappingService.GetTicketIdByFeedbackId(feedback.FeedbackId);
+                if (ticketId.HasValue)
+                {
+                    var detail = await GetFeedbackDetailByIdAndTicketId(feedback.FeedbackId, ticketId.Value);
+                    if (detail != null)
+                        result.Add(detail);
+                }
+            }
+
+            return result.OrderByDescending(f => f.CreateAt).ToList();
         }
 
         public async Task<List<FeedbackDetailDTO>> GetFeedbackDetailsByTicketIdAndAccountIdAsync(int ticketId, int accountId)
         {
-            var query = from feedbackTicket in _context.FeedbackTickets
-                        join feedback in _context.Feedbacks on feedbackTicket.FeedbackId equals feedback.FeedbackId
-                        join account in _context.Accounts on feedback.AccountId equals account.AccountId
-                        join ticket in _context.Tickets on feedbackTicket.TicketId equals ticket.TicketId
-                        join flight in _context.Flights on ticket.FlightId equals flight.FlightId
-                        join departureAirport in _context.Airports on flight.DepartureAirportId equals departureAirport.AirportId
-                        join arrivalAirport in _context.Airports on flight.ArrivalAirportId equals arrivalAirport.AirportId
-                        where feedbackTicket.TicketId == ticketId && feedback.AccountId == accountId
-                        select new FeedbackDetailDTO
-                        {
-                            FeedbackId = feedback.FeedbackId,
-                            Title = feedback.Title,
-                            Rate = feedback.Rate,
-                            Content = feedback.Content,
-                            CreateAt = feedback.CreateAt,
-                            AccountId = account.AccountId,
-                            AccountName = account.Username,
-                            TicketId = ticket.TicketId,
-                            TicketNumber = ticket.TicketNumber,
-                            BookingDate = ticket.BookingDate,
-                            TotalPrice = ticket.TotalPrice,
-                            PassengerName = ticket.FullName,
-                            FlightId = flight.FlightId,
-                            FlightNumber = flight.FlightCode,
-                            DepartureTime = flight.DepartureTime,
-                            ArrivalTime = flight.ArrivalTime,
-                            DepartureAirport = $"{departureAirport.City} ({departureAirport.AirportCode})",
-                            ArrivalAirport = $"{arrivalAirport.City} ({arrivalAirport.AirportCode})",
-                            FlightDate = DateOnly.FromDateTime(flight.DepartureTime)
-                        };
+            // Get feedbacks for this ticket using mapping service
+            var feedbackIds = _mappingService.GetFeedbackIdsByTicketId(ticketId);
+            
+            var result = new List<FeedbackDetailDTO>();
+            
+            foreach (var feedbackId in feedbackIds)
+            {
+                var query = from feedback in _context.Feedbacks
+                            join account in _context.Accounts on feedback.AccountId equals account.AccountId
+                            join ticket in _context.Tickets on ticketId equals ticket.TicketId
+                            join flight in _context.Flights on ticket.FlightId equals flight.FlightId
+                            join departureAirport in _context.Airports on flight.DepartureAirportId equals departureAirport.AirportId
+                            join arrivalAirport in _context.Airports on flight.ArrivalAirportId equals arrivalAirport.AirportId
+                            where feedback.FeedbackId == feedbackId && feedback.AccountId == accountId
+                            select new FeedbackDetailDTO
+                            {
+                                FeedbackId = feedback.FeedbackId,
+                                Title = feedback.Title,
+                                Rate = feedback.Rate,
+                                Content = feedback.Content,
+                                CreateAt = feedback.CreateAt,
+                                AccountId = account.AccountId,
+                                AccountName = account.Username,
+                                TicketId = ticket.TicketId,
+                                TicketNumber = ticket.TicketNumber,
+                                BookingDate = ticket.BookingDate,
+                                TotalPrice = ticket.TotalPrice,
+                                PassengerName = ticket.FullName,
+                                FlightId = flight.FlightId,
+                                FlightNumber = flight.FlightCode,
+                                DepartureTime = flight.DepartureTime,
+                                ArrivalTime = flight.ArrivalTime,
+                                DepartureAirport = $"{departureAirport.City} ({departureAirport.AirportCode})",
+                                ArrivalAirport = $"{arrivalAirport.City} ({arrivalAirport.AirportCode})",
+                                FlightDate = DateOnly.FromDateTime(flight.DepartureTime)
+                            };
 
-            return await query.OrderByDescending(f => f.CreateAt).ToListAsync();
-        }
+                var details = await query.ToListAsync();
+                result.AddRange(details);
+            }
 
-        public async Task<bool> HasCustomerAlreadyFeedback(int accountId)
-        {
-            return await _context.Feedbacks
-                .AnyAsync(f => f.AccountId == accountId);
+            return result.OrderByDescending(f => f.CreateAt).ToList();
         }
     }
 }

@@ -448,84 +448,86 @@
                 </div>
             </div>
 
-            @foreach (var feedback in Model.OrderByDescending(f => f.CreateAt))
-            {
-                <div class="feedback-card">
-                    <div class="feedback-header">
-                        <div>
-                            <h3 class="feedback-title">@feedback.Title</h3>
-                        </div>
-                        <div class="feedback-meta">
-                            <div class="feedback-rating">
-                                @for (int i = 1; i <= 5; i++)
-                                {
-                                    <i class="fas fa-star star @(i <= feedback.Rate ? "" : "empty")"></i>
-                                }
+            <div class="feedback-grid">
+                @foreach (var feedback in Model.OrderByDescending(f => f.CreateAt))
+                {
+                    <div class="feedback-card">
+                        <div class="feedback-header">
+                            <div>
+                                <h3 class="feedback-title">@feedback.Title</h3>
                             </div>
-                            <div class="feedback-date">@feedback.CreateAt?.ToString("dd/MM/yyyy")</div>
+                            <div class="feedback-meta">
+                                <div class="feedback-rating">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <i class="fas fa-star star @(i <= feedback.Rate ? "" : "empty")"></i>
+                                    }
+                                </div>
+                                <div class="feedback-date">@feedback.CreateAt?.ToString("dd/MM/yyyy")</div>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Flight and Ticket Details -->
-                    <div class="feedback-details">
-                        <div class="detail-row">
-                            <span class="detail-label">
-                                <i class="fas fa-user"></i> Khách hàng:
-                            </span>
-                            <span class="detail-value">@feedback.AccountName</span>
-                        </div>
-                        
-                        @if (!string.IsNullOrEmpty(feedback.FlightNumber))
-                        {
+                        <!-- Flight and Ticket Details -->
+                        <div class="feedback-details">
                             <div class="detail-row">
                                 <span class="detail-label">
-                                    <i class="fas fa-plane"></i> Chuyến bay:
+                                    <i class="fas fa-user"></i> Khách hàng:
                                 </span>
-                                <span class="detail-value">@feedback.FlightNumber</span>
+                                <span class="detail-value">@feedback.AccountName</span>
                             </div>
                             
-                            <div class="flight-info">
-                                <span class="airport-code">@feedback.DepartureAirport</span>
-                                <i class="fas fa-arrow-right" style="color: #667eea;"></i>
-                                <span class="airport-code">@feedback.ArrivalAirport</span>
-                            </div>
-                            
-                            @if (feedback.DepartureTime != DateTime.MinValue)
+                            @if (!string.IsNullOrEmpty(feedback.FlightNumber))
                             {
                                 <div class="detail-row">
                                     <span class="detail-label">
-                                        <i class="fas fa-clock"></i> Thời gian khởi hành:
+                                        <i class="fas fa-plane"></i> Chuyến bay:
                                     </span>
-                                    <span class="detail-value">@feedback.DepartureTime.ToString("dd/MM/yyyy HH:mm")</span>
+                                    <span class="detail-value">@feedback.FlightNumber</span>
+                                </div>
+                                
+                                <div class="flight-info">
+                                    <span class="airport-code">@feedback.DepartureAirport</span>
+                                    <i class="fas fa-arrow-right" style="color: #667eea;"></i>
+                                    <span class="airport-code">@feedback.ArrivalAirport</span>
+                                </div>
+                                
+                                @if (feedback.DepartureTime != DateTime.MinValue)
+                                {
+                                    <div class="detail-row">
+                                        <span class="detail-label">
+                                            <i class="fas fa-clock"></i> Thời gian khởi hành:
+                                        </span>
+                                        <span class="detail-value">@feedback.DepartureTime.ToString("dd/MM/yyyy HH:mm")</span>
+                                    </div>
+                                }
+                            }
+                            
+                            @if (!string.IsNullOrEmpty(feedback.TicketNumber))
+                            {
+                                <div class="detail-row">
+                                    <span class="detail-label">
+                                        <i class="fas fa-ticket-alt"></i> Số vé:
+                                    </span>
+                                    <span class="detail-value">@feedback.TicketNumber</span>
                                 </div>
                             }
-                        }
-                        
-                        @if (!string.IsNullOrEmpty(feedback.TicketNumber))
-                        {
-                            <div class="detail-row">
-                                <span class="detail-label">
-                                    <i class="fas fa-ticket-alt"></i> Số vé:
-                                </span>
-                                <span class="detail-value">@feedback.TicketNumber</span>
-                            </div>
-                        }
-                    </div>
+                        </div>
 
-                    <div class="feedback-content">
-                        @feedback.Content
-                    </div>
+                        <div class="feedback-content">
+                            @feedback.Content
+                        </div>
 
-                    <div class="feedback-footer">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <i class="fas fa-calendar"></i>
-                                Đã gửi @feedback.CreateAt?.ToString("dd/MM/yyyy")
+                        <div class="feedback-footer">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <i class="fas fa-calendar"></i>
+                                    Đã gửi @feedback.CreateAt?.ToString("dd/MM/yyyy")
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            }
+                }
+            </div>
 
             <!-- Pagination -->
             @if (ViewBag.TotalPages > 1)
@@ -649,8 +651,31 @@
 
     <script src="~/js/lib/bootstrap.bundle.min.js"></script>
     <script src="~/js/common/LanguageUtils.js" asp-append-version="true"></script>
+    <script src="~/js/feedback-pagination.js" asp-append-version="true"></script>
     <script>
+        // Initialize pagination and other functionality
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize pagination for My Feedbacks page
+            const feedbackCards = document.querySelectorAll('.feedback-card');
+            if (feedbackCards.length > 0) {
+                const myFeedbacksPagination = new FeedbackPagination({
+                    itemsPerPage: 5,
+                    containerSelector: '.feedback-grid',
+                    itemSelector: '.feedback-card',
+                    paginationId: 'my-feedbacks-pagination',
+                    showAnimation: true,
+                    scrollToTop: true
+                });
+
+                // Custom pagination info text for "My Feedbacks"
+                const originalGenerateHTML = myFeedbacksPagination.generatePaginationHTML.bind(myFeedbacksPagination);
+                myFeedbacksPagination.generatePaginationHTML = function() {
+                    const html = originalGenerateHTML();
+                    return html.replace('feedback</span>', 'feedback của bạn</span>');
+                };
+            }
+
+            // Initialize language utilities
             if (window.LanguageUtils) {
                 window.LanguageUtils.updatePageLanguage();
             }

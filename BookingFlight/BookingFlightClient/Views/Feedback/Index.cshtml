@@ -225,53 +225,174 @@
         }
 
         .search-filter-section {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            border: 1px solid #e0e6ed;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            border: 1px solid rgba(255,255,255,0.18);
+            backdrop-filter: blur(20px);
+        }
+
+        .search-filter-form .form-group {
+            margin-bottom: 0;
         }
 
         .search-filter-form .form-group label {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 12px;
             display: block;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
         }
 
         .search-filter-form .form-control {
-            border: 2px solid #e0e6ed;
-            border-radius: 8px;
-            padding: 10px 15px;
-            transition: all 0.3s ease;
+            border: 2px solid #e8ecf0;
+            border-radius: 12px;
+            padding: 14px 18px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #ffffff;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            height: 50px;
         }
 
         .search-filter-form .form-control:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            border-color: #667eea;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.25);
+            transform: translateY(-1px);
+            background: #ffffff;
+            outline: none;
+        }
+
+        .search-filter-form .form-control::placeholder {
+            color: #a0a8b5;
+            font-style: italic;
         }
 
         .search-filter-form .btn {
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-weight: 600;
+            border-radius: 12px;
+            padding: 14px 24px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            height: 50px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-filter-form .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .search-filter-form .btn:hover::before {
+            left: 100%;
         }
 
         .search-filter-form .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
 
-        .search-filter-form .btn-outline {
+        .search-filter-form .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4c93 100%);
+        }
+
+        .search-filter-form .btn-outline-secondary {
             background: transparent;
             color: #6c757d;
-            border: 2px solid #e0e6ed;
+            border: 2px solid #e8ecf0;
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.2);
         }
 
-        .search-filter-form .btn-outline:hover {
-            background: #f8f9fa;
-            border-color: #adb5bd;
+        .search-filter-form .btn-outline-secondary:hover {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            border-color: #6c757d;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+        }
+
+        .search-filter-form .d-flex.gap-2 {
+            gap: 12px !important;
+        }
+
+        /* Responsive improvements */
+        @@media (max-width: 992px) {
+            .search-filter-section {
+                padding: 25px;
+            }
+            
+            .search-filter-form .form-control {
+                height: 45px;
+                padding: 12px 16px;
+                font-size: 0.9rem;
+            }
+            
+            .search-filter-form .btn {
+                height: 45px;
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .search-filter-section {
+                padding: 20px;
+                margin-bottom: 30px;
+            }
+            
+            .search-filter-form .row.g-4 {
+                gap: 1.5rem !important;
+            }
+            
+            .search-filter-form .d-flex {
+                flex-direction: column;
+                gap: 10px !important;
+            }
+            
+            .search-filter-form .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .search-filter-section {
+                padding: 15px;
+                border-radius: 15px;
+            }
+            
+            .search-filter-form .form-group label {
+                font-size: 0.9rem;
+                margin-bottom: 8px;
+            }
+            
+            .search-filter-form .form-control {
+                height: 42px;
+                padding: 10px 14px;
+                font-size: 0.85rem;
+            }
+            
+            .search-filter-form .btn {
+                height: 42px;
+                padding: 10px 16px;
+                font-size: 0.85rem;
+            }
         }
 
         .feedback-actions {
@@ -515,7 +636,7 @@
                         <i class="fas fa-thumbs-up"></i>
                     </div>
                     <div class="stat-number" style="color: #ffc107;">@Model.Count(f => f.Rate >= 4)</div>
-                    <div class="stat-label">Đánh giá tích cực</div>
+                    <div class="stat-label">Đánh giá tích cực (5⭐ & 4⭐)</div>
                 </div>
             </div>
 
@@ -524,45 +645,49 @@
                 <form method="get" action="@Url.Action("Index", "Feedback")" class="search-filter-form">
                     <input type="hidden" name="page" value="1" />
                     <input type="hidden" name="pageSize" value="@ViewBag.PageSize" />
-                    <div class="row">
-                        <div class="col-md-4">
+                    <div class="row g-4 align-items-end">
+                        <div class="col-lg-5 col-md-6">
                             <div class="form-group">
-                                <label for="searchText">
-                                    <span data-vn="Tìm kiếm" data-en="Search" data-zh="搜索">Tìm kiếm</span>
+                                <label for="searchText" class="form-label fw-bold">
+                                    <i class="fas fa-search me-2 text-primary"></i>
+                                    <span data-vn="Tìm kiếm feedback" data-en="Search Feedback" data-zh="搜索反馈">Tìm kiếm feedback</span>
                                 </label>
-                                <input type="text" class="form-control" id="searchText" name="searchText" 
+                                <input type="text" class="form-control form-control-lg" id="searchText" name="searchText" 
                                        value="@ViewBag.SearchText" 
-                                       placeholder="Tìm theo tiêu đề hoặc nội dung...">
+                                       placeholder="Nhập tiêu đề hoặc nội dung để tìm kiếm...">
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-lg-3 col-md-6">
                             <div class="form-group">
-                                <label for="rating">
+                                <label for="rating" class="form-label fw-bold">
+                                    <i class="fas fa-star me-2 text-warning"></i>
                                     <span data-vn="Lọc theo đánh giá" data-en="Filter by Rating" data-zh="按评分筛选">Lọc theo đánh giá</span>
                                 </label>
-                                <select class="form-control" id="rating" name="rating">
+                                @{
+                                    string currentRating = ViewBag.Rating?.ToString() ?? "";
+                                }
+                                <select class="form-control form-control-lg" id="rating" name="rating">
                                     <option value="">
-                                        <span data-vn="Tất cả" data-en="All" data-zh="全部">Tất cả</span>
+                                        <span data-vn="🌟 Tất cả đánh giá" data-en="🌟 All Ratings" data-zh="🌟 所有评分">🌟 Tất cả đánh giá</span>
                                     </option>
-                                    <option value="5" selected="@(ViewBag.Rating?.ToString() == "5" ? "selected" : null)">⭐⭐⭐⭐⭐ (5 sao)</option>
-                                    <option value="4" selected="@(ViewBag.Rating?.ToString() == "4" ? "selected" : null)">⭐⭐⭐⭐ (4 sao)</option>
-                                    <option value="3" selected="@(ViewBag.Rating?.ToString() == "3" ? "selected" : null)">⭐⭐⭐ (3 sao)</option>
-                                    <option value="2" selected="@(ViewBag.Rating?.ToString() == "2" ? "selected" : null)">⭐⭐ (2 sao)</option>
-                                    <option value="1" selected="@(ViewBag.Rating?.ToString() == "1" ? "selected" : null)">⭐ (1 sao)</option>
+                                    <option value="5" selected="@(currentRating == "5")">⭐⭐⭐⭐⭐ Xuất sắc (5 sao)</option>
+                                    <option value="4" selected="@(currentRating == "4")">⭐⭐⭐⭐ Tốt (4 sao)</option>
+                                    <option value="3" selected="@(currentRating == "3")">⭐⭐⭐ Ổn (3 sao)</option>
+                                    <option value="2" selected="@(currentRating == "2")">⭐⭐ Kém (2 sao)</option>
+                                    <option value="1" selected="@(currentRating == "1")">⭐ Rất kém (1 sao)</option>
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-lg-4 col-md-12">
                             <div class="form-group">
-                                <label>&nbsp;</label>
-                                <div class="d-flex">
-                                    <button type="submit" class="btn btn-primary me-2">
-                                        <i class="fas fa-search"></i>
+                                <div class="d-flex gap-3">
+                                    <button type="submit" class="btn btn-primary btn-lg flex-fill">
+                                        <i class="fas fa-search me-2"></i>
                                         <span data-vn="Tìm kiếm" data-en="Search" data-zh="搜索">Tìm kiếm</span>
                                     </button>
-                                    <a href="@Url.Action("Index", "Feedback")" class="btn btn-outline">
-                                        <i class="fas fa-refresh"></i>
-                                        <span data-vn="Xóa bộ lọc" data-en="Clear Filter" data-zh="清除筛选">Xóa bộ lọc</span>
+                                    <a href="@Url.Action("Index", "Feedback")" class="btn btn-outline-secondary btn-lg flex-fill">
+                                        <i class="fas fa-refresh me-2"></i>
+                                        <span data-vn="Làm mới" data-en="Reset" data-zh="重置">Làm mới</span>
                                     </a>
                                 </div>
                             </div>
@@ -653,7 +778,7 @@
             <!-- Pagination -->
             @if (ViewBag.TotalPages > 1)
             {
-                <div class="pagination-container">
+                <div class="pagination-container" style="display: none;" id="server-pagination">
                     <nav aria-label="Pagination navigation">
                         <ul class="pagination">
                             <!-- Previous Page -->
@@ -785,8 +910,31 @@
 
     <script src="~/js/lib/bootstrap.bundle.min.js"></script>
     <script src="~/js/common/LanguageUtils.js" asp-append-version="true"></script>
+    <script src="~/js/feedback-pagination.js" asp-append-version="true"></script>
     <script>
+        // Initialize pagination and other functionality
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize pagination for main feedback page
+            let feedbackPagination;
+            
+            // Only initialize if there are feedback cards
+            const feedbackCards = document.querySelectorAll('.feedback-card');
+            if (feedbackCards.length > 0) {
+                feedbackPagination = new FeedbackPagination({
+                    itemsPerPage: 6,
+                    containerSelector: '.feedback-grid',
+                    itemSelector: '.feedback-card',
+                    searchInputId: 'searchText',
+                    ratingSelectId: 'rating',
+                    paginationId: 'js-pagination',
+                    showAnimation: true,
+                    scrollToTop: true
+                });
+
+                // Setup search form integration
+                feedbackPagination.setupSearchForm('.search-filter-form');
+            }
+
             // Auto-hide alerts after 5 seconds
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(function(alert) {
@@ -803,6 +951,7 @@
                 }, 5000); // 5 seconds
             });
 
+            // Initialize language utilities
             if (window.LanguageUtils) {
                 window.LanguageUtils.updatePageLanguage();
             }

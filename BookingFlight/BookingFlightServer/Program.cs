@@ -71,7 +71,8 @@ namespace BookingFlightServer
 
 			// Feedback services
 			builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
-			builder.Services.AddScoped<IFeedbackService, BookingFlightServer.Services.Implements.FeedbackService>();
+			builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+			builder.Services.AddSingleton<IFeedbackTicketMappingService, FeedbackTicketMappingService>();
 			
 			// Manual registration for Discount services
 			builder.Services.AddScoped<IDiscountService, BookingFlightServer.Services.Implements.DiscountService>();
