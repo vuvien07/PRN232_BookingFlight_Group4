@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using BookingFlightClient.Services;
 
 namespace BookingFlightClient
 {
@@ -18,6 +19,10 @@ namespace BookingFlightClient
 				options.Cookie.HttpOnly = true;
 				options.Cookie.IsEssential = true;
 			});
+			
+			// Register services
+			builder.Services.AddScoped<INewsService, NewsService>();
+			
 			builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
 			 options =>
 				{

@@ -1,0 +1,108 @@
+@model BookingFlightClient.Models.DTO.NewsDto
+@{
+    ViewData["Title"] = Model.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="~/css/common/Header.css">
+    <link rel="stylesheet" href="~/css/common/Footer.css">
+    <link rel="stylesheet" href="~/css/news/news-details.css">
+}
+
+<partial name="~/Views/Common/_Header.cshtml" />
+    <div class="news-detail-container">
+        <!-- Back Button -->
+        <div class="back-navigation">
+            <a href="/News" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span data-vn="Quay lại tin tức" data-en="Back to News" data-zh="返回新闻">Quay lại tin tức</span>
+            </a>
+        </div>
+
+        <!-- Article Header -->
+        <article class="news-article">
+            <div class="article-header-layout">
+                <!-- Featured Image -->
+                <div class="featured-image">
+                    <img src="@Model.ImageUrl" alt="@Model.Title" loading="lazy">
+                </div>
+                
+                <!-- Article Header Info -->
+                <header class="article-header">
+                    <div class="article-meta">
+                        <span class="article-category">@Model.Category</span>
+                        <time class="article-date">@Model.PublishedDate.ToString("dd/MM/yyyy")</time>
+                    </div>
+                    <h1 class="article-title">@Model.Title</h1>
+                    <div class="article-author-info">
+                        <div class="author-details">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="author-name">@Model.Author</span>
+                        </div>
+                        <div class="article-stats">
+                            <span class="read-time">
+                                <i class="fas fa-clock"></i>
+                                5 phút đọc
+                            </span>
+                            <span class="view-count">
+                                <i class="fas fa-eye"></i>
+                                @Model.ViewCount lượt xem
+                            </span>
+                        </div>
+                    </div>
+                </header>
+            </div>
+
+            <!-- Article Content -->
+            <div class="article-content">
+                @Html.Raw(Model.Content)
+            </div>
+
+            <!-- Article Actions -->
+            <div class="article-actions">
+                <div class="social-share">
+                    <h4>Chia sẻ bài viết:</h4>
+                    <div class="share-buttons">
+                        <button class="share-btn facebook" data-platform="facebook">
+                            <i class="fab fa-facebook-f"></i>
+                            Facebook
+                        </button>
+                        <button class="share-btn twitter" data-platform="twitter">
+                            <i class="fab fa-twitter"></i>
+                            Twitter
+                        </button>
+                        <button class="share-btn linkedin" data-platform="linkedin">
+                            <i class="fab fa-linkedin-in"></i>
+                            LinkedIn
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- Related Articles -->
+        <section class="related-articles">
+            <h3 class="related-title">
+                <span data-vn="Tin tức liên quan" data-en="Related News" data-zh="相关新闻">Tin tức liên quan</span>
+            </h3>
+            <div class="related-grid" id="relatedNews">
+                <!-- Related articles will be loaded here -->
+            </div>
+        </section>
+    </div>
+
+<partial name="~/Views/Common/_Footer.cshtml" />
+
+@section Scripts {
+    <script src="~/js/news/news-details.js"></script>
+    <script>
+        // Initialize news details with current article data
+        window.newsDetailsManager = new NewsDetailsManager({
+            currentArticleId: @Model.NewId,
+            currentCategory: '@Model.Category'
+        });
+    </script>
+}

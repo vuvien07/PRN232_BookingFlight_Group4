@@ -20,6 +20,8 @@ namespace BookingFlightServer.DTO.Shared
 
 		public string FullName { get; set; } = null!;
 
+		public int StatusId { get; set; }
+
 		public ClassSeatDTO ClassSeatDTO { get; set; } = null!;
 
 		public string? ContactFullName { get; set; }

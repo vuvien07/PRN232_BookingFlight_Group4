@@ -1,0 +1,552 @@
+@{
+    ViewData["Title"] = "Booking History";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var bookingHistory = ViewBag.BookingHistory as BookingFlightClient.Controllers.PaginatedTicketResult ?? new BookingFlightClient.Controllers.PaginatedTicketResult();
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="~/css/common/Footer.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/common/Header.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            margin-top: 9%;
+            background: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .booking-history-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 600;
+        }
+
+        .page-header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tickets-section {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .ticket-card {
+            border-bottom: 1px solid #e9ecef;
+            padding: 25px 30px;
+            transition: background-color 0.2s ease;
+        }
+
+        .ticket-card:hover {
+            background-color: #f8f9fa;
+        }
+
+        .ticket-card:last-child {
+            border-bottom: none;
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .ticket-number {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .ticket-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-confirmed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .flight-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .route-display {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .route-arrow {
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+
+        .flight-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 3px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .ticket-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-action {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+
+        .btn-outline:hover {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .no-tickets {
+            text-align: center;
+            padding: 60px 30px;
+            color: #666;
+        }
+
+        .no-tickets i {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .no-tickets h3 {
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .no-tickets p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .pagination-wrapper {
+            padding: 20px 30px;
+            background-color: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            background-color: white;
+            color: #6c757d;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .page-btn:hover:not(.disabled) {
+            background-color: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .page-btn.active {
+            background-color: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .page-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .price-display {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        @@media (max-width: 768px) {
+            .ticket-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .flight-info {
+                grid-template-columns: 1fr;
+            }
+
+            .flight-details {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .ticket-actions {
+                flex-direction: column;
+            }
+
+            .btn-action {
+                justify-content: center;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading i {
+            font-size: 3rem;
+            color: #667eea;
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+    <partial name="~/Views/Common/_Header.cshtml" />
+
+    <div class="booking-history-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>
+                <i class="fas fa-history"></i>
+                <span data-vn="Lịch sử đặt vé" data-en="Booking History" data-zh="预订历史">Lịch sử đặt vé</span>
+            </h1>
+            <p data-vn="Xem lại tất cả các chuyến bay bạn đã đặt" data-en="Review all your flight bookings" data-zh="查看您所有的航班预订">
+                Xem lại tất cả các chuyến bay bạn đã đặt
+            </p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-number">@bookingHistory.TotalCount</div>
+                <div class="stat-label" data-vn="Tổng số vé" data-en="Total Tickets" data-zh="总票数">Tổng số vé</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">@bookingHistory.TotalPages</div>
+                <div class="stat-label" data-vn="Trang" data-en="Pages" data-zh="页数">Trang</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">@bookingHistory.Tickets.Count(t => t.StatusId == 1)</div>
+                <div class="stat-label" data-vn="Đã xác nhận" data-en="Confirmed" data-zh="已确认">Đã xác nhận</div>
+            </div>
+        </div>
+
+        <!-- Tickets Section -->
+        <div class="tickets-section">
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-ticket-alt"></i>
+                    <span data-vn="Danh sách vé đã đặt" data-en="Booked Tickets" data-zh="已预订机票">Danh sách vé đã đặt</span>
+                </h2>
+            </div>
+
+            @if (bookingHistory.Tickets.Any())
+            {
+                @foreach (var ticket in bookingHistory.Tickets)
+                {
+                    <div class="ticket-card">
+                        <div class="ticket-header">
+                            <div class="ticket-number">
+                                <i class="fas fa-ticket-alt"></i>
+                                @ticket.TicketNumber
+                            </div>
+                            <div class="ticket-status @(GetStatusClass(ticket.StatusId))">
+                                @GetStatusText(ticket.StatusId)
+                            </div>
+                        </div>
+
+                        <div class="flight-info">
+                            <div class="route-display">
+                                <span>@ticket.FlightDTO.DepartureAirport.City (@ticket.FlightDTO.DepartureAirport.AirportCode)</span>
+                                <i class="fas fa-arrow-right route-arrow"></i>
+                                <span>@ticket.FlightDTO.ArrivalAirport.City (@ticket.FlightDTO.ArrivalAirport.AirportCode)</span>
+                            </div>
+                            <div class="price-display">
+                                @ticket.TotalPrice.ToString("C0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))
+                            </div>
+                        </div>
+
+                        <div class="flight-details">
+                            <div class="detail-item">
+                                <div class="detail-label" data-vn="Mã chuyến bay" data-en="Flight Code" data-zh="航班代码">Mã chuyến bay</div>
+                                <div class="detail-value">@ticket.FlightDTO.FlightCode</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label" data-vn="Ngày đặt" data-en="Booking Date" data-zh="预订日期">Ngày đặt</div>
+                                <div class="detail-value">@ticket.BookingDate.ToString("dd/MM/yyyy")</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label" data-vn="Khởi hành" data-en="Departure" data-zh="出发">Khởi hành</div>
+                                <div class="detail-value">@ticket.FlightDTO.DepartureTime.ToString("dd/MM/yyyy HH:mm")</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label" data-vn="Hạng vé" data-en="Class" data-zh="舱位等级">Hạng vé</div>
+                                <div class="detail-value">@ticket.ClassSeatDTO.ClassName</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label" data-vn="Hành khách" data-en="Passenger" data-zh="乘客">Hành khách</div>
+                                <div class="detail-value">@ticket.FullName</div>
+                            </div>
+                        </div>
+
+                        <div class="ticket-actions">
+                            <a href="@Url.Action("Details", "BookingHistory", new { ticketId = ticket.TicketId })" class="btn-action btn-primary">
+                                <i class="fas fa-eye"></i>
+                                <span data-vn="Xem chi tiết" data-en="View Details" data-zh="查看详情">Xem chi tiết</span>
+                            </a>
+                            @if (ticket.StatusId == 1 && ticket.FlightDTO.DepartureTime > DateTime.Now.AddDays(1))
+                            {
+                                <button class="btn-action btn-outline" onclick="cancelTicket(@ticket.TicketId)">
+                                    <i class="fas fa-times"></i>
+                                    <span data-vn="Hủy vé" data-en="Cancel Ticket" data-zh="取消机票">Hủy vé</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Pagination -->
+                @if (bookingHistory.TotalPages > 1)
+                {
+                    <div class="pagination-wrapper">
+                        <div class="pagination">
+                            @if (bookingHistory.HasPreviousPage)
+                            {
+                                <a href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1, pageSize = ViewBag.PageSize })" class="page-btn">
+                                    <i class="fas fa-chevron-left"></i>
+                                    <span data-vn="Trước" data-en="Previous" data-zh="上一页">Trước</span>
+                                </a>
+                            }
+
+                            @for (int i = Math.Max(1, ViewBag.CurrentPage - 2); i <= Math.Min(bookingHistory.TotalPages, ViewBag.CurrentPage + 2); i++)
+                            {
+                                <a href="@Url.Action("Index", new { page = i, pageSize = ViewBag.PageSize })" 
+                                   class="page-btn @(i == ViewBag.CurrentPage ? "active" : "")">
+                                    @i
+                                </a>
+                            }
+
+                            @if (bookingHistory.HasNextPage)
+                            {
+                                <a href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1, pageSize = ViewBag.PageSize })" class="page-btn">
+                                    <span data-vn="Sau" data-en="Next" data-zh="下一页">Sau</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="no-tickets">
+                    <i class="fas fa-ticket-alt"></i>
+                    <h3 data-vn="Chưa có lịch sử đặt vé" data-en="No Booking History" data-zh="暂无预订历史">Chưa có lịch sử đặt vé</h3>
+                    <p data-vn="Bạn chưa đặt vé nào. Hãy khám phá các chuyến bay của chúng tôi!" data-en="You haven't booked any tickets yet. Explore our flights!" data-zh="您还没有预订任何机票。探索我们的航班！">
+                        Bạn chưa đặt vé nào. Hãy khám phá các chuyến bay của chúng tôi!
+                    </p>
+                    <a href="/flight/list" class="btn-action btn-primary">
+                        <i class="fas fa-search"></i>
+                        <span data-vn="Tìm chuyến bay" data-en="Find Flights" data-zh="查找航班">Tìm chuyến bay</span>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <partial name="~/Views/Common/_Footer.cshtml" />
+
+    <script src="~/js/lib/bootstrap.bundle.min.js"></script>
+    <script src="~/js/common/LanguageUtils.js" asp-append-version="true"></script>
+    <script src="~/js/common/Snackbar.js" asp-append-version="true"></script>
+    <script>
+        function cancelTicket(ticketId) {
+            if (confirm('Bạn có chắc chắn muốn hủy vé này không?')) {
+                // Add cancel ticket logic here
+                console.log('Cancel ticket:', ticketId);
+                showSnackbar('Chức năng hủy vé đang được phát triển', 'info');
+            }
+        }
+
+        // Initialize language utils
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.LanguageUtils) {
+                window.LanguageUtils.updatePageLanguage();
+            }
+        });
+    </script>
+</body>
+</html>
+
+@functions {
+    private string GetStatusClass(int statusId)
+    {
+        return statusId switch
+        {
+            1 => "status-confirmed",
+            2 => "status-cancelled",
+            _ => "status-pending"
+        };
+    }
+
+    private string GetStatusText(int statusId)
+    {
+        return statusId switch
+        {
+            1 => "Đã xác nhận",
+            2 => "Đã hủy",
+            _ => "Chờ xử lý"
+        };
+    }
+}

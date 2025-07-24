@@ -5,72 +5,112 @@
     ViewData["Title"] = "Quản lý tài khoản";
 }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
-
-<style>
-    body {
-        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-        min-height: 100vh;
-    }
-
-    .table-wrapper {
-        background: #ffffff;
-        border-radius: 1rem;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        padding: 1rem;
-    }
-
-    .table thead th {
-        background-color: #f1f3f5;
-        font-weight: 600;
-    }
-
-    .btn-custom {
-        border-radius: 8px;
-    }
-
-    .btn-add {
-        background: linear-gradient(45deg, #28a745, #218838);
-        color: #fff;
-    }
-
-        .btn-add:hover {
-            background: linear-gradient(45deg, #218838, #1e7e34);
-            color: #fff;
-        }
-
-    .badge-role {
-        font-size: 0.9rem;
-        padding: 0.4em 0.7em;
-        border-radius: 50px;
-    }
-
-    .badge-status {
-        font-size: 0.85rem;
-        border-radius: 50px;
-    }
-</style>
-
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary">
-            <i class="bi bi-people-fill"></i> Quản lý tài khoản
-        </h2>
-        <a asp-action="Add" asp-controller="ManageAccount" class="btn btn-add btn-custom">
-            <i class="bi bi-plus-circle me-1"></i> Thêm tài khoản
-        </a>
+<!-- Dashboard Stats Cards -->
+<div class="dashboard-grid">
+    <div class="stats-card">
+        <div class="stats-card-header">
+            <div class="stats-icon">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+        <div class="stats-value" data-target="@(Model?.Count ?? 0)">@(Model?.Count ?? 0)</div>
+        <div class="stats-label">Tổng số tài khoản</div>
+        <div class="stats-change positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>Tài khoản trong hệ thống</span>
+        </div>
     </div>
 
-    <div class="table-wrapper">
-        <table class="table table-hover align-middle text-center">
-            <thead class="table-light">
+    <div class="stats-card success">
+        <div class="stats-card-header">
+            <div class="stats-icon">
+                <i class="fas fa-user-check"></i>
+            </div>
+        </div>
+        <div class="stats-value" data-target="@(Model?.Count(x => x.Status == "Active") ?? 0)">@(Model?.Count(x => x.Status == "Active") ?? 0)</div>
+        <div class="stats-label">Tài khoản hoạt động</div>
+        <div class="stats-change positive">
+            <i class="fas fa-check"></i>
+            <span>Đang hoạt động</span>
+        </div>
+    </div>
+
+    <div class="stats-card warning">
+        <div class="stats-card-header">
+            <div class="stats-icon">
+                <i class="fas fa-user-lock"></i>
+            </div>
+        </div>
+        <div class="stats-value" data-target="@(Model?.Count(x => x.Status != "Active") ?? 0)">@(Model?.Count(x => x.Status != "Active") ?? 0)</div>
+        <div class="stats-label">Tài khoản bị khóa</div>
+        <div class="stats-change negative">
+            <i class="fas fa-ban"></i>
+            <span>Tạm khóa</span>
+        </div>
+    </div>
+
+    <div class="stats-card error">
+        <div class="stats-card-header">
+            <div class="stats-icon">
+                <i class="fas fa-plus"></i>
+            </div>
+        </div>
+        <div class="stats-value">
+            <a asp-action="Add" asp-controller="ManageAccount" class="btn" style="background: none; border: none; color: inherit; padding: 0; font-size: inherit; font-weight: inherit;">
+                <i class="fas fa-plus-circle"></i>
+            </a>
+        </div>
+        <div class="stats-label">
+            <a asp-action="Add" asp-controller="ManageAccount" style="color: inherit; text-decoration: none;">
+                Thêm tài khoản
+            </a>
+        </div>
+        <div class="stats-change positive">
+            <i class="fas fa-user-plus"></i>
+            <span>Tạo tài khoản mới</span>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Card -->
+<div class="chart-card">
+    <div class="chart-header">
+        <h3 class="chart-title">
+            <i class="fas fa-users-cog"></i>
+            Danh sách tài khoản
+        </h3>
+        <div class="chart-actions">
+            <div class="header-search">
+                <input type="text" class="search-input" placeholder="Tìm kiếm tài khoản..." id="searchInput">
+                <button class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            <a asp-action="Add" asp-controller="ManageAccount" class="action-btn" style="background: var(--primary-color); color: white;" title="Thêm tài khoản">
+                <i class="fas fa-plus"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+        <table class="table" style="margin: 0; table-layout: fixed; width: 100%;">
+            <thead style="position: sticky; top: 0; background: white; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 <tr>
-                    <th>Account ID</th>
-                    <th>Tên đăng nhập</th>
-                    <th>Quyền</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
+                    <th style="padding: 15px; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #2d3748; width: 10%;">
+                        <i class="fas fa-hashtag"></i> ID
+                    </th>
+                    <th style="padding: 15px; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #2d3748; width: 35%;">
+                        <i class="fas fa-user"></i> Tên đăng nhập
+                    </th>
+                    <th style="padding: 15px; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #2d3748; width: 20%;">
+                        <i class="fas fa-shield-alt"></i> Quyền
+                    </th>
+                    <th style="padding: 15px; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #2d3748; width: 20%;">
+                        <i class="fas fa-toggle-on"></i> Trạng thái
+                    </th>
+                    <th style="padding: 15px; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #2d3748; width: 15%; text-align: center;">
+                        <i class="fas fa-cogs"></i> Thao tác
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -78,48 +118,134 @@
                 {
                     @foreach (var item in Model)
                     {
-                        <tr>
-                            <td class="text-muted">@item.AccountId</td>
-                            <td class="fw-semibold">@item.Username</td>
-                            <td>
-                                <span class="badge bg-info badge-role">
-                                    <i class="bi bi-shield-lock"></i> @item.Role
+                        <tr style="border-bottom: 1px solid #e2e8f0; transition: all 0.2s ease;" onmouseover="this.style.backgroundColor='#f7fafc'" onmouseout="this.style.backgroundColor='transparent'">
+                            <td style="padding: 15px; color: #718096; word-wrap: break-word;">
+                                <strong>#@item.AccountId</strong>
+                            </td>
+                            <td style="padding: 15px; word-wrap: break-word;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px; flex-shrink: 0;">
+                                        @(item.Username?.Substring(0, 1).ToUpper() ?? "U")
+                                    </div>
+                                    <span style="font-weight: 600; color: #2d3748; font-size: 15px;">@item.Username</span>
+                                </div>
+                            </td>
+                            <td style="padding: 15px; word-wrap: break-word;">
+                                <span style="
+                                    display: inline-flex;
+                                    align-items: center;
+                                    gap: 6px;
+                                    padding: 8px 14px;
+                                    background: linear-gradient(135deg, var(--info-color), #3182ce);
+                                    color: white;
+                                    border-radius: 20px;
+                                    font-size: 13px;
+                                    font-weight: 600;
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.5px;
+                                    white-space: nowrap;
+                                ">
+                                    <i class="fas fa-shield-alt"></i>
+                                    @item.Role
                                 </span>
                             </td>
-                            <td>
+                            <td style="padding: 15px; word-wrap: break-word;">
                                 @if (item.Status == "Active")
                                 {
-                                    <span class="badge bg-success badge-status">
-                                        <i class="bi bi-check-circle"></i> Hoạt động
+                                    <span style="
+                                        display: inline-flex;
+                                        align-items: center;
+                                        gap: 6px;
+                                        padding: 8px 14px;
+                                        background: linear-gradient(135deg, var(--success-color), #38a169);
+                                        color: white;
+                                        border-radius: 20px;
+                                        font-size: 13px;
+                                        font-weight: 600;
+                                        white-space: nowrap;
+                                    ">
+                                        <i class="fas fa-check-circle"></i>
+                                        Hoạt động
                                     </span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-danger badge-status">
-                                        <i class="bi bi-x-circle"></i> Tạm khóa
+                                    <span style="
+                                        display: inline-flex;
+                                        align-items: center;
+                                        gap: 6px;
+                                        padding: 8px 14px;
+                                        background: linear-gradient(135deg, var(--error-color), #e53e3e);
+                                        color: white;
+                                        border-radius: 20px;
+                                        font-size: 13px;
+                                        font-weight: 600;
+                                        white-space: nowrap;
+                                    ">
+                                        <i class="fas fa-times-circle"></i>
+                                        Tạm khóa
                                     </span>
                                 }
                             </td>
-                            <td>
-                                @if (item.Status == "Active")
-                                {
-                                    // action="/ManageAccount/BanAccount"
-                                    <form method="post" asp-action="BanAccount" asp-controller="ManageAccount"  style="display:inline;">
-                                        <input type="hidden" name="accountId" value="@item.AccountId" />
-                                        <button type="submit" class="btn btn-sm btn-warning btn-custom" onclick="return confirm('Bạn có chắc muốn khóa tài khoản này?')">
-                                            <i class="bi bi-lock-fill"></i> Khóa
-                                        </button>
-                                    </form>
-                                }
-                                else
-                                {
-                                    <form method="post" asp-action="UnBanAccount" asp-controller="ManageAccount" style="display:inline;">
-                                        <input type="hidden" name="accountId" value="@item.AccountId" />
-                                        <button type="submit" class="btn btn-sm btn-success btn-custom" onclick="return confirm('Bạn có chắc muốn mở khóa tài khoản này?')">
-                                            <i class="bi bi-unlock-fill"></i> Mở khóa
-                                        </button>
-                                    </form>
-                                }
+                            <td style="padding: 15px; text-align: center;">
+                                <div style="display: flex; gap: 8px; justify-content: center;">
+                                    @if (item.Status == "Active")
+                                    {
+                                        <form method="post" asp-action="BanAccount" asp-controller="ManageAccount" style="display:inline;">
+                                            <input type="hidden" name="accountId" value="@item.AccountId" />
+                                            <button type="submit" 
+                                                    onclick="return confirm('Bạn có chắc muốn khóa tài khoản này?')"
+                                                    style="
+                                                        border: none;
+                                                        background: linear-gradient(135deg, var(--warning-color), #dd6b20);
+                                                        color: white;
+                                                        width: 36px;
+                                                        height: 36px;
+                                                        border-radius: 8px;
+                                                        display: flex;
+                                                        align-items: center;
+                                                        justify-content: center;
+                                                        cursor: pointer;
+                                                        transition: all 0.2s ease;
+                                                        font-size: 14px;
+                                                        box-shadow: 0 2px 4px rgba(237, 137, 54, 0.3);
+                                                    "
+                                                    onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 8px rgba(237, 137, 54, 0.4)';"
+                                                    onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 4px rgba(237, 137, 54, 0.3)';"
+                                                    title="Khóa tài khoản">
+                                                <i class="fas fa-lock"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form method="post" asp-action="UnBanAccount" asp-controller="ManageAccount" style="display:inline;">
+                                            <input type="hidden" name="accountId" value="@item.AccountId" />
+                                            <button type="submit" 
+                                                    onclick="return confirm('Bạn có chắc muốn mở khóa tài khoản này?')"
+                                                    style="
+                                                        border: none;
+                                                        background: linear-gradient(135deg, var(--success-color), #38a169);
+                                                        color: white;
+                                                        width: 36px;
+                                                        height: 36px;
+                                                        border-radius: 8px;
+                                                        display: flex;
+                                                        align-items: center;
+                                                        justify-content: center;
+                                                        cursor: pointer;
+                                                        transition: all 0.2s ease;
+                                                        font-size: 14px;
+                                                        box-shadow: 0 2px 4px rgba(72, 187, 120, 0.3);
+                                                    "
+                                                    onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 8px rgba(72, 187, 120, 0.4)';"
+                                                    onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 4px rgba(72, 187, 120, 0.3)';"
+                                                    title="Mở khóa tài khoản">
+                                                <i class="fas fa-unlock"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
                             </td>
                         </tr>
                     }
@@ -127,9 +253,16 @@
                 else
                 {
                     <tr>
-                        <td colspan="5" class="text-center text-muted py-4">
-                            <i class="bi bi-exclamation-circle fs-3"></i><br />
-                            Không có tài khoản nào được tìm thấy.
+                        <td colspan="5" style="padding: 60px 20px; text-align: center;">
+                            <div style="color: #718096;">
+                                <i class="fas fa-users" style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;"></i>
+                                <h4 style="margin-bottom: 10px; color: #4a5568;">Không có tài khoản nào</h4>
+                                <p style="margin-bottom: 20px;">Hiện tại chưa có tài khoản nào trong hệ thống.</p>
+                                <a asp-action="Add" asp-controller="ManageAccount" class="action-btn" style="background: var(--primary-color); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-plus"></i>
+                                    Thêm tài khoản đầu tiên
+                                </a>
+                            </div>
                         </td>
                     </tr>
                 }
@@ -137,3 +270,86 @@
         </table>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const rows = document.querySelectorAll('tbody tr');
+                    
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                });
+            }
+
+            // Counter animation for stats cards
+            setTimeout(() => {
+                const counters = document.querySelectorAll('.stats-value[data-target]');
+                counters.forEach((counter, index) => {
+                    setTimeout(() => {
+                        const target = parseInt(counter.getAttribute('data-target'));
+                        const increment = Math.ceil(target / 50);
+                        let current = 0;
+                        
+                        const timer = setInterval(() => {
+                            current += increment;
+                            if (current >= target) {
+                                counter.textContent = target;
+                                clearInterval(timer);
+                            } else {
+                                counter.textContent = current;
+                            }
+                        }, 30);
+                    }, index * 200);
+                });
+            }, 500);
+        });
+    </script>
+
+    <style>
+        /* Additional custom styles for better ManageAccount appearance */
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .header-search {
+            position: relative;
+            width: 250px;
+        }
+        
+        .chart-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .stats-card .stats-value a {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .stats-card .stats-label a {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .stats-card:last-child {
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .stats-card:last-child:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2);
+        }
+    </style>
+}

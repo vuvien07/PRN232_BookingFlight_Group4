@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Flight Management Features</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section h3 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: inline-block;
+            width: 200px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            width: 300px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .response {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .flight-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .seat-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 5px;
+            margin: 10px 0;
+        }
+        .seat {
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .seat.available {
+            background-color: #d4edda;
+        }
+        .seat.occupied {
+            background-color: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Flight Management Features</h1>
+    <p><strong>Tính năng được test:</strong></p>
+    <ul>
+        <li>✅ Chỉ cho phép update flight trước 2 ngày departure</li>
+        <li>🆕 KHÔNG cho phép thay đổi sân bay (departure/arrival airport)</li>
+        <li>🆕 KHÔNG cho phép lùi lịch bay (departure time sớm hơn)</li>
+        <li>✅ Gửi email thông báo với lý do AI-generated khi update flight có seat đã được đặt</li>
+        <li>✅ Hiển thị customer và ticket number ở flight details (từ Ticket table)</li>
+        <li>🎨 Email template được thiết kế lại với CSS đẹp và chuyên nghiệp</li>
+    </ul>
+
+    <!-- Section 1: Get Flight Details -->
+    <div class="test-section">
+        <h3>1. Xem Chi Tiết Flight</h3>
+        <p>Test hiển thị customer và ticket number trong flight details:</p>
+        <div class="form-group">
+            <label>Flight ID:</label>
+            <input type="number" id="flightId" placeholder="Nhập Flight ID">
+        </div>
+        <div class="form-group">
+            <label>Manager Token:</label>
+            <input type="text" id="managerToken" placeholder="Bearer token của manager">
+        </div>
+        <button onclick="getFlightDetails()">Lấy Chi Tiết Flight</button>
+        <div id="flightDetailsResponse" class="response"></div>
+    </div>
+
+    <!-- Section 2: Update Flight -->
+    <div class="test-section">
+        <h3>2. Update Flight (Test 2 Days Rule)</h3>
+        <p>Test việc chỉ cho phép update trước 2 ngày departure:</p>
+        <div class="flight-details">
+            <div>
+                <div class="form-group">
+                    <label>Flight ID:</label>
+                    <input type="number" id="updateFlightId" placeholder="Flight ID">
+                </div>
+                <div class="form-group">
+                    <label>Flight Code:</label>
+                    <input type="text" id="flightCode" placeholder="VN001">
+                </div>
+                <div class="form-group">
+                    <label>Tax:</label>
+                    <input type="number" id="tax" placeholder="50000">
+                </div>
+                <div class="form-group">
+                    <label>Departure Time:</label>
+                    <input type="datetime-local" id="departureTime">
+                </div>
+                <div class="form-group">
+                    <label>Arrival Time:</label>
+                    <input type="datetime-local" id="arrivalTime">
+                </div>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label>Plane ID:</label>
+                    <input type="number" id="planeId" placeholder="1">
+                </div>
+                <div class="form-group">
+                    <label>Departure Airport ID:</label>
+                    <input type="number" id="departureAirportId" placeholder="1">
+                </div>
+                <div class="form-group">
+                    <label>Arrival Airport ID:</label>
+                    <input type="number" id="arrivalAirportId" placeholder="2">
+                </div>
+                <div class="form-group">
+                    <label>Manager Token:</label>
+                    <input type="text" id="updateManagerToken" placeholder="Bearer token">
+                </div>
+            </div>
+        </div>
+        <button onclick="updateFlight()">Update Flight</button>
+        <div id="updateFlightResponse" class="response"></div>
+    </div>
+
+    <!-- Section 3: Flight Seats -->
+    <div class="test-section">
+        <h3>3. Xem Seat Status với Customer Info</h3>
+        <p>Test hiển thị thông tin customer và ticket number cho các seat:</p>
+        <div class="form-group">
+            <label>Flight ID:</label>
+            <input type="number" id="seatsFlightId" placeholder="Flight ID">
+        </div>
+        <div class="form-group">
+            <label>Manager Token:</label>
+            <input type="text" id="seatsManagerToken" placeholder="Bearer token">
+        </div>
+        <button onclick="getFlightSeats()">Lấy Thông Tin Seats</button>
+        <div id="seatsResponse" class="response"></div>
+    </div>
+
+    <!-- Section 4: Create Test Flight -->
+    <div class="test-section">
+        <h3>4. Tạo Test Flight (Để Test Update)</h3>
+        <p>Tạo flight mới để test các tính năng:</p>
+        <div class="flight-details">
+            <div>
+                <div class="form-group">
+                    <label>Flight Code:</label>
+                    <input type="text" id="newFlightCode" placeholder="TEST001">
+                </div>
+                <div class="form-group">
+                    <label>Tax:</label>
+                    <input type="number" id="newTax" value="50000">
+                </div>
+                <div class="form-group">
+                    <label>Departure Time:</label>
+                    <input type="datetime-local" id="newDepartureTime">
+                </div>
+                <div class="form-group">
+                    <label>Arrival Time:</label>
+                    <input type="datetime-local" id="newArrivalTime">
+                </div>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label>Plane ID:</label>
+                    <input type="number" id="newPlaneId" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Departure Airport ID:</label>
+                    <input type="number" id="newDepartureAirportId" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Arrival Airport ID:</label>
+                    <input type="number" id="newArrivalAirportId" value="2">
+                </div>
+                <div class="form-group">
+                    <label>Manager Token:</label>
+                    <input type="text" id="createManagerToken" placeholder="Bearer token">
+                </div>
+            </div>
+        </div>
+        <button onclick="createTestFlight()">Tạo Test Flight</button>
+        <div id="createFlightResponse" class="response"></div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="test-section">
+        <h3>Hướng Dẫn Test:</h3>
+        <ol>
+            <li><strong>Lấy Manager Token:</strong> Đăng nhập với tài khoản manager và lấy Bearer token</li>
+            <li><strong>Tạo Test Flight:</strong> Tạo một flight mới với departure time > 2 ngày từ hiện tại</li>
+            <li><strong>Đặt Vé:</strong> Sử dụng frontend để đặt vé cho flight đó (để có occupied seats)</li>
+            <li><strong>Test Update:</strong>
+                <ul>
+                    <li>Thử update flight trong vòng 2 ngày → Sẽ bị từ chối</li>
+                    <li>Thử update flight ngoài 2 ngày → Sẽ thành công và gửi email</li>
+                </ul>
+            </li>
+            <li><strong>Kiểm tra Email:</strong> Check console log hoặc email inbox để xem thông báo</li>
+            <li><strong>Xem Chi Tiết:</strong> Kiểm tra flight details có hiển thị customer và ticket number</li>
+        </ol>
+        
+        <h4>Test Cases:</h4>
+        <ul>
+            <li>✅ Update flight với departure time < 2 ngày → Expected: Error message</li>
+            <li>🆕 Thay đổi departure airport → Expected: "Cannot change departure airport after flight creation"</li>
+            <li>🆕 Thay đổi arrival airport → Expected: "Cannot change arrival airport after flight creation"</li>
+            <li>🆕 Lùi lịch bay (departure time sớm hơn) → Expected: "Cannot reschedule flight to an earlier departure time"</li>
+            <li>✅ Update flight với departure time > 2 ngày + có occupied seats → Expected: Success + AI-generated email sent</li>
+            <li>✅ Flight details hiển thị customer name và ticket number từ Ticket table (không phải Customer table)</li>
+            <li>🎨 Email notification có design đẹp với lý do thay đổi từ Gemini AI</li>
+        </ul>
+        
+        <h4>🤖 Gemini AI Integration:</h4>
+        <p>Khi update flight, hệ thống sẽ gọi Gemini AI API để tạo lý do thay đổi dựa trên:</p>
+        <ul>
+            <li>📅 Ngày hiện tại và thông tin thời tiết</li>
+            <li>🎯 Sự kiện đặc biệt trong ngày</li>
+            <li>✈️ Lý do kỹ thuật phù hợp với hàng không</li>
+            <li>🌍 Tình hình giao thông hàng không</li>
+        </ul>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5077/api/FlightManage';
+
+        // Set default dates (3 days from now)
+        window.onload = function() {
+            const now = new Date();
+            const futureDate = new Date(now.getTime() + (3 * 24 * 60 * 60 * 1000)); // 3 days from now
+            const futureDateEnd = new Date(futureDate.getTime() + (2 * 60 * 60 * 1000)); // 2 hours later
+            
+            document.getElementById('newDepartureTime').value = formatDateTimeLocal(futureDate);
+            document.getElementById('newArrivalTime').value = formatDateTimeLocal(futureDateEnd);
+            document.getElementById('departureTime').value = formatDateTimeLocal(futureDate);
+            document.getElementById('arrivalTime').value = formatDateTimeLocal(futureDateEnd);
+        };
+
+        function formatDateTimeLocal(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        async function getFlightDetails() {
+            const flightId = document.getElementById('flightId').value;
+            const token = document.getElementById('managerToken').value;
+            const responseDiv = document.getElementById('flightDetailsResponse');
+
+            if (!flightId || !token) {
+                responseDiv.textContent = 'Vui lòng nhập Flight ID và Manager Token';
+                responseDiv.className = 'response error';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/${flightId}/details`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    let seatsHtml = '<h4>Flight Seats:</h4><div class="seat-grid">';
+                    data.data.Seats.forEach(seat => {
+                        const seatClass = seat.IsSat ? 'occupied' : 'available';
+                        const customerInfo = seat.IsSat ? 
+                            `Customer: ${seat.CustomerName}\nTicket: ${seat.TicketCode || seat.TicketNumber}` : 
+                            'Available';
+                        seatsHtml += `<div class="seat ${seatClass}" title="${customerInfo}">
+                            ${seat.SeatNumber}<br>
+                            <small>${seat.IsSat ? 'Occupied' : 'Available'}</small><br>
+                            ${seat.IsSat ? `<small>${seat.CustomerName}</small><br><small>${seat.TicketCode}</small>` : ''}
+                        </div>`;
+                    });
+                    seatsHtml += '</div>';
+                    
+                    responseDiv.innerHTML = `
+                        <h4>Flight Details:</h4>
+                        <p><strong>Flight Code:</strong> ${data.data.FlightCode}</p>
+                        <p><strong>Departure:</strong> ${new Date(data.data.DepartureTime).toLocaleString('vi-VN')}</p>
+                        <p><strong>Arrival:</strong> ${new Date(data.data.ArrivalTime).toLocaleString('vi-VN')}</p>
+                        <p><strong>From:</strong> ${data.data.DepartureAirport.AirportName}</p>
+                        <p><strong>To:</strong> ${data.data.ArrivalAirport.AirportName}</p>
+                        <p><strong>Total Seats:</strong> ${data.data.Statistics.TotalSeats}</p>
+                        <p><strong>Occupied Seats:</strong> ${data.data.Statistics.OccupiedSeats}</p>
+                        <p><strong>Occupancy Rate:</strong> ${data.data.Statistics.OccupancyRate}%</p>
+                        ${seatsHtml}
+                        <hr>
+                        <h4>Raw Response:</h4>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    responseDiv.className = 'response success';
+                } else {
+                    responseDiv.textContent = `Error: ${data.message || 'Unknown error'}`;
+                    responseDiv.className = 'response error';
+                }
+            } catch (error) {
+                responseDiv.textContent = `Network error: ${error.message}`;
+                responseDiv.className = 'response error';
+            }
+        }
+
+        async function updateFlight() {
+            const token = document.getElementById('updateManagerToken').value;
+            const flightId = document.getElementById('updateFlightId').value;
+            const responseDiv = document.getElementById('updateFlightResponse');
+
+            const requestData = {
+                FlightId: parseInt(flightId),
+                FlightCode: document.getElementById('flightCode').value,
+                Tax: parseInt(document.getElementById('tax').value),
+                DepartureTime: document.getElementById('departureTime').value,
+                ArrivalTime: document.getElementById('arrivalTime').value,
+                PlaneId: parseInt(document.getElementById('planeId').value),
+                DepartureAirportId: parseInt(document.getElementById('departureAirportId').value),
+                ArrivalAirportId: parseInt(document.getElementById('arrivalAirportId').value),
+                ServiceIds: []
+            };
+
+            if (!token || !flightId) {
+                responseDiv.textContent = 'Vui lòng nhập đầy đủ thông tin';
+                responseDiv.className = 'response error';
+                return;
+            }
+
+            try {
+                responseDiv.textContent = 'Đang update flight...';
+                responseDiv.className = 'response';
+
+                const response = await fetch(`${API_BASE}/${flightId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                
+                responseDiv.innerHTML = `
+                    <h4>Response Status: ${response.status}</h4>
+                    <p><strong>Success:</strong> ${data.success}</p>
+                    <p><strong>Message:</strong> ${data.message}</p>
+                    <hr>
+                    <h4>Full Response:</h4>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                    <hr>
+                    <h4>Request Data:</h4>
+                    <pre>${JSON.stringify(requestData, null, 2)}</pre>
+                `;
+                
+                if (response.ok && data.success) {
+                    responseDiv.className = 'response success';
+                } else {
+                    responseDiv.className = 'response error';
+                }
+            } catch (error) {
+                responseDiv.textContent = `Network error: ${error.message}`;
+                responseDiv.className = 'response error';
+            }
+        }
+
+        async function getFlightSeats() {
+            const flightId = document.getElementById('seatsFlightId').value;
+            const token = document.getElementById('seatsManagerToken').value;
+            const responseDiv = document.getElementById('seatsResponse');
+
+            if (!flightId || !token) {
+                responseDiv.textContent = 'Vui lòng nhập Flight ID và Manager Token';
+                responseDiv.className = 'response error';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/${flightId}/seats`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    let seatsTable = '<table style="width:100%;border-collapse:collapse;">';
+                    seatsTable += '<tr style="background:#f0f0f0;"><th style="border:1px solid #ddd;padding:8px;">Seat</th><th style="border:1px solid #ddd;padding:8px;">Status</th><th style="border:1px solid #ddd;padding:8px;">Customer</th><th style="border:1px solid #ddd;padding:8px;">Ticket</th><th style="border:1px solid #ddd;padding:8px;">Email</th><th style="border:1px solid #ddd;padding:8px;">Phone</th></tr>';
+                    
+                    data.data.forEach(seat => {
+                        seatsTable += `<tr>
+                            <td style="border:1px solid #ddd;padding:8px;">${seat.SeatNumber}</td>
+                            <td style="border:1px solid #ddd;padding:8px;color:${seat.IsSat ? 'red' : 'green'}">${seat.SeatStatus || (seat.IsSat ? 'Occupied' : 'Available')}</td>
+                            <td style="border:1px solid #ddd;padding:8px;">${seat.CustomerName || '-'}</td>
+                            <td style="border:1px solid #ddd;padding:8px;">${seat.TicketCode || '-'}</td>
+                            <td style="border:1px solid #ddd;padding:8px;">${seat.CustomerEmail || '-'}</td>
+                            <td style="border:1px solid #ddd;padding:8px;">${seat.CustomerPhone || '-'}</td>
+                        </tr>`;
+                    });
+                    seatsTable += '</table>';
+                    
+                    responseDiv.innerHTML = `
+                        <h4>Flight Seats (${data.data.length} seats):</h4>
+                        ${seatsTable}
+                        <hr>
+                        <h4>Raw Response:</h4>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    responseDiv.className = 'response success';
+                } else {
+                    responseDiv.textContent = `Error: ${data.message || 'Unknown error'}`;
+                    responseDiv.className = 'response error';
+                }
+            } catch (error) {
+                responseDiv.textContent = `Network error: ${error.message}`;
+                responseDiv.className = 'response error';
+            }
+        }
+
+        async function createTestFlight() {
+            const token = document.getElementById('createManagerToken').value;
+            const responseDiv = document.getElementById('createFlightResponse');
+
+            const requestData = {
+                FlightCode: document.getElementById('newFlightCode').value,
+                Tax: parseInt(document.getElementById('newTax').value),
+                DepartureTime: document.getElementById('newDepartureTime').value,
+                ArrivalTime: document.getElementById('newArrivalTime').value,
+                PlaneId: parseInt(document.getElementById('newPlaneId').value),
+                DepartureAirportId: parseInt(document.getElementById('newDepartureAirportId').value),
+                ArrivalAirportId: parseInt(document.getElementById('newArrivalAirportId').value),
+                ServiceIds: []
+            };
+
+            if (!token) {
+                responseDiv.textContent = 'Vui lòng nhập Manager Token';
+                responseDiv.className = 'response error';
+                return;
+            }
+
+            try {
+                responseDiv.textContent = 'Đang tạo flight...';
+                responseDiv.className = 'response';
+
+                const response = await fetch(`${API_BASE}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+                
+                responseDiv.innerHTML = `
+                    <h4>Response Status: ${response.status}</h4>
+                    <p><strong>Success:</strong> ${data.success}</p>
+                    <p><strong>Message:</strong> ${data.message}</p>
+                    ${data.success ? `<p><strong>Created Flight ID:</strong> ${data.data?.FlightId}</p>` : ''}
+                    <hr>
+                    <h4>Full Response:</h4>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                if (response.ok && data.success) {
+                    responseDiv.className = 'response success';
+                    // Auto-fill the update form with created flight ID
+                    if (data.data?.FlightId) {
+                        document.getElementById('updateFlightId').value = data.data.FlightId;
+                        document.getElementById('flightId').value = data.data.FlightId;
+                        document.getElementById('seatsFlightId').value = data.data.FlightId;
+                    }
+                } else {
+                    responseDiv.className = 'response error';
+                }
+            } catch (error) {
+                responseDiv.textContent = `Network error: ${error.message}`;
+                responseDiv.className = 'response error';
+            }
+        }
+    </script>
+</body>
+</html>

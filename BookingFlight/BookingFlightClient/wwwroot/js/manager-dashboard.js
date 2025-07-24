@@ -42,7 +42,7 @@ function logout() {
         sessionStorage.clear();
         
         // Redirect to login page
-        window.location.href = '/Authentication/Login';
+        window.location.href = '/Login';
     }
 }
 

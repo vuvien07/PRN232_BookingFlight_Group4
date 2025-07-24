@@ -54,7 +54,28 @@ namespace BookingFlightServer
 			builder.Services.AddAllServices(typeof(Program).Assembly);
 			builder.Services.AddAllRepositories(typeof(Program).Assembly);
 			builder.Services.AddScoped<ITransactionDbManager, TransactionDbManager>();
-			builder.Services.AddHttpClient();
+			
+			// Manual registration for new Flight Management services
+			builder.Services.AddScoped<IFlightManageRepository, FlightManageRepository>();
+			builder.Services.AddScoped<IFlightManageService, FlightManageService>();
+			builder.Services.AddHttpClient<IGeminiAIService, GeminiAIService>();
+			builder.Services.AddScoped<IGeminiAIService, GeminiAIService>();
+			
+			// Manual registration for Profile services
+			builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+			builder.Services.AddScoped<IProfileService, ProfileService>();
+			
+			// Manual registration for Seat Management services
+			builder.Services.AddScoped<ISeatRepository, SeatRepository>();
+			builder.Services.AddScoped<ISeatService, SeatService>();
+			
+			// Manual registration for Discount services
+			builder.Services.AddScoped<IDiscountService, BookingFlightServer.Services.Implements.DiscountService>();
+			
+			// Manual registration for My Flight services
+			builder.Services.AddScoped<IMyFlightRepository, MyFlightRepository>();
+			builder.Services.AddScoped<IMyFlightService, MyFlightService>();
+			
 			var app = builder.Build();
             if (app.Environment.IsDevelopment())
             {

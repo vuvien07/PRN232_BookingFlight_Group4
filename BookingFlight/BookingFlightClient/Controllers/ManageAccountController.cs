@@ -69,6 +69,24 @@ namespace BookingFlightClient.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(ManageAccountAddVM manageAccountAddVM)
         {
+            // Validate model first
+            if (!ModelState.IsValid)
+            {
+                // Reload roles if validation fails
+                var rolesClient = httpClientFactory.CreateClient();
+                var getRolesUrl = "http://localhost:5077/api/role/get-roles";
+                var rolesResponse = await rolesClient.GetAsync(getRolesUrl);
+                if (rolesResponse.IsSuccessStatusCode)
+                {
+                    var rolesJson = await rolesResponse.Content.ReadAsStringAsync();
+                    manageAccountAddVM.roles = JsonSerializer.Deserialize<List<RoleDTO>>(rolesJson, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    }) ?? new List<RoleDTO>();
+                }
+                return View(manageAccountAddVM);
+            }
+
             // init 
             var client = httpClientFactory.CreateClient();
             // Add Authorization token if available
@@ -84,8 +102,16 @@ namespace BookingFlightClient.Controllers
                 // format json
                 WriteIndented = true
             };
+            
+            RequestAddAccountDTO requestAddAccountDTO = new RequestAddAccountDTO
+            {
+                Username = manageAccountAddVM.Username,
+                Password = manageAccountAddVM.Password,
+                RoleId = manageAccountAddVM.RoleId,
+                StatusId = manageAccountAddVM.StatusId
+            };
 
-            var jsonContent = JsonSerializer.Serialize(manageAccountAddVM, jsonOptions);
+            var jsonContent = JsonSerializer.Serialize(requestAddAccountDTO, jsonOptions);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
             var apiUrl = "http://localhost:5077/api/ManageAccount/add-account";
