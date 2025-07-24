@@ -12,16 +12,28 @@ namespace BookingFlightClient
 	{
 		public static void Main(string[] args)
 		{
-			var builder = WebApplication.CreateBuilder(args);
-			builder.Services.AddHttpClient();
-			builder.Services.AddSession(options =>
+		var builder = WebApplication.CreateBuilder(args);
+		
+		// Configure HttpClient with SSL bypass for development
+		builder.Services.AddHttpClient();
+		builder.Services.AddHttpClient("IgnoreSSL", client =>
+		{
+			// Configure client as needed
+		}).ConfigurePrimaryHttpMessageHandler(() =>
+		{
+			return new HttpClientHandler()
 			{
-				options.Cookie.HttpOnly = true;
-				options.Cookie.IsEssential = true;
-			});
-			
-			// Register services
+				ServerCertificateCustomValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+			};
+		});
+		
+		builder.Services.AddSession(options =>
+		{
+			options.Cookie.HttpOnly = true;
+			options.Cookie.IsEssential = true;
+		});			// Register services
 			builder.Services.AddScoped<INewsService, NewsService>();
+			builder.Services.AddScoped<IComplaintService, ComplaintService>();
 			
 			builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
 			 options =>
@@ -62,7 +74,6 @@ namespace BookingFlightClient
 					};
 
 				});
-            builder.Services.AddHttpClient();
             builder.Services.AddControllersWithViews();
 			var app = builder.Build();
 			app.UseSession();

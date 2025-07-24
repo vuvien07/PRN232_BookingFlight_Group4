@@ -1,0 +1,688 @@
+@{
+    ViewData["Title"] = "Trợ giúp & Báo cáo";
+}
+
+<partial name="~/Views/Common/_Header.cshtml" />
+
+@section Styles {
+    <link href="~/css/common/Header.css" rel="stylesheet" />
+    <link href="~/css/common/Footer.css" rel="stylesheet" />
+    <style>
+        /* Scope all styles to help-page to avoid conflicts with header */
+        .help-page-container {
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .help-page-container .help-page-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+            background: linear-gradient(135deg, #003366 0%, #0066CC 100%);
+            color: white;
+            border-radius: 12px;
+        }
+        
+        .help-page-container .help-page-title h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .help-page-container .help-page-title h1 i {
+            color: #D4AF37;
+        }
+        
+        .help-page-container .help-page-title p {
+            font-size: 1.1rem;
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        .help-page-container .help-card-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 30px rgba(0,51,102,0.1);
+            border-top: 4px solid #0066CC;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        /* Help Sections Row Layout */
+        .help-page-container .help-sections-row {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            align-items: stretch;
+        }
+        
+        .help-page-container .help-sections-row .help-card-section {
+            margin-bottom: 0;
+            min-height: 400px;
+        }
+        
+        .help-page-container .help-sections-row .help-card-section:nth-child(1) {
+            border-top-color: #0066CC;
+        }
+        
+        .help-page-container .help-sections-row .help-card-section:nth-child(2) {
+            border-top-color: #D4AF37;
+        }
+        
+        .help-page-container .help-sections-row .help-card-section:nth-child(3) {
+            border-top-color: #28a745;
+        }
+        
+        .help-page-container .help-card-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 40px rgba(0,51,102,0.15);
+        }
+        
+        .help-page-container .help-card-section h3 {
+            color: #003366;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .help-page-container .help-card-section h3 i {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #0066CC, #0080FF);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .help-page-container .help-list {
+            margin: 0;
+            padding-left: 0;
+            list-style: none;
+        }
+        
+        .help-page-container .help-list li {
+            margin-bottom: 1rem;
+            color: #495057;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            padding: 1rem 1.25rem;
+            background: rgba(0,102,204,0.03);
+            border-radius: 10px;
+            border-left: 4px solid #0066CC;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .help-page-container .help-list li::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(212,175,55,0.1) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+        
+        .help-page-container .help-list li:hover {
+            background: rgba(0,102,204,0.08);
+            transform: translateX(8px) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,102,204,0.15);
+            border-left-color: #D4AF37;
+        }
+        
+        .help-page-container .help-list li:hover::before {
+            transform: translateX(100%);
+        }
+        
+        .help-page-container .complaint-cta {
+            background: linear-gradient(135deg, #003366 0%, #0066CC 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 12px;
+            margin: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0,51,102,0.2);
+        }
+        
+        .help-page-container .complaint-cta h3 {
+            margin-bottom: 1rem;
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: white;
+        }
+        
+        .help-page-container .complaint-cta p {
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+        
+        .help-page-container .btn-help-complaint {
+            background: #D4AF37;
+            border: none;
+            color: #003366;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .help-page-container .btn-help-complaint:hover {
+            background: #FFD700;
+            color: #003366;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(212,175,55,0.3);
+            text-decoration: none;
+        }
+        
+        .help-page-container .contact-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 30px rgba(0,51,102,0.1);
+            border-top: 4px solid #D4AF37;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .help-page-container .contact-section h4 {
+            margin-bottom: 2rem;
+            color: #003366;
+            font-weight: 700;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+        
+        .help-page-container .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .help-page-container .contact-item {
+            background: rgba(0,102,204,0.03);
+            padding: 2rem 1.5rem;
+            border-radius: 12px;
+            color: #495057;
+            font-weight: 500;
+            transition: all 0.4s ease;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .help-page-container .contact-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #0066CC, #D4AF37, #0066CC);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+        
+        .help-page-container .contact-item:hover {
+            background: white;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,102,204,0.15);
+            border-color: #0066CC;
+        }
+        
+        .help-page-container .contact-item:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .help-page-container .contact-item i {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #0066CC, #0080FF);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .help-page-container .contact-item:hover i {
+            background: linear-gradient(135deg, #D4AF37, #FFD700);
+            transform: rotate(5deg) scale(1.1);
+        }
+        
+        /* Stats Section */
+        .help-page-container .stats-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-top: 4px solid #D4AF37;
+        }
+        
+        .help-page-container .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .help-page-container .stat-item {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .help-page-container .stat-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0,102,204,0.2);
+            border-color: #0066CC;
+        }
+        
+        .help-page-container .stat-item i {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #0066CC, #0080FF);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .help-page-container .stat-item:hover i {
+            background: linear-gradient(135deg, #D4AF37, #FFD700);
+            transform: scale(1.1) rotate(10deg);
+        }
+        
+        .help-page-container .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #003366;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #0066CC, #D4AF37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .help-page-container .stat-label {
+            color: #666;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        /* Awards Section */
+        .help-page-container .awards-section {
+            background: linear-gradient(135deg, #003366 0%, #0066CC 100%);
+            color: white;
+            border-top: 4px solid #D4AF37;
+        }
+        
+        .help-page-container .awards-section h3 {
+            color: white;
+        }
+        
+        .help-page-container .awards-section h3 i {
+            background: linear-gradient(135deg, #D4AF37, #FFD700);
+        }
+        
+        .help-page-container .awards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .help-page-container .award-item {
+            background: rgba(255,255,255,0.1);
+            padding: 1.5rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .help-page-container .award-item:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
+            border-color: #D4AF37;
+        }
+        
+        .help-page-container .award-item i {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #D4AF37, #FFD700);
+            color: #003366;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .help-page-container .award-item:hover i {
+            transform: scale(1.1) rotate(10deg);
+        }
+        
+        .help-page-container .award-item strong {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-size: 1rem;
+        }
+        
+        .help-page-container .award-item small {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.85rem;
+        }
+        
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .help-page-container {
+                padding: 1rem 0;
+            }
+            
+            .help-page-container .help-page-title h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .help-page-container .help-page-title {
+                padding: 1.5rem;
+                margin-bottom: 2rem;
+            }
+            
+            .help-page-container .complaint-cta {
+                padding: 2rem 1.5rem;
+                margin: 2rem 0;
+            }
+            
+            .help-page-container .help-sections-row {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .help-page-container .help-card-section {
+                padding: 1.5rem;
+                margin-bottom: 0;
+            }
+            
+            .help-page-container .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .help-page-container .contact-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .help-page-container .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .help-page-container .stat-item {
+                padding: 1.5rem 1rem;
+            }
+            
+            .help-page-container .stat-number {
+                font-size: 2rem;
+            }
+            
+            .help-page-container .awards-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .help-page-container .award-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+                padding: 1.5rem;
+            }
+        }
+        
+        @@media (max-width: 1200px) {
+            .help-page-container .help-sections-row {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+        }
+        
+        @@media (max-width: 480px) {
+            .help-page-container .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .help-page-container .help-page-title h1 {
+                font-size: 1.8rem;
+            }
+            
+            .help-page-container .complaint-cta h3 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+          
+}
+
+<div class="help-page-container">
+    <div class="container">
+        <!-- Page Title -->
+        <div style="margin-top: 4rem;" class="help-page-title">
+            <h1><i class="fas fa-headset"></i>Trung tâm Hỗ trợ CloudNine Airways</h1>
+            <p>Dịch vụ chăm sóc khách hàng chuyên nghiệp • Hỗ trợ 24/7 • Phản hồi nhanh chóng</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Complaint CTA Section -->
+                <div class="complaint-cta">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Cần hỗ trợ khẩn cấp?</h3>
+                    <p>Gặp khó khăn với chuyến bay, thanh toán hoặc dịch vụ của chúng tôi? Đội ngũ hỗ trợ chuyên nghiệp sẵn sàng giải quyết mọi vấn đề của bạn trong vòng 2 giờ</p>
+                    <a href="@Url.Action("Create", "Complaint")" class="btn-help-complaint">
+                        <i class="fas fa-paper-plane"></i>Gửi yêu cầu hỗ trợ
+                    </a>
+                </div>
+
+                <!-- Help Sections in Row -->
+                <div class="help-sections-row">
+                    <div class="help-card-section">
+                        <h3><i class="fas fa-question-circle"></i>Câu hỏi thường gặp</h3>
+                        <ul class="help-list">
+                            <li><strong>Đặt vé trực tuyến:</strong> Hướng dẫn chi tiết từ tìm kiếm đến thanh toán an toàn</li>
+                            <li><strong>Thay đổi/Hủy vé:</strong> Chính sách linh hoạt, hoàn tiền nhanh chóng trong 24h</li>
+                            <li><strong>Hành lý:</strong> Quy định 23kg ký gửi, 7kg xách tay miễn phí</li>
+                            <li><strong>Check-in online:</strong> Mở từ 24h trước giờ bay, chọn chỗ ngồi ưa thích</li>
+                            <li><strong>Hoàn tiền:</strong> Xử lý trong 3-5 ngày làm việc, không phí ẩn</li>
+                            <li><strong>Chương trình thành viên:</strong> Tích điểm, ưu đãi đặc biệt cho khách VIP</li>
+                        </ul>
+                    </div>
+
+                    <div class="help-card-section">
+                        <h3><i class="fas fa-headphones"></i>Hỗ trợ kỹ thuật</h3>
+                        <ul class="help-list">
+                            <li><strong>Đăng nhập:</strong> Quên mật khẩu? Reset chỉ 30 giây qua SMS/Email</li>
+                            <li><strong>Thanh toán:</strong> Hỗ trợ Visa, MasterCard, QR Pay, Banking online</li>
+                            <li><strong>Tối ưu trải nghiệm:</strong> Website responsive, tốc độ cao trên mọi thiết bị</li>
+                            <li><strong>Ứng dụng mobile:</strong> CloudNine App - Đặt vé nhanh, quản lý chuyến bay thông minh</li>
+                            <li><strong>Email xác nhận:</strong> Nhận ngay lập tức, kiểm tra folder spam nếu cần</li>
+                            <li><strong>Bảo mật:</strong> Mã hóa SSL 256-bit, bảo vệ thông tin tuyệt đối</li>
+                        </ul>
+                    </div>
+
+                    <div class="help-card-section">
+                        <h3><i class="fas fa-shield-alt"></i>Bảo mật & Cam kết chất lượng</h3>
+                        <ul class="help-list">
+                            <li><strong>Tiêu chuẩn quốc tế:</strong> Chứng nhận ISO 27001 về bảo mật thông tin</li>
+                            <li><strong>Bảo vệ tài khoản:</strong> Xác thực 2 lớp (2FA), thông báo đăng nhập lạ</li>
+                            <li><strong>Quyền riêng tư:</strong> Tuân thủ GDPR, không chia sẻ dữ liệu với bên thứ 3</li>
+                            <li><strong>Giám sát 24/7:</strong> Hệ thống AI phát hiện hoạt động bất thường</li>
+                            <li><strong>Kiểm toán định kỳ:</strong> Đánh giá bảo mật hàng quý bởi chuyên gia</li>
+                            <li><strong>Cam kết minh bạch:</strong> Báo cáo bảo mật công khai hàng năm</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Stats Section -->
+                <div class="help-card-section stats-section">
+                    <h3><i class="fas fa-chart-line"></i>Thành tích dịch vụ CloudNine Airways</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <i class="fas fa-users"></i>
+                            <div class="stat-number">2.5M+</div>
+                            <div class="stat-label">Khách hàng tin tưởng</div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-plane"></i>
+                            <div class="stat-number">99.2%</div>
+                            <div class="stat-label">Đúng giờ bay</div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-smile"></i>
+                            <div class="stat-number">98.7%</div>
+                            <div class="stat-label">Khách hàng hài lòng</div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-headset"></i>
+                            <div class="stat-number">< 2 phút</div>
+                            <div class="stat-label">Thời gian phản hồi</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Awards Section -->
+                <div class="help-card-section awards-section">
+                    <h3><i class="fas fa-trophy"></i>Giải thưởng & Chứng nhận</h3>
+                    <div class="awards-grid">
+                        <div class="award-item">
+                            <i class="fas fa-medal"></i>
+                            <div>
+                                <strong>Hãng hàng không của năm 2024</strong><br>
+                                <small>Vietnam Aviation Awards</small>
+                            </div>
+                        </div>
+                        <div class="award-item">
+                            <i class="fas fa-star"></i>
+                            <div>
+                                <strong>Dịch vụ khách hàng xuất sắc</strong><br>
+                                <small>ASEAN Customer Service Excellence</small>
+                            </div>
+                        </div>
+                        <div class="award-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <div>
+                                <strong>Chứng nhận bảo mật ISO 27001</strong><br>
+                                <small>International Organization for Standardization</small>
+                            </div>
+                        </div>
+                      
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="contact-section">
+                    <h4><i class="fas fa-phone"></i>Kết nối với CloudNine Airways</h4>
+                    <div class="contact-grid">
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <strong>Hotline VIP</strong><br>
+                                <span>1900-CLOUD (1900-25683)</span>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <strong>Email hỗ trợ</strong><br>
+                                <span>support@cloudnine-airways.vn</span>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <strong>Thời gian phục vụ</strong><br>
+                                <span>24/7 - Luôn bên bạn</span>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <strong>Văn phòng chính</strong><br>
+                                <span>FPT University, Hà Nội</span>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-comments"></i>
+                            <div>
+                                <strong>Live Chat</strong><br>
+                                <span>Trò chuyện trực tiếp</span>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-mobile-alt"></i>
+                            <div>
+                                <strong>CloudNine App</strong><br>
+                                <span>Tải miễn phí iOS/Android</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="~/Views/Common/_Footer.cshtml" />
+
+@section Scripts {
+    <script src="~/js/complaint.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Help page loaded successfully');
+        });
+    </script>
+}

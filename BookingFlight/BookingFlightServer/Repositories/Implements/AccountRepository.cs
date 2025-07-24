@@ -18,7 +18,7 @@ namespace BookingFlightServer.Repositories.Implements
                   account.Username != null && account.Password != null &&
                   username != null && password != null &&
                   account.Username.Equals(username.Trim()) && account.Password.Equals(password.Trim()) &&
-                  account.StatusId == 1, (account => account.Include(account => account.Role).Include(account => account.Manager))
+                  account.StatusId == 1, (account => account.Include(account => account.Role).Include(account => account.Manager).Include(account => account.Customer))
                 );
             return findAccount;
         }        public async Task UpdateAccountAsync(Account account)

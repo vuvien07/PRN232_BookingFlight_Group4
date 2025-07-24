@@ -21,6 +21,8 @@ public partial class Complaint
 
     public string? FileUrl { get; set; }
 
+    // public string? FileName { get; set; } // Column doesn't exist in DB
+
     public virtual Customer Customer { get; set; } = null!;
 
     public virtual Status Status { get; set; } = null!;

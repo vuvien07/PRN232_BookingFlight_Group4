@@ -1,0 +1,724 @@
+@model BookingFlightClient.Models.ViewModels.ComplaintCreateViewModel
+@{
+    ViewData["Title"] = "Gửi khiếu nại";
+}
+
+<partial name="~/Views/Common/_Header.cshtml" />
+
+@section Styles {
+    <link href="~/css/common/Header.css" rel="stylesheet" />
+    <link href="~/css/common/Footer.css" rel="stylesheet" />
+    <style>
+        /* Scope all styles to create-page-container to avoid conflicts with header */
+        .create-page-container {
+            background: #f8f9fa;
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .create-page-container .create-page-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+            background: linear-gradient(135deg, #003366 0%, #0066CC 100%);
+            color: white;
+            border-radius: 12px;
+        }
+        
+        .create-page-container .create-page-title h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .create-page-container .create-page-title h1 i {
+            color: #D4AF37;
+        }
+        
+        .create-page-container .create-page-title p {
+            font-size: 1.1rem;
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        /* Two Column Layout */
+        .create-page-container .create-layout-container {
+            display: flex;
+            gap: 3rem;
+            align-items: flex-start;
+        }
+        
+        .create-page-container .info-column {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .create-page-container .form-column {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        /* Info Column Styles */
+        .create-page-container .info-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 30px rgba(0,51,102,0.1);
+            padding: 2rem;
+            border-top: 4px solid #D4AF37;
+            position: sticky;
+            top: 2rem;
+        }
+        
+        .create-page-container .info-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #f8f9fa;
+        }
+        
+        .create-page-container .info-header h3 {
+            color: #003366;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+        
+        .create-page-container .info-header h3 i {
+            color: #D4AF37;
+        }
+        
+        .create-page-container .info-header p {
+            color: #666;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        
+        .create-page-container .info-section {
+            margin-bottom: 2rem;
+        }
+        
+        .create-page-container .info-section h5 {
+            color: #003366;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .create-page-container .info-section h5 i {
+            color: #0066CC;
+            width: 20px;
+        }
+        
+        .create-page-container .info-list {
+            margin: 0;
+            padding-left: 1.5rem;
+            list-style: none;
+        }
+        
+        .create-page-container .info-list li {
+            margin-bottom: 0.75rem;
+            color: #495057;
+            line-height: 1.6;
+            position: relative;
+        }
+        
+        .create-page-container .info-list li::before {
+            content: '✓';
+            position: absolute;
+            left: -1.5rem;
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .create-page-container .contact-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .create-page-container .contact-method {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(0,102,204,0.03);
+            border-radius: 8px;
+            border-left: 3px solid #0066CC;
+            transition: all 0.3s ease;
+        }
+        
+        .create-page-container .contact-method:hover {
+            background: rgba(0,102,204,0.08);
+            transform: translateX(5px);
+        }
+        
+        .create-page-container .contact-method i {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #0066CC, #0080FF);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .create-page-container .contact-method strong {
+            display: block;
+            color: #003366;
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .create-page-container .contact-method span {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .create-page-container .quality-badges {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .create-page-container .badge-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(0,102,204,0.05));
+            border-radius: 8px;
+            border: 1px solid rgba(212,175,55,0.2);
+        }
+        
+        .create-page-container .badge-item i {
+            color: #D4AF37;
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .create-page-container .badge-item span {
+            color: #003366;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        /* Form Column Styles */
+        .create-page-container .form-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #f8f9fa;
+        }
+        
+        .create-page-container .form-header h3 {
+            color: #003366;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+        
+        .create-page-container .form-header h3 i {
+            color: #0066CC;
+        }
+        
+        .create-page-container .form-header p {
+            color: #666;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        
+        .create-page-container .complaint-form-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 30px rgba(0,51,102,0.1);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border-top: 4px solid #0066CC;
+        }
+        
+        .create-page-container .guidelines {
+            background: linear-gradient(135deg, rgba(0,102,204,0.05) 0%, rgba(212,175,55,0.05) 100%);
+            border: 1px solid rgba(0,102,204,0.1);
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 4px solid #D4AF37;
+        }
+        
+        .create-page-container .guidelines h5 {
+            color: #003366;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .create-page-container .guidelines h5 i {
+            color: #D4AF37;
+        }
+        
+        .create-page-container .guidelines ul {
+            margin: 0;
+            padding-left: 1.5rem;
+            color: #495057;
+            list-style: none;
+        }
+        
+        .create-page-container .guidelines li {
+            margin-bottom: 0.75rem;
+            line-height: 1.6;
+            position: relative;
+        }
+        
+        .create-page-container .guidelines li::before {
+            content: '💡';
+            position: absolute;
+            left: -1.5rem;
+        }
+        
+        .create-page-container .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .create-page-container .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            display: block;
+            font-size: 0.95rem;
+        }
+        
+        .create-page-container .required {
+            color: #dc3545;
+        }
+        
+        .create-page-container .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .create-page-container .form-control:focus {
+            border-color: #0066CC;
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+            outline: none;
+        }
+        
+        .create-page-container .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+        
+        .create-page-container textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .create-page-container .form-help {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+            text-align: right;
+        }
+        
+        .create-page-container .file-upload-wrapper {
+            position: relative;
+            display: block;
+        }
+        
+        .create-page-container .file-upload {
+            position: absolute;
+            left: -9999px;
+            opacity: 0;
+        }
+        
+        .create-page-container .file-upload-label {
+            display: block;
+            padding: 2rem;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        
+        .create-page-container .file-upload-label:hover {
+            border-color: #0066CC;
+            background: rgba(0,102,204,0.02);
+        }
+        
+        .create-page-container .file-upload-label strong {
+            color: #0066CC;
+            font-size: 1rem;
+        }
+        
+        .create-page-container .file-upload-label small {
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+        
+        .create-page-container .file-upload-label i {
+            font-size: 2rem;
+            color: #0066CC;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .create-page-container .file-info {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .create-page-container .file-info.alert-info {
+            background: rgba(0,102,204,0.1);
+            color: #0066CC;
+            border: 1px solid rgba(0,102,204,0.2);
+        }
+        
+        .create-page-container .file-info.alert-danger {
+            background: rgba(220,53,69,0.1);
+            color: #dc3545;
+            border: 1px solid rgba(220,53,69,0.2);
+        }
+        
+        .create-page-container .btn-submit {
+            background: linear-gradient(135deg, #003366 0%, #0066CC 100%);
+            border: none;
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .create-page-container .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,102,204,0.3);
+        }
+        
+        .create-page-container .btn-submit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .create-page-container .invalid-feedback {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+            color: #dc3545;
+        }
+        
+        .create-page-container .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .create-page-container .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .create-page-container {
+                padding: 1rem 0;
+            }
+            
+            .create-page-container .create-page-title h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .create-page-container .create-layout-container {
+                flex-direction: column;
+                gap: 2rem;
+            }
+            
+            .create-page-container .info-card {
+                position: static;
+                padding: 1.5rem;
+            }
+            
+            .create-page-container .complaint-form-card {
+                padding: 1.5rem;
+            }
+            
+            .create-page-container .contact-methods {
+                gap: 0.75rem;
+            }
+            
+            .create-page-container .contact-method {
+                padding: 0.75rem;
+            }
+        }
+        
+        @@media (max-width: 1200px) {
+            .create-page-container .create-layout-container {
+                gap: 2rem;
+            }
+            
+            .create-page-container .info-card {
+                position: static;
+            }
+        }
+    </style>
+}
+
+<div class="create-page-container">
+    <div class="container">
+        <!-- Page Title -->
+        <div style="margin-top: 8rem;" class="create-page-title">
+            <h1><i class="fas fa-edit"></i>Gửi khiếu nại</h1>
+            <p>Chúng tôi sẽ xử lý và phản hồi trong vòng 24-48 giờ</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="create-layout-container">
+                    <!-- Left Column - Website Info -->
+                    <div class="info-column">
+                        <div class="info-card">
+                            <div class="info-header">
+                                <h3><i class="fas fa-info-circle"></i>Thông tin hỗ trợ</h3>
+                                <p>CloudNine Airways cam kết mang đến trải nghiệm bay tuyệt vời</p>
+                            </div>
+                            
+                            <div class="info-section">
+                                <h5><i class="fas fa-clock"></i>Thời gian xử lý</h5>
+                                <ul class="info-list">
+                                    <li><strong>Khiếu nại thường:</strong> 24-48 giờ</li>
+                                    <li><strong>Khiếu nại khẩn cấp:</strong> Trong 2 giờ</li>
+                                    <li><strong>Hoàn tiền:</strong> 3-5 ngày làm việc</li>
+                                </ul>
+                            </div>
+
+                            <div class="info-section">
+                                <h5><i class="fas fa-headset"></i>Kênh hỗ trợ</h5>
+                                <div class="contact-methods">
+                                    <div class="contact-method">
+                                        <i class="fas fa-phone"></i>
+                                        <div>
+                                            <strong>Hotline 24/7</strong>
+                                            <span>1900-CLOUD (25683)</span>
+                                        </div>
+                                    </div>
+                                    <div class="contact-method">
+                                        <i class="fas fa-envelope"></i>
+                                        <div>
+                                            <strong>Email hỗ trợ</strong>
+                                            <span>support@cloudnine-airways.vn</span>
+                                        </div>
+                                    </div>
+                                    <div class="contact-method">
+                                        <i class="fas fa-comments"></i>
+                                        <div>
+                                            <strong>Live Chat</strong>
+                                            <span>Trò chuyện trực tiếp</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="info-section">
+                                <h5><i class="fas fa-shield-alt"></i>Cam kết chất lượng</h5>
+                                <div class="quality-badges">
+                                    <div class="badge-item">
+                                        <i class="fas fa-award"></i>
+                                        <span>Hãng hàng không tốt nhất 2024</span>
+                                    </div>
+                                    <div class="badge-item">
+                                        <i class="fas fa-users"></i>
+                                        <span>2.5M+ khách hàng tin tưởng</span>
+                                    </div>
+                                    <div class="badge-item">
+                                        <i class="fas fa-smile"></i>
+                                        <span>98.7% khách hàng hài lòng</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="info-section guidelines">
+                                <h5><i class="fas fa-lightbulb"></i>Hướng dẫn gửi khiếu nại hiệu quả</h5>
+                                <ul>
+                                    <li>Mô tả chi tiết vấn đề bạn gặp phải</li>
+                                    <li>Cung cấp thông tin cụ thể (mã đặt vé, ngày bay, etc.)</li>
+                                    <li>Đính kèm ảnh chụp màn hình hoặc tài liệu liên quan</li>
+                                    <li>Sử dụng ngôn từ lịch sự và rõ ràng</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Complaint Form -->
+                    <div class="form-column">
+                        <div class="complaint-form-card">
+                            <div class="form-header">
+                                <h3><i class="fas fa-edit"></i>Tạo khiếu nại mới</h3>
+                                <p>Điền thông tin bên dưới để gửi khiếu nại của bạn</p>
+                            </div>
+
+                            @if (TempData["ErrorMessage"] != null)
+                            {
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+                                </div>
+                            }
+
+                            <form asp-action="Create" method="post" enctype="multipart/form-data" id="complaintForm">
+                                @Html.AntiForgeryToken()
+                                
+                                <div class="form-group">
+                                    <label asp-for="Description" class="form-label">
+                                        Mô tả khiếu nại <span class="required">*</span>
+                                    </label>
+                                    <textarea asp-for="Description" 
+                                              class="form-control @(ViewData.ModelState["Description"]?.Errors.Count > 0 ? "is-invalid" : "")" 
+                                              placeholder="Vui lòng mô tả chi tiết vấn đề bạn gặp phải..."
+                                              maxlength="500"></textarea>
+                                    <div class="form-help">
+                                        <span id="charCount">0</span>/500 ký tự
+                                    </div>
+                                    <span asp-validation-for="Description" class="invalid-feedback"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="AttachmentFile" class="form-label">
+                                        File đính kèm (Tùy chọn)
+                                    </label>
+                                    <div class="file-upload-wrapper">
+                                        <input asp-for="AttachmentFile" 
+                                               type="file" 
+                                               class="file-upload" 
+                                               id="attachmentFile"
+                                               accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" />
+                                        <label for="attachmentFile" class="file-upload-label">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <strong>Chọn file để tải lên</strong>
+                                            <br>
+                                            <small>Hỗ trợ: JPG, PNG, PDF, DOC, DOCX (tối đa 5MB)</small>
+                                        </label>
+                                        <div class="file-info" id="fileInfo"></div>
+                                    </div>
+                                    <span asp-validation-for="AttachmentFile" class="invalid-feedback"></span>
+                                </div>
+
+                                <input asp-for="CustomerId" type="hidden" />
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn-submit" id="submitBtn">
+                                        <i class="fas fa-paper-plane me-2"></i>
+                                        <span id="submitText">Gửi khiếu nại</span>
+                                        <span id="loadingText" style="display: none;">
+                                            <i class="fas fa-spinner fa-spin me-2"></i>Đang gửi...
+                                        </span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="~/Views/Common/_Footer.cshtml" />
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/complaint.js" asp-append-version="true"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Character count
+            $('#Description').on('input', function() {
+                const length = $(this).val().length;
+                $('#charCount').text(length);
+                
+                if (length > 450) {
+                    $('#charCount').css('color', '#dc3545');
+                } else if (length > 400) {
+                    $('#charCount').css('color', '#fd7e14');
+                } else {
+                    $('#charCount').css('color', '#6c757d');
+                }
+            });
+
+            // File upload handling
+            $('#attachmentFile').on('change', function() {
+                const file = this.files[0];
+                const fileInfo = $('#fileInfo');
+                
+                if (file) {
+                    const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                    const fileName = file.name;
+                    
+                    if (fileSize > 5) {
+                        fileInfo.html('<i class="fas fa-exclamation-triangle me-2"></i>File quá lớn! Vui lòng chọn file nhỏ hơn 5MB.')
+                               .removeClass('alert-info').addClass('alert-danger').show();
+                        this.value = '';
+                    } else {
+                        fileInfo.html(`<i class="fas fa-file me-2"></i><strong>${fileName}</strong> (${fileSize} MB)`)
+                               .removeClass('alert-danger').addClass('alert-info').show();
+                    }
+                } else {
+                    fileInfo.hide();
+                }
+            });
+
+            // Form submission
+            $('#complaintForm').on('submit', function() {
+                const submitBtn = $('#submitBtn');
+                const submitText = $('#submitText');
+                const loadingText = $('#loadingText');
+                
+                submitBtn.prop('disabled', true);
+                submitText.hide();
+                loadingText.show();
+                
+                return true;
+            });
+
+            // Initial character count
+            $('#Description').trigger('input');
+        });
+    </script>
+}
