@@ -1,5 +1,6 @@
 ﻿using BookingFlightClient.Models.DTO;
 using BookingFlightClient.Models.ViewModels;
+using BookingFlightClient.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Client;
 using System.Net.Http.Headers;
@@ -10,16 +11,29 @@ namespace BookingFlightClient.Controllers
 {
     public class ManageNewsController : Controller
     {
-        private readonly IHttpClientFactory httpClientFactory;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IS3Service _s3Service;
 
-        public ManageNewsController(IHttpClientFactory httpClientFactory)
+        public ManageNewsController(IHttpClientFactory httpClientFactory, IS3Service s3Service)
         {
-            this.httpClientFactory = httpClientFactory;
+            _httpClientFactory = httpClientFactory;
+            _s3Service = s3Service;
+        }
+
+        private bool IsUserAuthenticated()
+        {
+            return Request.Cookies.TryGetValue("X-Access-Token", out var token) && !string.IsNullOrEmpty(token);
+        }
+
+        private string? GetAccessToken()
+        {
+            Request.Cookies.TryGetValue("X-Access-Token", out var token);
+            return token;
         }
         public async Task<IActionResult> Index()
         {
             // call the API to get the list of news
-            var client = httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient();
 
             var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost:5077/api/managenews/news");
 
@@ -51,50 +65,64 @@ namespace BookingFlightClient.Controllers
 
         public async Task<IActionResult> Create()
         {
+            // Check if user is authenticated
+            if (!IsUserAuthenticated())
+            {
+                TempData["AlertType"] = "warning";
+                TempData["MessageNotification"] = "Bạn cần đăng nhập để truy cập chức năng này.";
+                return RedirectToAction("Index", "Login");
+            }
+
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(RequestAddNewsDTO newsDTO, IFormFile? imageUpload)
         {
+            //Console.WriteLine($"Client :: ManageNews :: Create :: {newsDTO.ToString()} :: {imageUpload.FileName}");
             try
             {
+
                 // Handle image upload if provided
                 if (imageUpload != null && imageUpload.Length > 0)
                 {
-                    var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "news");
-                    if (!Directory.Exists(uploadsPath))
+                    // Check if the uploaded file is an image
+                    var validImageTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif" };
+                    if (!validImageTypes.Contains(imageUpload.ContentType))
                     {
-                        Directory.CreateDirectory(uploadsPath);
+                        TempData["AlertType"] = "danger";
+                        TempData["MessageNotification"] = "Chỉ hỗ trợ định dạng ảnh JPG, JPEG, PNG, hoặc GIF.";
+                        return View(newsDTO);
                     }
 
-                    var fileName = $"{Guid.NewGuid()}_{imageUpload.FileName}";
-                    var filePath = Path.Combine(uploadsPath, fileName);
+                    // Create file name with a unique identifier
+                    var fileName = $"images/news/{imageUpload.FileName}";
 
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await imageUpload.CopyToAsync(stream);
-                    }
+                    // Upload the file to S3
+                    using var stream = imageUpload.OpenReadStream();
+                    var fileUrl = await _s3Service.UploadFileAsync(fileName, stream);
 
-                    newsDTO.Image = $"/images/news/{fileName}";
+                    // Assign the file URL to the newsDTO
+                    newsDTO.Image = fileUrl;
                 }
 
-                // Get current user's account ID from session or claims
-                if (Request.Cookies.TryGetValue("UserId", out var userIdStr))
+                var client = _httpClientFactory.CreateClient();
+
+                // Check if token exists in cookies
+                var token = GetAccessToken();
+                if (string.IsNullOrEmpty(token))
                 {
-                    if (int.TryParse(userIdStr, out var userId))
-                    {
-                        newsDTO.AccountId = userId;
-                    }
+                    TempData["AlertType"] = "warning";
+                    TempData["MessageNotification"] = "Bạn chưa đăng nhập. Vui lòng đăng nhập để tiếp tục.";
+                    return RedirectToAction("Index", "Login");
                 }
 
-                var client = httpClientFactory.CreateClient();
+                // Add Authorization token
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                // Add Authorization token if available
-                if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
-                {
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                }
+
+
+                newsDTO.AccountId = 1; // Assuming the account ID is 1 for the current user, you can modify this as needed
 
                 var jsonOptions = new JsonSerializerOptions
                 {
@@ -142,7 +170,7 @@ namespace BookingFlightClient.Controllers
                 return NotFound();
             }
             // init 
-            var client = httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient();
             // Add Authorization token if available
             if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
             {
@@ -189,7 +217,7 @@ namespace BookingFlightClient.Controllers
             }
 
             // init 
-            var client = httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient();
             // Add Authorization token if available
             if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
             {
@@ -248,30 +276,41 @@ namespace BookingFlightClient.Controllers
                 // Handle image upload if provided
                 if (imageUpload != null && imageUpload.Length > 0)
                 {
-                    var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "news");
-                    if (!Directory.Exists(uploadsPath))
+                    // Validate image type
+                    var validImageTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif" };
+                    if (!validImageTypes.Contains(imageUpload.ContentType))
                     {
-                        Directory.CreateDirectory(uploadsPath);
+                        TempData["AlertType"] = "danger";
+                        TempData["MessageNotification"] = "Chỉ hỗ trợ định dạng ảnh JPG, JPEG, PNG, hoặc GIF.";
+                        return View(newsDTO);
                     }
 
-                    var fileName = $"{Guid.NewGuid()}_{imageUpload.FileName}";
-                    var filePath = Path.Combine(uploadsPath, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    // Delete old image from S3 if it exists
+                    if (!string.IsNullOrEmpty(requestEditNewsDTO.Image))
                     {
-                        await imageUpload.CopyToAsync(stream);
+                        // Extract the S3 key from the URL (e.g., images/news/1701fc8e-695f-40ae-ad32-94d086643ede_Titanic.jpg)
+                        var oldImageKey = requestEditNewsDTO.Image.Replace(
+                            "https://thanhnd-s3-bucket-store-prn232.s3.ap-southeast-1.amazonaws.com/", "");
+                        await _s3Service.DeleteFileAsync(oldImageKey);
                     }
 
-                    requestEditNewsDTO.Image = $"/images/news/{fileName}";
+                    // Upload new image to S3
+                    var fileName = $"images/news/{imageUpload.FileName}";
+                    using var stream = imageUpload.OpenReadStream();
+                    var fileUrl = await _s3Service.UploadFileAsync(fileName, stream);
+                    requestEditNewsDTO.Image = fileUrl;
                 }
 
-                var client = httpClientFactory.CreateClient();
-
-                // Add Authorization token if available
-                if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
+                var client = _httpClientFactory.CreateClient();
+                var token = GetAccessToken();
+                if (string.IsNullOrEmpty(token))
                 {
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    TempData["AlertType"] = "warning";
+                    TempData["MessageNotification"] = "Bạn chưa đăng nhập. Vui lòng đăng nhập để tiếp tục.";
+                    return RedirectToAction("Index", "Login");
                 }
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                 var jsonOptions = new JsonSerializerOptions
                 {
@@ -318,7 +357,7 @@ namespace BookingFlightClient.Controllers
             }
 
             // Get news details for confirmation
-            var client = httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient();
 
             // Add Authorization token if available
             if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
@@ -354,7 +393,7 @@ namespace BookingFlightClient.Controllers
         {
             try
             {
-                var client = httpClientFactory.CreateClient();
+                var client = _httpClientFactory.CreateClient();
 
                 // Add Authorization token if available
                 if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
@@ -362,6 +401,35 @@ namespace BookingFlightClient.Controllers
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 }
 
+                // Fetch news item to get image URL before deletion
+                var newsResponse = await client.GetAsync($"http://localhost:5077/api/managenews/news/{newId}");
+                if (newsResponse.IsSuccessStatusCode)
+                {
+                    var jsonData = await newsResponse.Content.ReadAsStringAsync();
+                    var newsDTO = JsonSerializer.Deserialize<ResponseNewsDTO>(jsonData, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    // Delete image from S3 if it exists
+                    if (!string.IsNullOrEmpty(newsDTO.Image))
+                    {
+                        try
+                        {
+                            var imageKey = newsDTO.Image.Replace(
+                                "https://thanhnd-s3-bucket-store-prn232.s3.ap-southeast-1.amazonaws.com/", "");
+                            await _s3Service.DeleteFileAsync(imageKey);
+                        }
+                        catch (Exception ex)
+                        {
+                            TempData["AlertType"] = "warning";
+                            TempData["MessageNotification"] = $"Không thể xóa ảnh từ S3: {ex.Message}";
+                            // Continue with deletion even if image deletion fails
+                        }
+                    }
+                }
+
+                // Proceed with news item deletion
                 var response = await client.DeleteAsync($"http://localhost:5077/api/managenews/news/{newId}");
 
                 if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)

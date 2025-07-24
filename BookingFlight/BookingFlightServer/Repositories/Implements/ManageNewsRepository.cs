@@ -67,7 +67,7 @@ namespace BookingFlightServer.Repositories.Implements
             existingNews.Image = news.Image;
             existingNews.Category = news.Category;
             existingNews.Author = news.Author;
-            existingNews.AccountId = news.AccountId;
+            //existingNews.AccountId = news.AccountId;
             // Update the existing news entity
             bookingFlightContext.News.Update(existingNews);
             await bookingFlightContext.SaveChangesAsync();
