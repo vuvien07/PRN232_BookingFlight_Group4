@@ -80,6 +80,7 @@ namespace BookingFlightClient
 			app.UseStaticFiles();
 			app.UseRouting();
 			app.UseMiddleware<GetRequireRoleMiddleware>();
+			app.UseMiddleware<JwtSessionMiddleware>();
 			app.UseAuthentication();
 			app.UseAuthorization();
 			app.MapControllerRoute(
