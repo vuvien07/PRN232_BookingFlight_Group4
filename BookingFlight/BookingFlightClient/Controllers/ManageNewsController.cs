@@ -401,6 +401,35 @@ namespace BookingFlightClient.Controllers
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 }
 
+                // Fetch news item to get image URL before deletion
+                var newsResponse = await client.GetAsync($"http://localhost:5077/api/managenews/news/{newId}");
+                if (newsResponse.IsSuccessStatusCode)
+                {
+                    var jsonData = await newsResponse.Content.ReadAsStringAsync();
+                    var newsDTO = JsonSerializer.Deserialize<ResponseNewsDTO>(jsonData, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    // Delete image from S3 if it exists
+                    if (!string.IsNullOrEmpty(newsDTO.Image))
+                    {
+                        try
+                        {
+                            var imageKey = newsDTO.Image.Replace(
+                                "https://thanhnd-s3-bucket-store-prn232.s3.ap-southeast-1.amazonaws.com/", "");
+                            await _s3Service.DeleteFileAsync(imageKey);
+                        }
+                        catch (Exception ex)
+                        {
+                            TempData["AlertType"] = "warning";
+                            TempData["MessageNotification"] = $"Không thể xóa ảnh từ S3: {ex.Message}";
+                            // Continue with deletion even if image deletion fails
+                        }
+                    }
+                }
+
+                // Proceed with news item deletion
                 var response = await client.DeleteAsync($"http://localhost:5077/api/managenews/news/{newId}");
 
                 if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
