@@ -9,6 +9,7 @@ using BookingFlightClient.Services.IServices;
 
 namespace BookingFlightClient
 {
+
     public class Program
     {
         public static void Main(string[] args)
@@ -71,6 +72,7 @@ namespace BookingFlightClient
             app.UseStaticFiles();
             app.UseRouting();
             app.UseMiddleware<GetRequireRoleMiddleware>();
+            app.UseMiddleware<JwtSessionMiddleware>();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllerRoute(
