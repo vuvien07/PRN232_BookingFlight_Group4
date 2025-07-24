@@ -19,6 +19,17 @@ namespace BookingFlightClient.Controllers
             _httpClientFactory = httpClientFactory;
             _s3Service = s3Service;
         }
+
+        private bool IsUserAuthenticated()
+        {
+            return Request.Cookies.TryGetValue("X-Access-Token", out var token) && !string.IsNullOrEmpty(token);
+        }
+
+        private string? GetAccessToken()
+        {
+            Request.Cookies.TryGetValue("X-Access-Token", out var token);
+            return token;
+        }
         public async Task<IActionResult> Index()
         {
             // call the API to get the list of news
@@ -54,6 +65,14 @@ namespace BookingFlightClient.Controllers
 
         public async Task<IActionResult> Create()
         {
+            // Check if user is authenticated
+            if (!IsUserAuthenticated())
+            {
+                TempData["AlertType"] = "warning";
+                TempData["MessageNotification"] = "Bạn cần đăng nhập để truy cập chức năng này.";
+                return RedirectToAction("Index", "Login");
+            }
+            
             return View();
         }
 
@@ -77,7 +96,7 @@ namespace BookingFlightClient.Controllers
                     }
 
                     // Create file name with a unique identifier
-                    var fileName = $"images/news/{Guid.NewGuid()}_{imageUpload.FileName}";
+                    var fileName = $"images/news/{imageUpload.FileName}";
 
                     // Upload the file to S3
                     using var stream = imageUpload.OpenReadStream();
@@ -89,36 +108,21 @@ namespace BookingFlightClient.Controllers
 
                 var client = _httpClientFactory.CreateClient();
 
-                // Add Authorization token if available
-                if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
+                // Check if token exists in cookies
+                var token = GetAccessToken();
+                if (string.IsNullOrEmpty(token))
                 {
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                }
-                 var responseToken = new HttpResponseMessage();
-                try
-                {
-                    responseToken = await client.GetAsync("http://localhost:5077/api/Token/get");
-                }
-                catch (HttpRequestException ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Network Error: {ex.Message}");
-                    TempData["AlertType"] = "danger";
-                    TempData["MessageNotification"] = $"Lỗi kết nối đến API: {ex.Message}. Vui lòng thử lại.";
+                    TempData["AlertType"] = "warning";
+                    TempData["MessageNotification"] = "Bạn chưa đăng nhập. Vui lòng đăng nhập để tiếp tục.";
                     return RedirectToAction("Index", "Login");
                 }
 
-                // Parse response to get AccountId
-                var responseContent = await responseToken.Content.ReadAsStringAsync();
-                //System.Diagnostics.Debug.WriteLine($"Token API Response: {responseContent}");
-                using var jsonDoc = JsonDocument.Parse(responseContent);
-                var root = jsonDoc.RootElement;
-                if (!root.TryGetProperty("AccountId", out var accountIdElement) || !int.TryParse(accountIdElement.GetString(), out var accountId))
-                {
-                    TempData["AlertType"] = "danger";
-                    TempData["MessageNotification"] = "Không thể lấy AccountId từ token. Vui lòng đăng nhập lại.";
-                    return RedirectToAction("Index", "Login");
-                }
-                newsDTO.AccountId = accountId;
+                // Add Authorization token
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+
+
+                newsDTO.AccountId = 1; // Assuming the account ID is 1 for the current user, you can modify this as needed
 
                 var jsonOptions = new JsonSerializerOptions
                 {
