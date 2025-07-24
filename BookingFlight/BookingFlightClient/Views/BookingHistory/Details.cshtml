@@ -306,6 +306,16 @@
             transform: translateY(-2px);
         }
 
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
         .btn-outline {
             background: transparent;
             color: #667eea;
@@ -574,10 +584,20 @@
 
                         @if (Model.StatusId == 1 && Model.FlightDTO.ArrivalTime < DateTime.Now)
                         {
-                            <a href="@Url.Action("Create", "Feedback", new { ticketId = Model.TicketId, ticketNumber = Model.TicketNumber })" class="btn btn-primary">
-                                <i class="fas fa-comment-alt"></i>
-                                <span data-vn="Gửi Feedback" data-en="Send Feedback" data-zh="发送反馈">Gửi Feedback</span>
-                            </a>
+                            @if (Model.HasFeedback)
+                            {
+                                <a href="@Url.Action("ViewByTicket", "Feedback", new { ticketId = Model.TicketId, ticketNumber = Model.TicketNumber })" class="btn btn-success">
+                                    <i class="fas fa-eye"></i>
+                                    <span data-vn="Xem Feedback" data-en="View Feedback" data-zh="查看反馈">Xem Feedback</span>
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@Url.Action("Create", "Feedback", new { ticketId = Model.TicketId, ticketNumber = Model.TicketNumber })" class="btn btn-primary">
+                                    <i class="fas fa-comment-alt"></i>
+                                    <span data-vn="Gửi Feedback" data-en="Send Feedback" data-zh="发送反馈">Gửi Feedback</span>
+                                </a>
+                            }
                         }
                     </div>
                 </div>

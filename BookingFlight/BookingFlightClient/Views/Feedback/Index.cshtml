@@ -1,4 +1,4 @@
-@model List<BookingFlightClient.Models.ViewModels.FeedbackDisplayViewModel>
+@model List<BookingFlightClient.Models.ViewModels.FeedbackDetailViewModel>
 
 @{
     ViewData["Title"] = "Danh sách Feedback";
@@ -154,6 +154,48 @@
             margin-bottom: 20px;
         }
 
+        .flight-info {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .flight-info h4 {
+            margin: 0 0 15px 0;
+            color: #007bff;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .flight-info h4 i {
+            margin-right: 8px;
+        }
+
+        .flight-details {
+            display: grid;
+            gap: 8px;
+        }
+
+        .flight-detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: #666;
+            min-width: 110px;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #333;
+            text-align: right;
+        }
+
         .feedback-footer {
             display: flex;
             justify-content: space-between;
@@ -180,6 +222,56 @@
             justify-content: center;
             color: white;
             font-weight: 600;
+        }
+
+        .search-filter-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e0e6ed;
+        }
+
+        .search-filter-form .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .search-filter-form .form-control {
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .search-filter-form .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .search-filter-form .btn {
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+
+        .search-filter-form .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+
+        .search-filter-form .btn-outline {
+            background: transparent;
+            color: #6c757d;
+            border: 2px solid #e0e6ed;
+        }
+
+        .search-filter-form .btn-outline:hover {
+            background: #f8f9fa;
+            border-color: #adb5bd;
         }
 
         .feedback-actions {
@@ -248,6 +340,80 @@
             margin-bottom: 30px;
         }
 
+        /* Pagination Styles */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+            padding: 25px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e0e6ed;
+        }
+
+        .pagination {
+            list-style: none;
+            display: flex;
+            gap: 5px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .page-item {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .page-item.disabled .page-link {
+            background: #f8f9fa;
+            color: #6c757d;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+        }
+
+        .page-item.active .page-link,
+        .page-item .page-link.current {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            font-weight: 600;
+        }
+
+        .page-link {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 15px;
+            color: #667eea;
+            text-decoration: none;
+            background: white;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 44px;
+            justify-content: center;
+        }
+
+        .page-link:hover:not(.current) {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .pagination-info {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .pagination-info strong {
+            color: #333;
+            font-weight: 600;
+        }
+
         @@media (max-width: 768px) {
             .feedback-container {
                 padding: 15px;
@@ -272,6 +438,22 @@
 
             .feedback-actions {
                 flex-direction: column;
+            }
+
+            .pagination-container {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .pagination {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .page-link {
+                padding: 8px 12px;
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -337,11 +519,59 @@
                 </div>
             </div>
 
+            <!-- Search and Filter Form -->
+            <div class="search-filter-section">
+                <form method="get" action="@Url.Action("Index", "Feedback")" class="search-filter-form">
+                    <input type="hidden" name="page" value="1" />
+                    <input type="hidden" name="pageSize" value="@ViewBag.PageSize" />
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="searchText">
+                                    <span data-vn="Tìm kiếm" data-en="Search" data-zh="搜索">Tìm kiếm</span>
+                                </label>
+                                <input type="text" class="form-control" id="searchText" name="searchText" 
+                                       value="@ViewBag.SearchText" 
+                                       placeholder="Tìm theo tiêu đề hoặc nội dung...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="rating">
+                                    <span data-vn="Lọc theo đánh giá" data-en="Filter by Rating" data-zh="按评分筛选">Lọc theo đánh giá</span>
+                                </label>
+                                <select class="form-control" id="rating" name="rating">
+                                    <option value="">
+                                        <span data-vn="Tất cả" data-en="All" data-zh="全部">Tất cả</span>
+                                    </option>
+                                    <option value="5" selected="@(ViewBag.Rating?.ToString() == "5" ? "selected" : null)">⭐⭐⭐⭐⭐ (5 sao)</option>
+                                    <option value="4" selected="@(ViewBag.Rating?.ToString() == "4" ? "selected" : null)">⭐⭐⭐⭐ (4 sao)</option>
+                                    <option value="3" selected="@(ViewBag.Rating?.ToString() == "3" ? "selected" : null)">⭐⭐⭐ (3 sao)</option>
+                                    <option value="2" selected="@(ViewBag.Rating?.ToString() == "2" ? "selected" : null)">⭐⭐ (2 sao)</option>
+                                    <option value="1" selected="@(ViewBag.Rating?.ToString() == "1" ? "selected" : null)">⭐ (1 sao)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <div class="d-flex">
+                                    <button type="submit" class="btn btn-primary me-2">
+                                        <i class="fas fa-search"></i>
+                                        <span data-vn="Tìm kiếm" data-en="Search" data-zh="搜索">Tìm kiếm</span>
+                                    </button>
+                                    <a href="@Url.Action("Index", "Feedback")" class="btn btn-outline">
+                                        <i class="fas fa-refresh"></i>
+                                        <span data-vn="Xóa bộ lọc" data-en="Clear Filter" data-zh="清除筛选">Xóa bộ lọc</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
             <div class="feedback-actions">
-                <a href="@Url.Action("Create", "Feedback")" class="btn btn-primary">
-                    <i class="fas fa-plus"></i>
-                    <span data-vn="Gửi Feedback mới" data-en="Send New Feedback" data-zh="发送新反馈">Gửi Feedback mới</span>
-                </a>
                 <a href="@Url.Action("MyFeedbacks", "Feedback")" class="btn btn-outline">
                     <i class="fas fa-user"></i>
                     <span data-vn="Feedback của tôi" data-en="My Feedbacks" data-zh="我的反馈">Feedback của tôi</span>
@@ -371,6 +601,29 @@
                             @feedback.Content
                         </div>
 
+                        <!-- Thông tin chi tiết chuyến bay -->
+                        <div class="flight-info">
+                            <h4><i class="fas fa-plane"></i> Thông tin chuyến bay</h4>
+                            <div class="flight-details">
+                                <div class="flight-detail-row">
+                                    <span class="detail-label">Mã chuyến bay:</span>
+                                    <span class="detail-value">@feedback.FlightNumber</span>
+                                </div>
+                                <div class="flight-detail-row">
+                                    <span class="detail-label">Lộ trình:</span>
+                                    <span class="detail-value">@feedback.DepartureAirport → @feedback.ArrivalAirport</span>
+                                </div>
+                                <div class="flight-detail-row">
+                                    <span class="detail-label">Ngày bay:</span>
+                                    <span class="detail-value">@feedback.FlightDate.ToString("dd/MM/yyyy")</span>
+                                </div>
+                                <div class="flight-detail-row">
+                                    <span class="detail-label">Giờ bay:</span>
+                                    <span class="detail-value">@feedback.DepartureTime.ToString("HH:mm") - @feedback.ArrivalTime.ToString("HH:mm")</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="feedback-footer">
                             <div class="feedback-author">
                                 <div class="author-avatar">
@@ -396,6 +649,115 @@
                     </div>
                 }
             </div>
+
+            <!-- Pagination -->
+            @if (ViewBag.TotalPages > 1)
+            {
+                <div class="pagination-container">
+                    <nav aria-label="Pagination navigation">
+                        <ul class="pagination">
+                            <!-- Previous Page -->
+                            @if (ViewBag.HasPreviousPage)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { searchText = ViewBag.SearchText, rating = ViewBag.Rating, page = ViewBag.CurrentPage - 1, pageSize = ViewBag.PageSize })">
+                                        <i class="fas fa-chevron-left"></i>
+                                        <span data-vn="Trước" data-en="Previous" data-zh="上一页">Trước</span>
+                                    </a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="page-item disabled">
+                                    <span class="page-link">
+                                        <i class="fas fa-chevron-left"></i>
+                                        <span data-vn="Trước" data-en="Previous" data-zh="上一页">Trước</span>
+                                    </span>
+                                </li>
+                            }
+
+                            <!-- Page Numbers -->
+                            @{
+                                int totalPages = ViewBag.TotalPages;
+                                int currentPage = ViewBag.CurrentPage;
+                                int startPage = Math.Max(1, currentPage - 2);
+                                int endPage = Math.Min(totalPages, currentPage + 2);
+                            }
+
+                            @if (startPage > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { searchText = ViewBag.SearchText, rating = ViewBag.Rating, page = 1, pageSize = ViewBag.PageSize })">1</a>
+                                </li>
+                                @if (startPage > 2)
+                                {
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                }
+                            }
+
+                            @for (int i = startPage; i <= endPage; i++)
+                            {
+                                <li class="page-item @(i == currentPage ? "active" : "")">
+                                    @if (i == currentPage)
+                                    {
+                                        <span class="page-link current">@i</span>
+                                    }
+                                    else
+                                    {
+                                        <a class="page-link" href="@Url.Action("Index", new { searchText = ViewBag.SearchText, rating = ViewBag.Rating, page = i, pageSize = ViewBag.PageSize })">@i</a>
+                                    }
+                                </li>
+                            }
+
+                            @if (endPage < totalPages)
+                            {
+                                @if (endPage < totalPages - 1)
+                                {
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                }
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { searchText = ViewBag.SearchText, rating = ViewBag.Rating, page = totalPages, pageSize = ViewBag.PageSize })">@totalPages</a>
+                                </li>
+                            }
+
+                            <!-- Next Page -->
+                            @if (ViewBag.HasNextPage)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { searchText = ViewBag.SearchText, rating = ViewBag.Rating, page = ViewBag.CurrentPage + 1, pageSize = ViewBag.PageSize })">
+                                        <span data-vn="Sau" data-en="Next" data-zh="下一页">Sau</span>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="page-item disabled">
+                                    <span class="page-link">
+                                        <span data-vn="Sau" data-en="Next" data-zh="下一页">Sau</span>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </span>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+
+                    <!-- Pagination Info -->
+                    <div class="pagination-info">
+                        <span data-vn="Hiển thị" data-en="Showing" data-zh="显示">Hiển thị</span>
+                        <strong>@((ViewBag.CurrentPage - 1) * ViewBag.PageSize + 1)</strong>
+                        -
+                        <strong>@Math.Min(ViewBag.CurrentPage * ViewBag.PageSize, ViewBag.TotalItems)</strong>
+                        <span data-vn="trong tổng số" data-en="of" data-zh="共">trong tổng số</span>
+                        <strong>@ViewBag.TotalItems</strong>
+                        <span data-vn="feedback" data-en="feedbacks" data-zh="反馈">feedback</span>
+                    </div>
+                </div>
+            }
         }
         else
         {

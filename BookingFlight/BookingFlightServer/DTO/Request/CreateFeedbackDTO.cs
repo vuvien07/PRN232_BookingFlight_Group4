@@ -15,5 +15,7 @@ namespace BookingFlightServer.DTO.Request
         [Required(ErrorMessage = "Nội dung không được để trống")]
         [StringLength(1000, ErrorMessage = "Nội dung không được vượt quá 1000 ký tự")]
         public string Content { get; set; } = null!;
+
+        public int? TicketId { get; set; }
     }
 }

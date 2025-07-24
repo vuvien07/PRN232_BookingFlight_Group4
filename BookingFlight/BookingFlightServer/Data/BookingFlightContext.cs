@@ -30,6 +30,8 @@ public partial class BookingFlightContext : DbContext
 
     public virtual DbSet<Feedback> Feedbacks { get; set; }
 
+    public virtual DbSet<FeedbackTicket> FeedbackTickets { get; set; }
+
     public virtual DbSet<Flight> Flights { get; set; }
 
     public virtual DbSet<FlightSeat> FlightSeats { get; set; }
