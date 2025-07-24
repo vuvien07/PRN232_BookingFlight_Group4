@@ -72,7 +72,7 @@ namespace BookingFlightClient.Controllers
                 TempData["MessageNotification"] = "Bạn cần đăng nhập để truy cập chức năng này.";
                 return RedirectToAction("Index", "Login");
             }
-            
+
             return View();
         }
 
@@ -276,30 +276,41 @@ namespace BookingFlightClient.Controllers
                 // Handle image upload if provided
                 if (imageUpload != null && imageUpload.Length > 0)
                 {
-                    var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "news");
-                    if (!Directory.Exists(uploadsPath))
+                    // Validate image type
+                    var validImageTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif" };
+                    if (!validImageTypes.Contains(imageUpload.ContentType))
                     {
-                        Directory.CreateDirectory(uploadsPath);
+                        TempData["AlertType"] = "danger";
+                        TempData["MessageNotification"] = "Chỉ hỗ trợ định dạng ảnh JPG, JPEG, PNG, hoặc GIF.";
+                        return View(newsDTO);
                     }
 
-                    var fileName = $"{Guid.NewGuid()}_{imageUpload.FileName}";
-                    var filePath = Path.Combine(uploadsPath, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    // Delete old image from S3 if it exists
+                    if (!string.IsNullOrEmpty(requestEditNewsDTO.Image))
                     {
-                        await imageUpload.CopyToAsync(stream);
+                        // Extract the S3 key from the URL (e.g., images/news/1701fc8e-695f-40ae-ad32-94d086643ede_Titanic.jpg)
+                        var oldImageKey = requestEditNewsDTO.Image.Replace(
+                            "https://thanhnd-s3-bucket-store-prn232.s3.ap-southeast-1.amazonaws.com/", "");
+                        await _s3Service.DeleteFileAsync(oldImageKey);
                     }
 
-                    requestEditNewsDTO.Image = $"/images/news/{fileName}";
+                    // Upload new image to S3
+                    var fileName = $"images/news/{imageUpload.FileName}";
+                    using var stream = imageUpload.OpenReadStream();
+                    var fileUrl = await _s3Service.UploadFileAsync(fileName, stream);
+                    requestEditNewsDTO.Image = fileUrl;
                 }
 
                 var client = _httpClientFactory.CreateClient();
-
-                // Add Authorization token if available
-                if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
+                var token = GetAccessToken();
+                if (string.IsNullOrEmpty(token))
                 {
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    TempData["AlertType"] = "warning";
+                    TempData["MessageNotification"] = "Bạn chưa đăng nhập. Vui lòng đăng nhập để tiếp tục.";
+                    return RedirectToAction("Index", "Login");
                 }
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                 var jsonOptions = new JsonSerializerOptions
                 {
