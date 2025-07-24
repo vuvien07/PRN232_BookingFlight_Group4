@@ -20,6 +20,10 @@ namespace BookingFlightServer
 		public static void Main(string[] args)
 		{
 			var builder = WebApplication.CreateBuilder(args);
+			
+			// Configure static files and wwwroot
+			builder.Environment.WebRootPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
+			
             builder.Services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "BookingFlightServer", Version = "v1" });

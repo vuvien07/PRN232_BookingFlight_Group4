@@ -18,7 +18,14 @@ namespace BookingFlightServer.Controllers
         {
             try
             {
-                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "complaints", fileName);
+                // Handle case where WebRootPath might be null
+                var webRootPath = _webHostEnvironment.WebRootPath;
+                if (string.IsNullOrEmpty(webRootPath))
+                {
+                    webRootPath = Path.Combine(_webHostEnvironment.ContentRootPath, "wwwroot");
+                }
+
+                var filePath = Path.Combine(webRootPath, "uploads", "complaints", fileName);
                 
                 if (!System.IO.File.Exists(filePath))
                 {

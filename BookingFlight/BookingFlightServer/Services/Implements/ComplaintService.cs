@@ -107,7 +107,15 @@ namespace BookingFlightServer.Services.Implements
         {
             try
             {
-                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "complaints");
+                // Handle case where WebRootPath might be null
+                var webRootPath = _webHostEnvironment.WebRootPath;
+                if (string.IsNullOrEmpty(webRootPath))
+                {
+                    // Fallback to ContentRootPath if WebRootPath is null
+                    webRootPath = Path.Combine(_webHostEnvironment.ContentRootPath, "wwwroot");
+                }
+
+                var uploadsFolder = Path.Combine(webRootPath, "uploads", "complaints");
                 
                 if (!Directory.Exists(uploadsFolder))
                 {
