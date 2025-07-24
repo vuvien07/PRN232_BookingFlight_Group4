@@ -1,25 +1,25 @@
 ﻿using System.Reflection;
+using Microsoft.Extensions.Hosting;
 
 namespace BookingFlightServer.Utils
 {
 	public static class ServiceExtension
 	{
-		public static void AddAllServices(this IServiceCollection services, Assembly assembly)
+	public static void AddAllServices(this IServiceCollection services, Assembly assembly)
+	{
+		var serviceTypes = assembly.GetTypes()
+			.Where(t => t.IsClass && !t.IsAbstract && t.Name.EndsWith("Service") 
+						&& !typeof(BackgroundService).IsAssignableFrom(t)) // Exclude BackgroundService classes
+			.ToList();
+		foreach (var serviceType in serviceTypes)
 		{
-			var serviceTypes = assembly.GetTypes()
-				.Where(t => t.IsClass && !t.IsAbstract && t.Name.EndsWith("Service"))
-				.ToList();
-			foreach (var serviceType in serviceTypes)
+			var interfaceType = serviceType.GetInterfaces().FirstOrDefault();
+			if (interfaceType != null)
 			{
-				var interfaceType = serviceType.GetInterfaces().FirstOrDefault();
-				if (interfaceType != null)
-				{
-					services.AddScoped(interfaceType, serviceType);
-				}
+				services.AddScoped(interfaceType, serviceType);
 			}
 		}
-
-		public static void AddAllRepositories(this IServiceCollection services, Assembly assembly)
+	}		public static void AddAllRepositories(this IServiceCollection services, Assembly assembly)
 		{
 			var repositoryTypes = assembly.GetTypes()
 		.Where(t => t.IsClass && !t.IsAbstract && t.Name.EndsWith("Repository"))

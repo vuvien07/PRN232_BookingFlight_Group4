@@ -6,28 +6,29 @@ namespace BookingFlightServer.Services.Implements
 {
     public class GeminiAIService : IGeminiAIService
     {
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ILogger<GeminiAIService> _logger;
         private readonly string _apiKey;
-        private readonly string _apiUrl;
 
-        public GeminiAIService(IConfiguration configuration, HttpClient httpClient)
+        public GeminiAIService(IConfiguration configuration, IHttpClientFactory httpClientFactory, ILogger<GeminiAIService> logger)
         {
-            _httpClient = httpClient;
-            _apiKey = configuration["GeminiAI:ApiKey"];
-            _apiUrl = configuration["GeminiAI:ApiUrl"];
+            _httpClientFactory = httpClientFactory;
+            _logger = logger;
+            _apiKey = configuration["GeminiAI:ApiKey"] ?? throw new ArgumentNullException("GeminiAI:ApiKey not configured");
         }
 
-        public async Task<string> GenerateFlightUpdateReasonAsync(
-            string flightCode, 
-            DateTime oldDepartureTime, 
-            DateTime newDepartureTime,
-            DateTime oldArrivalTime, 
-            DateTime newArrivalTime)
+        public async Task<string> GenerateContentAsync(string prompt)
         {
             try
             {
-                var prompt = BuildPrompt(flightCode, oldDepartureTime, newDepartureTime, oldArrivalTime, newArrivalTime);
-                
+                if (string.IsNullOrEmpty(_apiKey))
+                {
+                    return "AI service is not properly configured.";
+                }
+
+                var httpClient = _httpClientFactory.CreateClient();
+                var apiUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={_apiKey}";
+
                 var requestBody = new
                 {
                     contents = new[]
@@ -42,75 +43,129 @@ namespace BookingFlightServer.Services.Implements
                     }
                 };
 
-                var jsonContent = JsonSerializer.Serialize(requestBody);
-                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                var json = JsonSerializer.Serialize(requestBody);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await _httpClient.PostAsync($"{_apiUrl}?key={_apiKey}", content);
-                
+                var response = await httpClient.PostAsync(apiUrl, content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
                 if (response.IsSuccessStatusCode)
                 {
-                    var responseContent = await response.Content.ReadAsStringAsync();
-                    return ParseGeminiResponse(responseContent);
-                }
-
-                return "Thay đổi lịch trình do yêu cầu điều phối bay và đảm bảo an toàn cho chuyến bay.";
-            }
-            catch (Exception ex)
-            {
-                return $"Do điều kiện thời tiết và yêu cầu an toàn bay, chúng tôi cần điều chỉnh lịch trình chuyến bay. Chi tiết: {ex.Message}";
-            }
-        }
-
-        private string BuildPrompt(string flightCode, DateTime oldDepartureTime, DateTime newDepartureTime, DateTime oldArrivalTime, DateTime newArrivalTime)
-        {
-            var currentDate = DateTime.Now.ToString("dd/MM/yyyy");
-            return $@"
-Bạn là một chuyên gia hàng không. Hãy tạo ra một lý do hợp lý và chuyên nghiệp cho việc thay đổi lịch trình chuyến bay {flightCode}.
-
-Thông tin thay đổi:
-- Ngày hiện tại: {currentDate}
-- Giờ khởi hành cũ: {oldDepartureTime:dd/MM/yyyy HH:mm}
-- Giờ khởi hành mới: {newDepartureTime:dd/MM/yyyy HH:mm}
-- Giờ đến cũ: {oldArrivalTime:dd/MM/yyyy HH:mm}
-- Giờ đến mới: {newArrivalTime:dd/MM/yyyy HH:mm}
-
-Hãy tạo ra một lý do ngắn gọn (1-2 câu) về việc thay đổi này. Lý do phải:
-1. Chuyên nghiệp và đáng tin cậy
-2. Liên quan đến an toàn bay, thời tiết, hoặc điều phối kỹ thuật
-3. Thể hiện sự quan tâm đến hành khách
-4. Viết bằng tiếng Việt
-
-Chỉ trả về lý do, không cần giải thích thêm.";
-        }
-
-        private string ParseGeminiResponse(string responseContent)
-        {
-            try
-            {
-                var jsonResponse = JsonSerializer.Deserialize<JsonElement>(responseContent);
-                
-                if (jsonResponse.TryGetProperty("candidates", out var candidates) && 
-                    candidates.GetArrayLength() > 0)
-                {
-                    var firstCandidate = candidates[0];
-                    if (firstCandidate.TryGetProperty("content", out var contentProp) &&
-                        contentProp.TryGetProperty("parts", out var parts) &&
-                        parts.GetArrayLength() > 0)
+                    var result = JsonSerializer.Deserialize<JsonElement>(responseContent);
+                    if (result.TryGetProperty("candidates", out var candidates) && candidates.GetArrayLength() > 0)
                     {
-                        var firstPart = parts[0];
-                        if (firstPart.TryGetProperty("text", out var text))
+                        var firstCandidate = candidates[0];
+                        if (firstCandidate.TryGetProperty("content", out var contentProp) &&
+                            contentProp.TryGetProperty("parts", out var parts) && parts.GetArrayLength() > 0)
                         {
-                            var result = text.GetString()?.Trim();
-                            return !string.IsNullOrEmpty(result) ? result : "Thay đổi lịch trình do yêu cầu điều phối bay và đảm bảo an toàn cho chuyến bay.";
+                            var firstPart = parts[0];
+                            if (firstPart.TryGetProperty("text", out var textProp))
+                            {
+                                return textProp.GetString() ?? "No response generated.";
+                            }
                         }
                     }
                 }
 
-                return "Thay đổi lịch trình do yêu cầu điều phối bay và đảm bảo an toàn cho chuyến bay.";
+                return "Unable to generate response from AI service.";
             }
-            catch
+            catch (Exception ex)
             {
-                return "Thay đổi lịch trình do yêu cầu điều phối bay và đảm bảo an toàn cho chuyến bay.";
+                return "An error occurred while generating AI response.";
+            }
+        }
+
+        public async Task<bool> IsComplaintRelevantAsync(string complaintDescription)
+        {
+            try
+            {
+                // If complaint is empty or too short, consider it relevant to avoid auto-rejection
+                if (string.IsNullOrWhiteSpace(complaintDescription) || complaintDescription.Length < 5)
+                {
+                    return true; // Let supporter handle it manually
+                }
+
+                var prompt = $@"Analyze this customer complaint and determine if it's related to airline services.
+
+Complaint: ""{complaintDescription}""
+
+Respond 'RELEVANT' if the complaint mentions:
+- Flight booking, cancellation, changes
+- Flight delays, cancellations, schedule changes  
+- Baggage, check-in, airport services
+- Seating, upgrades, in-flight amenities
+- Refunds, payments related to flights
+- Customer service about aviation
+- Flight safety, procedures
+- Booking website, flight booking app
+- ANY issue that could be aviation-related
+- Customer experience with airline services
+- Food, beverages, entertainment on flights
+- Staff behavior on flights or at airport
+
+Respond 'IRRELEVANT' ONLY if:
+- Clearly spam advertising
+- Completely unrelated to aviation (e.g., restaurants, cars not related to travel)
+- Seriously offensive content
+- Meaningless content (just random characters)
+- Obvious test messages like 'test', 'hello', '123'
+
+WHEN IN DOUBT, CHOOSE 'RELEVANT' for manual review by staff.
+
+Response:";
+
+                var response = await GenerateContentAsync(prompt);
+                var cleanResponse = response.Trim().ToUpper();
+                
+                // More liberal matching - default to relevant unless clearly irrelevant
+                bool isRelevant = cleanResponse.Contains("RELEVANT") || 
+                       cleanResponse.Contains("CÓ LIÊN QUAN") ||
+                       cleanResponse.Contains("YES") || 
+                       cleanResponse.Contains("RELATED") ||
+                       !cleanResponse.Contains("IRRELEVANT") &&
+                       !cleanResponse.Contains("KHÔNG LIÊN QUAN");
+                
+                _logger.LogInformation($"AI relevance check for complaint: '{complaintDescription}' -> {(isRelevant ? "RELEVANT" : "IRRELEVANT")}");
+                
+                return isRelevant;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in AI relevance check");
+                // If AI fails, default to relevant to avoid auto-rejection
+                return true;
+            }
+        }
+
+        public async Task<string> GenerateRejectionReasonAsync(string complaintDescription)
+        {
+            try
+            {
+                var prompt = $@"Generate a professional, polite rejection message for this customer complaint:
+
+Complaint: ""{complaintDescription}""
+
+The rejection reason should:
+1. Be professional and respectful
+2. Explain why the complaint cannot be processed
+3. Suggest alternative actions if appropriate
+4. Keep it concise (2-3 sentences)
+5. Be suitable for customer communication
+
+Please provide only the rejection message without any additional formatting or labels.";
+
+                var response = await GenerateContentAsync(prompt);
+                
+                var cleanResponse = response.Trim();
+                cleanResponse = cleanResponse.Trim('"', '\n', '\r', ' ');
+                
+                return string.IsNullOrWhiteSpace(cleanResponse) 
+                    ? "Your complaint has been reviewed but cannot be processed as it falls outside our service scope. Please contact our general customer service for further assistance."
+                    : cleanResponse;
+            }
+            catch (Exception ex)
+            {
+                return "Your complaint has been rejected due to policy violations or insufficient information. Please provide more details or contact support for further assistance.";
             }
         }
 
@@ -118,55 +173,50 @@ Chỉ trả về lý do, không cần giải thích thêm.";
         {
             try
             {
-                var requestBody = new
-                {
-                    contents = new[]
-                    {
-                        new
-                        {
-                            parts = new[]
-                            {
-                                new
-                                {
-                                    text = $"Analyze the following flight conflict data and provide recommendations:\n\n{conflictData}\n\nPlease provide:\n1. Summary of conflicts\n2. Recommendations to resolve conflicts\n3. Alternative scheduling suggestions"
-                                }
-                            }
-                        }
-                    }
-                };
+                var prompt = $@"Analyze the following flight conflict data and provide recommendations:
+{conflictData}
 
-                var jsonContent = JsonSerializer.Serialize(requestBody);
-                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+Please provide:
+1. Summary of conflicts found
+2. Recommended resolution steps
+3. Priority level (High/Medium/Low)";
 
-                var response = await _httpClient.PostAsync($"{_apiUrl}?key={_apiKey}", content);
-                
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseContent = await response.Content.ReadAsStringAsync();
-                    var jsonResponse = JsonSerializer.Deserialize<JsonElement>(responseContent);
-                    
-                    if (jsonResponse.TryGetProperty("candidates", out var candidates) && 
-                        candidates.GetArrayLength() > 0)
-                    {
-                        var firstCandidate = candidates[0];
-                        if (firstCandidate.TryGetProperty("content", out var contentProp) &&
-                            contentProp.TryGetProperty("parts", out var parts) &&
-                            parts.GetArrayLength() > 0)
-                        {
-                            var firstPart = parts[0];
-                            if (firstPart.TryGetProperty("text", out var text))
-                            {
-                                return text.GetString() ?? "No analysis available";
-                            }
-                        }
-                    }
-                }
-
-                return "Unable to analyze conflicts at this time";
+                return await GenerateContentAsync(prompt);
             }
             catch (Exception ex)
             {
-                return $"Error analyzing conflicts: {ex.Message}";
+                return "Unable to analyze flight conflicts at this time.";
+            }
+        }
+
+        public async Task<string> GenerateFlightUpdateReasonAsync(
+            string flightCode,
+            DateTime oldDepartureTime,
+            DateTime newDepartureTime,
+            DateTime oldArrivalTime,
+            DateTime newArrivalTime)
+        {
+            try
+            {
+                var departureChange = (newDepartureTime - oldDepartureTime).TotalMinutes;
+                var arrivalChange = (newArrivalTime - oldArrivalTime).TotalMinutes;
+
+                var prompt = $@"Generate a professional flight schedule change notification for flight {flightCode}.
+Old departure: {oldDepartureTime:yyyy-MM-dd HH:mm}
+New departure: {newDepartureTime:yyyy-MM-dd HH:mm}
+Change: {departureChange:+0;-0;0} minutes
+
+Old arrival: {oldArrivalTime:yyyy-MM-dd HH:mm}
+New arrival: {newArrivalTime:yyyy-MM-dd HH:mm}
+Change: {arrivalChange:+0;-0;0} minutes
+
+Please provide a brief, professional explanation (2-3 sentences) for this schedule change that could be sent to passengers.";
+
+                return await GenerateContentAsync(prompt);
+            }
+            catch (Exception ex)
+            {
+                return "Flight schedule has been updated due to operational requirements. We apologize for any inconvenience caused.";
             }
         }
 
@@ -179,109 +229,31 @@ Chỉ trả về lý do, không cần giải thích thêm.";
         {
             try
             {
-                // Check if API key and URL are configured
-                if (string.IsNullOrEmpty(_apiKey) || string.IsNullOrEmpty(_apiUrl))
-                {
-                    Console.WriteLine("GeminiAI: API key or URL not configured, using default reason");
-                    return GetDefaultReasonForChangeType(changeType);
-                }
+                var contextInfo = additionalContext != null
+                    ? string.Join(", ", additionalContext.Select(kv => $"{kv.Key}: {kv.Value}"))
+                    : "No additional context";
 
-                var prompt = BuildAdvancedPrompt(flightCode, changeType, oldValue, newValue, additionalContext);
-                Console.WriteLine($"GeminiAI: Sending prompt for {changeType}: {prompt.Substring(0, Math.Min(200, prompt.Length))}...");
-                
-                var requestBody = new
-                {
-                    contents = new[]
-                    {
-                        new
-                        {
-                            parts = new[]
-                            {
-                                new { text = prompt }
-                            }
-                        }
-                    }
-                };
+                var prompt = $@"Generate a professional explanation for a flight change:
+Flight: {flightCode}
+Change Type: {changeType}
+Old Value: {oldValue}
+New Value: {newValue}
+Additional Context: {contextInfo}
 
-                var jsonContent = JsonSerializer.Serialize(requestBody);
-                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+Please provide a brief, professional explanation (1-2 sentences) suitable for passenger communication.";
 
-                var response = await _httpClient.PostAsync($"{_apiUrl}?key={_apiKey}", content);
-                
-                Console.WriteLine($"GeminiAI: Response status: {response.StatusCode}");
-                
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"GeminiAI: Response content: {responseContent.Substring(0, Math.Min(500, responseContent.Length))}...");
-                    var result = ParseGeminiResponse(responseContent);
-                    Console.WriteLine($"GeminiAI: Parsed result: {result}");
-                    return result;
-                }
-                else
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"GeminiAI: Error response: {errorContent}");
-                    return GetDefaultReasonForChangeType(changeType);
-                }
+                return await GenerateContentAsync(prompt);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"GeminiAI: Exception occurred: {ex.Message}");
-                return GetDefaultReasonForChangeType(changeType) + $" (Error: {ex.Message})";
-            }
-        }
-
-        private string BuildAdvancedPrompt(string flightCode, string changeType, object oldValue, object newValue, Dictionary<string, object>? additionalContext)
-        {
-            var currentDate = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
-            var prompt = $@"
-Bạn là một chuyên gia hàng không và dịch vụ khách hàng. Hãy tạo ra một lý do hợp lý và chuyên nghiệp cho việc thay đổi thông tin chuyến bay {flightCode}.
-
-Thời gian hiện tại: {currentDate}
-Loại thay đổi: {changeType}
-Giá trị cũ: {oldValue}
-Giá trị mới: {newValue}";
-
-            if (additionalContext?.Any() == true)
-            {
-                prompt += "\nThông tin bổ sung:";
-                foreach (var context in additionalContext)
+                return changeType.ToLower() switch
                 {
-                    prompt += $"\n- {context.Key}: {context.Value}";
-                }
+                    "time" => "Flight time has been adjusted due to operational requirements.",
+                    "gate" => "Gate assignment has been changed for operational efficiency.",
+                    "aircraft" => "Aircraft assignment has been updated for this flight.",
+                    _ => "Flight details have been updated due to operational requirements."
+                };
             }
-
-            prompt += $@"
-
-Hãy tạo ra một lý do ngắn gọn và cụ thể (1-3 câu) cho việc thay đổi {changeType} này. Lý do phải:
-
-1. Chuyên nghiệp và đáng tin cậy
-2. Cụ thể theo loại thay đổi:
-   - Nếu là thay đổi thời gian: liên quan đến thời tiết, an toàn bay, điều phối không lưu
-   - Nếu là thay đổi máy bay: liên quan đến bảo trì, nâng cấp, điều phối kỹ thuật
-   - Nếu là thay đổi thuế/phí: liên quan đến chính sách mới, quy định hàng không
-   - Nếu là thay đổi cổng/terminal: liên quan đến điều phối sân bay, tối ưu hóa
-3. Thể hiện sự quan tâm đến hành khách
-4. Viết bằng tiếng Việt, giọng điệu lịch sự và chuyên nghiệp
-5. Đưa ra thông tin cụ thể và thực tế
-
-Chỉ trả về lý do, không cần giải thích thêm.";
-
-            return prompt;
-        }
-
-        private string GetDefaultReasonForChangeType(string changeType)
-        {
-            return changeType.ToLower() switch
-            {
-                "tax" or "thuế" => "Do cập nhật chính sách thuế và phí hàng không mới từ cơ quan quản lý, chúng tôi cần điều chỉnh mức thuế áp dụng cho chuyến bay này.",
-                "aircraft" or "máy bay" => "Do yêu cầu bảo trì định kỳ và đảm bảo an toàn kỹ thuật, chúng tôi thực hiện thay đổi loại máy bay cho chuyến bay này.",
-                "gate" or "cổng" => "Do điều phối tối ưu hóa hoạt động sân bay và đảm bảo đúng giờ, chúng tôi thay đổi cổng khởi hành cho chuyến bay này.",
-                "terminal" => "Do cải thiện dịch vụ và thuận tiện cho hành khách, chúng tôi điều chỉnh terminal cho chuyến bay này.",
-                "price" or "giá" => "Do cập nhật chính sách giá vé và điều kiện thị trường, chúng tôi thực hiện điều chỉnh giá vé cho chuyến bay này.",
-                _ => "Do yêu cầu điều phối và đảm bảo chất lượng dịch vụ tốt nhất, chúng tôi thực hiện thay đổi thông tin chuyến bay này."
-            };
         }
     }
 }

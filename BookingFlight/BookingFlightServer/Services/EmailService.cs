@@ -17,6 +17,8 @@ namespace BookingFlightServer.Services
 		Task TestSendMailAsync(string email);
         Task<bool> SendTicketCodeByEmailAsync(List<string> ticketCodes,FlightCheckoutRequestDTO flightCheckoutRequest);
         Task<bool> SendFlightUpdateNotificationAsync(string toEmail, string subject, string body);
+        Task<bool> SendComplaintRejectionEmailAsync(string toEmail, string customerName, int complaintId, string complaintDescription, string rejectionReason, DateTime createAt);
+        Task<bool> SendEmailAsync(string toEmail, string customerName, string subject, string content);
 	}
 
     public class EmailService : IEmailService
@@ -303,5 +305,138 @@ namespace BookingFlightServer.Services
 				return false;
 			}
 		}
+
+        public async Task<bool> SendComplaintRejectionEmailAsync(string toEmail, string customerName, int complaintId, string complaintDescription, string rejectionReason, DateTime createAt)
+        {
+            try
+            {
+                var smtpSettings = _configuration.GetSection("SmtpSettings");
+                var fromEmail = smtpSettings["FromEmail"];
+                var fromPassword = smtpSettings["FromPassword"];
+                var smtpHost = smtpSettings["Host"];
+                var smtpPort = int.Parse(smtpSettings["Port"]);
+
+                var subject = "Thông báo về khiếu nại của bạn - BookingFlight";
+                
+                var body = $@"
+                    <html>
+                    <head>
+                        <style>
+                            body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                            .header {{ background-color: #dc3545; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }}
+                            .content {{ background-color: #f8f9fa; padding: 20px; border-radius: 0 0 8px 8px; }}
+                            .complaint-info {{ background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #dc3545; }}
+                            .reason {{ background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #ffc107; }}
+                            .footer {{ text-align: center; margin-top: 20px; color: #6c757d; font-size: 14px; }}
+                        </style>
+                    </head>
+                    <body>
+                        <div class='container'>
+                            <div class='header'>
+                                <h2>✈️ BookingFlight - Thông báo về khiếu nại</h2>
+                            </div>
+                            
+                            <div class='content'>
+                                <p>Kính gửi {customerName ?? "Quý khách"},</p>
+                                
+                                <p>Chúng tôi đã nhận và xem xét khiếu nại của bạn với mã số <strong>#{complaintId}</strong> được gửi vào ngày {createAt:dd/MM/yyyy HH:mm}.</p>
+                                
+                                <div class='complaint-info'>
+                                    <h4>Nội dung khiếu nại:</h4>
+                                    <p style='font-style: italic;'>{complaintDescription}</p>
+                                </div>
+                                
+                                <div class='reason'>
+                                    <h4>Thông báo:</h4>
+                                    <p>{rejectionReason}</p>
+                                </div>
+                                
+                                <p>Nếu bạn có bất kỳ câu hỏi nào về dịch vụ hàng không của chúng tôi, vui lòng gửi khiếu nại mới với nội dung liên quan đến:</p>
+                                <ul>
+                                    <li>Đặt vé và dịch vụ chuyến bay</li>
+                                    <li>Vấn đề về vé máy bay</li>
+                                    <li>Dịch vụ tại sân bay</li>
+                                    <li>Hành lý và chỗ ngồi</li>
+                                    <li>Hoàn tiền và thanh toán</li>
+                                </ul>
+                                
+                                <p>Chúng tôi luôn sẵn sàng hỗ trợ bạn trong các vấn đề liên quan đến dịch vụ hàng không.</p>
+                                
+                                <div class='footer'>
+                                    <p>Trân trọng,<br>
+                                    <strong>Đội ngũ hỗ trợ khách hàng BookingFlight</strong><br>
+                                    Email: support@bookingflight.com | Hotline: 1900-FLIGHT</p>
+                                </div>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                ";
+
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(fromEmail, "BookingFlight Support"),
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true
+                };
+
+                mailMessage.To.Add(toEmail);
+
+                using var smtpClient = new SmtpClient(smtpHost, smtpPort)
+                {
+                    Credentials = new NetworkCredential(fromEmail, fromPassword),
+                    EnableSsl = true
+                };
+
+                await smtpClient.SendMailAsync(mailMessage);
+                Console.WriteLine($"Complaint rejection email sent successfully to {toEmail}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send complaint rejection email: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> SendEmailAsync(string toEmail, string customerName, string subject, string content)
+        {
+            try
+            {
+                var smtpServer = _configuration["EmailSettings:SmtpServer"];
+                var smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"]);
+                var smtpUsername = _configuration["EmailSettings:SmtpUsername"];
+                var smtpPassword = _configuration["EmailSettings:SmtpPassword"];
+                var fromEmail = new MailAddress(_configuration["EmailSettings:FromEmail"], _configuration["EmailSettings:FromName"]);
+
+                var mailMessage = new MailMessage
+                {
+                    From = fromEmail,
+                    Subject = subject,
+                    Body = content,
+                    IsBodyHtml = false
+                };
+
+                mailMessage.To.Add(new MailAddress(toEmail, customerName));
+
+                var smtpClient = new SmtpClient(smtpServer)
+                {
+                    Port = smtpPort,
+                    Credentials = new NetworkCredential(smtpUsername, smtpPassword),
+                    EnableSsl = true
+                };
+
+                await smtpClient.SendMailAsync(mailMessage);
+                Console.WriteLine($"Email sent successfully to {toEmail}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send email: {ex.Message}");
+                return false;
+            }
+        }
 	}
 }

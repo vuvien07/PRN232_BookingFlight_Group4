@@ -15,5 +15,10 @@ namespace BookingFlightServer.Services
             object oldValue,
             object newValue,
             Dictionary<string, object>? additionalContext = null);
+        
+        // Complaint checking methods
+        Task<bool> IsComplaintRelevantAsync(string complaintDescription);
+        Task<string> GenerateRejectionReasonAsync(string complaintDescription);
+        Task<string> GenerateContentAsync(string prompt);
     }
 }

@@ -4,8 +4,10 @@ using BookingFlightServer.UnitOfWork;
 using BookingFlightServer.Utils;
 using BookingFlightServer.Repositories;
 using BookingFlightServer.Repositories.Implements;
+using BookingFlightServer.Repositories.Interfaces;
 using BookingFlightServer.Services;
 using BookingFlightServer.Services.Implements;
+using BookingFlightServer.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -62,7 +64,9 @@ namespace BookingFlightServer
 			// Manual registration for new Flight Management services
 			builder.Services.AddScoped<IFlightManageRepository, FlightManageRepository>();
 			builder.Services.AddScoped<IFlightManageService, FlightManageService>();
-			builder.Services.AddHttpClient<IGeminiAIService, GeminiAIService>();
+			
+			// Register HttpClientFactory and GeminiAI service
+			builder.Services.AddHttpClient();
 			builder.Services.AddScoped<IGeminiAIService, GeminiAIService>();
 			
 			// Manual registration for Profile services
@@ -83,6 +87,13 @@ namespace BookingFlightServer
 			// Manual registration for Complaint services
 			builder.Services.AddScoped<IComplaintRepository, ComplaintRepository>();
 			builder.Services.AddScoped<IComplaintService, ComplaintService>();
+			
+			// Manual registration for Supporter Complaint services
+			builder.Services.AddScoped<ISupporterComplaintRepository, SupporterComplaintRepository>();
+			builder.Services.AddScoped<ISupporterComplaintService, SupporterComplaintService>();
+			
+			// Register Background Service for complaint processing
+			builder.Services.AddHostedService<ComplaintProcessingBackgroundService>();
 			
 			var app = builder.Build();
             if (app.Environment.IsDevelopment())

@@ -24,7 +24,7 @@ namespace BookingFlightServer.Services.Implements
                 {
                     Description = request.Description,
                     CustomerId = request.CustomerId,
-                    StatusId = 3, // 3 is "Pending" status
+                    StatusId = 3, // 3 is "Pending" status - will be processed by background service after 1 minute
                     SupporterId = 1, // Default supporter or can be assigned later
                     CreateAt = DateTime.Now
                 };
