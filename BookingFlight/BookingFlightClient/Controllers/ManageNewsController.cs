@@ -1,5 +1,6 @@
 ﻿using BookingFlightClient.Models.DTO;
 using BookingFlightClient.Models.ViewModels;
+using BookingFlightClient.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Client;
 using System.Net.Http.Headers;
@@ -10,16 +11,18 @@ namespace BookingFlightClient.Controllers
 {
     public class ManageNewsController : Controller
     {
-        private readonly IHttpClientFactory httpClientFactory;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IS3Service _s3Service;
 
-        public ManageNewsController(IHttpClientFactory httpClientFactory)
+        public ManageNewsController(IHttpClientFactory httpClientFactory, IS3Service s3Service)
         {
-            this.httpClientFactory = httpClientFactory;
+            _httpClientFactory = httpClientFactory;
+            _s3Service = s3Service;
         }
         public async Task<IActionResult> Index()
         {
             // call the API to get the list of news
-            var client = httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient();
 
             var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost:5077/api/managenews/news");
 
@@ -57,44 +60,65 @@ namespace BookingFlightClient.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(RequestAddNewsDTO newsDTO, IFormFile? imageUpload)
         {
+            //Console.WriteLine($"Client :: ManageNews :: Create :: {newsDTO.ToString()} :: {imageUpload.FileName}");
             try
             {
+
                 // Handle image upload if provided
                 if (imageUpload != null && imageUpload.Length > 0)
                 {
-                    var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "news");
-                    if (!Directory.Exists(uploadsPath))
+                    // Check if the uploaded file is an image
+                    var validImageTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif" };
+                    if (!validImageTypes.Contains(imageUpload.ContentType))
                     {
-                        Directory.CreateDirectory(uploadsPath);
+                        TempData["AlertType"] = "danger";
+                        TempData["MessageNotification"] = "Chỉ hỗ trợ định dạng ảnh JPG, JPEG, PNG, hoặc GIF.";
+                        return View(newsDTO);
                     }
 
-                    var fileName = $"{Guid.NewGuid()}_{imageUpload.FileName}";
-                    var filePath = Path.Combine(uploadsPath, fileName);
+                    // Create file name with a unique identifier
+                    var fileName = $"images/news/{Guid.NewGuid()}_{imageUpload.FileName}";
 
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await imageUpload.CopyToAsync(stream);
-                    }
+                    // Upload the file to S3
+                    using var stream = imageUpload.OpenReadStream();
+                    var fileUrl = await _s3Service.UploadFileAsync(fileName, stream);
 
-                    newsDTO.Image = $"/images/news/{fileName}";
+                    // Assign the file URL to the newsDTO
+                    newsDTO.Image = fileUrl;
                 }
 
-                // Get current user's account ID from session or claims
-                if (Request.Cookies.TryGetValue("UserId", out var userIdStr))
-                {
-                    if (int.TryParse(userIdStr, out var userId))
-                    {
-                        newsDTO.AccountId = userId;
-                    }
-                }
-
-                var client = httpClientFactory.CreateClient();
+                var client = _httpClientFactory.CreateClient();
 
                 // Add Authorization token if available
                 if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
                 {
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 }
+                 var responseToken = new HttpResponseMessage();
+                try
+                {
+                    responseToken = await client.GetAsync("http://localhost:5077/api/Token/get");
+                }
+                catch (HttpRequestException ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Network Error: {ex.Message}");
+                    TempData["AlertType"] = "danger";
+                    TempData["MessageNotification"] = $"Lỗi kết nối đến API: {ex.Message}. Vui lòng thử lại.";
+                    return RedirectToAction("Index", "Login");
+                }
+
+                // Parse response to get AccountId
+                var responseContent = await responseToken.Content.ReadAsStringAsync();
+                //System.Diagnostics.Debug.WriteLine($"Token API Response: {responseContent}");
+                using var jsonDoc = JsonDocument.Parse(responseContent);
+                var root = jsonDoc.RootElement;
+                if (!root.TryGetProperty("AccountId", out var accountIdElement) || !int.TryParse(accountIdElement.GetString(), out var accountId))
+                {
+                    TempData["AlertType"] = "danger";
+                    TempData["MessageNotification"] = "Không thể lấy AccountId từ token. Vui lòng đăng nhập lại.";
+                    return RedirectToAction("Index", "Login");
+                }
+                newsDTO.AccountId = accountId;
 
                 var jsonOptions = new JsonSerializerOptions
                 {
@@ -142,7 +166,7 @@ namespace BookingFlightClient.Controllers
                 return NotFound();
             }
             // init 
-            var client = httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient();
             // Add Authorization token if available
             if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
             {
@@ -189,7 +213,7 @@ namespace BookingFlightClient.Controllers
             }
 
             // init 
-            var client = httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient();
             // Add Authorization token if available
             if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
             {
@@ -265,7 +289,7 @@ namespace BookingFlightClient.Controllers
                     requestEditNewsDTO.Image = $"/images/news/{fileName}";
                 }
 
-                var client = httpClientFactory.CreateClient();
+                var client = _httpClientFactory.CreateClient();
 
                 // Add Authorization token if available
                 if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
@@ -318,7 +342,7 @@ namespace BookingFlightClient.Controllers
             }
 
             // Get news details for confirmation
-            var client = httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient();
 
             // Add Authorization token if available
             if (Request.Cookies.TryGetValue("X-Access-Token", out var token))
@@ -354,7 +378,7 @@ namespace BookingFlightClient.Controllers
         {
             try
             {
-                var client = httpClientFactory.CreateClient();
+                var client = _httpClientFactory.CreateClient();
 
                 // Add Authorization token if available
                 if (Request.Cookies.TryGetValue("X-Access-Token", out var token))

@@ -16,7 +16,6 @@ namespace BookingFlightServer.Services.Implements
         {
             var news = new News
             {
-                NewId = requestAddNewsDTO.NewId,
                 Title = requestAddNewsDTO.Title,
                 Image = requestAddNewsDTO.Image,
                 Content = requestAddNewsDTO.Content,

@@ -78,7 +78,7 @@ namespace BookingFlightClient.Services
                     InputStream = fileStream,
                     Key = fileName,
                     BucketName = _bucketName,
-                    CannedACL = S3CannedACL.PublicRead
+                    //CannedACL = S3CannedACL.PublicRead
                 };
 
                 // Use TransferUtility to upload the file
