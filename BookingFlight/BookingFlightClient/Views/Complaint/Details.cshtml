@@ -1,0 +1,756 @@
+@model BookingFlightClient.Models.ViewModels.ComplaintViewModel
+@{
+    ViewData["Title"] = $"Chi tiết khiếu nại #{Model.ComplaintId}";
+}
+
+<partial name="~/Views/Common/_Header.cshtml" />
+
+@section Styles {
+    <link href="~/css/complaint.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/common/Header.css" rel="stylesheet" />
+    <link href="~/css/common/Footer.css" rel="stylesheet" />
+}
+
+<style>
+    /* World-Class Airline Design - Complaint Details */
+    :root {
+        --airline-navy: #003366;
+        --airline-gold: #D4AF37;
+        --airline-silver: #C0C0C0;
+        --airline-blue: #0066CC;
+        --success-green: #00AA44;
+        --premium-gray: #F7F9FC;
+        --light-gold: #FFF8E1;
+        --text-primary: #1A1A1A;
+        --text-secondary: #666666;
+        --border-light: #E5E7EB;
+    }
+    
+    body {
+        background: var(--premium-gray);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    .detail-container {
+        background: var(--premium-gray);
+        min-height: 100vh;
+        padding: 0;
+    }
+    
+    .airline-header {
+        background: linear-gradient(135deg, var(--airline-navy) 0%, var(--airline-blue) 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .airline-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .airline-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        justify-content: center;
+    }
+    
+    .airline-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .detail-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 20px rgba(0,51,102,0.08);
+        border: none;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    
+    .detail-section {
+        padding: 2rem;
+        border-bottom: 1px solid var(--border-light);
+    }
+    
+    .detail-section:last-child {
+        border-bottom: none;
+    }
+    
+    .section-title {
+        color: var(--text-primary);
+        font-weight: 700;
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .section-title i {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--airline-blue), #0080FF);
+        color: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+    
+    .complaint-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .meta-item {
+        background: rgba(0, 102, 204, 0.03);
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 3px solid var(--airline-blue);
+    }
+    
+    .meta-label {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .meta-value {
+        color: var(--text-secondary);
+        font-size: 1rem;
+    }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+    }
+    
+    .status-badge.pending {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: #92400e;
+    }
+    
+    .status-badge.active {
+        background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+        color: #1e40af;
+    }
+    
+    .status-badge.resolved {
+        background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+        color: #065f46;
+    }
+    
+    .status-badge.rejected {
+        background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+        color: #991b1b;
+    }
+    }
+
+    .detail-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+
+    .detail-header p {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
+
+    .detail-content {
+        padding: 2rem;
+    }
+
+    .btn-back {
+        background: transparent;
+        border: 2px solid #6c757d;
+        color: #6c757d;
+        padding: 0.5rem 1.5rem;
+        border-radius: 20px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .btn-back:hover {
+        background: #6c757d;
+        color: white;
+        text-decoration: none;
+    }
+
+    .complaint-info {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-item {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 10px;
+        border-left: 4px solid #007bff;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        color: #212529;
+        font-weight: 500;
+    }
+
+    .status-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-warning {
+        background: linear-gradient(45deg, #ffc107, #fd7e14);
+        color: white;
+    }
+
+    .badge-info {
+        background: linear-gradient(45deg, #17a2b8, #007bff);
+        color: white;
+    }
+
+    .badge-success {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+    }
+
+    .badge-danger {
+        background: linear-gradient(45deg, #dc3545, #e83e8c);
+        color: white;
+    }
+
+    .badge-secondary {
+        background: linear-gradient(45deg, #6c757d, #495057);
+        color: white;
+    }
+
+    .description-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        color: #007bff;
+        font-weight: 700;
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .description-content {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        border-left: 4px solid #007bff;
+        line-height: 1.7;
+        color: #495057;
+        font-size: 1.05rem;
+        white-space: pre-wrap;
+    }
+
+    .attachment-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .attachment-item {
+        background: linear-gradient(45deg, #e3f2fd, #f3e5f5);
+        padding: 1.5rem;
+        border-radius: 15px;
+        border: 2px dashed #007bff;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .attachment-item:hover {
+        background: linear-gradient(45deg, #bbdefb, #e1bee7);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .attachment-icon {
+        font-size: 3rem;
+        color: #007bff;
+        margin-bottom: 1rem;
+    }
+
+    .attachment-name {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    .attachment-info {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .btn-download {
+        background: linear-gradient(45deg, #007bff, #6610f2);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+        margin-top: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+    }
+
+    .btn-download:hover {
+        background: linear-gradient(45deg, #0056b3, #520dc2);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+    .timeline-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(to bottom, #007bff, #6610f2);
+        border-radius: 2px;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 1.5rem;
+        padding-left: 2rem;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -6px;
+        top: 8px;
+        width: 12px;
+        height: 12px;
+        background: #007bff;
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 0 0 2px #007bff;
+    }
+
+    .timeline-item.active::before {
+        background: #28a745;
+        box-shadow: 0 0 0 2px #28a745;
+    }
+
+    .timeline-content {
+        background: #f8f9fa;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        position: relative;
+    }
+
+    .timeline-content::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-top: 8px solid transparent;
+        border-bottom: 8px solid transparent;
+        border-right: 8px solid #f8f9fa;
+    }
+
+    .timeline-title {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    .timeline-time {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .support-info {
+        background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-top: 2rem;
+        text-align: center;
+    }
+
+    .support-info h4 {
+        color: #007bff;
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+
+    .support-contact {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #495057;
+        font-weight: 500;
+    }
+
+    .contact-item i {
+        color: #007bff;
+    }
+
+    @@media (max-width: 768px) {
+        .detail-container {
+            padding: 1rem 0;
+        }
+        
+        .detail-header h1 {
+            font-size: 2rem;
+        }
+        
+        .detail-content {
+            padding: 1rem;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .support-contact {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .timeline {
+            padding-left: 1.5rem;
+        }
+        
+        .timeline-item {
+            padding-left: 1.5rem;
+        }
+    }
+</style>
+
+<div class="detail-container">
+    <!-- Airline Header -->
+    <div class="airline-header" style="margin-top: 8rem;">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1><i class="fas fa-file-alt"></i>Chi tiết khiếu nại #@Model.ComplaintId</h1>
+                    <p>Thông tin chi tiết và trạng thái xử lý</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Back Button -->
+                <div class="mb-3">
+                    <a href="@Url.Action("Index", "Complaint")" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+                    </a>
+                </div>
+
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+                            </div>
+                        }
+
+                        <!-- Complaint Info -->
+                        <div class="complaint-info">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <i class="fas fa-hashtag me-1"></i>Mã khiếu nại
+                                    </div>
+                                    <div class="info-value">#@Model.ComplaintId</div>
+                                </div>
+
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <i class="fas fa-calendar me-1"></i>Ngày tạo
+                                    </div>
+                                    <div class="info-value">@Model.FormattedCreateDate</div>
+                                </div>
+
+                                <div class="info-item">
+                                    <div class="info-label">
+                                        <i class="fas fa-flag me-1"></i>Trạng thái
+                                    </div>
+                                    <div class="info-value">
+                                        <div class="status-info">
+                                            <span class="status-badge @Model.StatusCssClass">@Model.StatusName</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if (!string.IsNullOrEmpty(Model.SupporterName))
+                                {
+                                    <div class="info-item">
+                                        <div class="info-label">
+                                            <i class="fas fa-user-tie me-1"></i>Nhân viên xử lý
+                                        </div>
+                                        <div class="info-value">
+                                            @Model.SupporterName
+                                            @if (!string.IsNullOrEmpty(Model.SupporterEmail))
+                                            {
+                                                <br><small class="text-muted">@Model.SupporterEmail</small>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="description-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-comment-alt"></i>Mô tả khiếu nại
+                            </h3>
+                            <div class="description-content">
+                                @Model.Description
+                            </div>
+                        </div>
+
+                        <!-- Attachment -->
+                        @if (!string.IsNullOrEmpty(Model.FileUrl))
+                        {
+                            <div class="attachment-section">
+                                <h3 class="section-title">
+                                    <i class="fas fa-paperclip"></i>File đính kèm
+                                </h3>
+                                <div class="attachment-item">
+                                    <div class="attachment-icon">
+                                        @if (!string.IsNullOrEmpty(Model.FileType))
+                                        {
+                                            @switch (Model.FileType.ToLower())
+                                            {
+                                                case ".pdf":
+                                                    <i class="fas fa-file-pdf" style="color: #dc3545;"></i>
+                                                    break;
+                                                case ".doc":
+                                                case ".docx":
+                                                    <i class="fas fa-file-word" style="color: #007bff;"></i>
+                                                    break;
+                                                case ".jpg":
+                                                case ".jpeg":
+                                                case ".png":
+                                                    <i class="fas fa-file-image" style="color: #28a745;"></i>
+                                                    break;
+                                                default:
+                                                    <i class="fas fa-file" style="color: #6c757d;"></i>
+                                                    break;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-file"></i>
+                                        }
+                                    </div>
+                                    <div class="attachment-name">
+                                        @{
+                                            // Extract filename from URL since FileName is not available
+                                            var urlParts = Model.FileUrl.Split('/');
+                                            var fileName = urlParts.Length > 0 ? urlParts[urlParts.Length - 1] : "file";
+                                            var displayName = !string.IsNullOrEmpty(fileName) ? fileName : "File đính kèm";
+                                        }
+                                        <span>@displayName (@(Model.FileType ?? "Unknown"))</span>
+                                    </div>
+                                    <div class="attachment-info">
+                                        <span>Nhấn để tải file về máy</span>
+                                    </div>
+                                    <a href="@Model.FileUrl" class="btn-download">
+                                        <i class="fas fa-download me-2"></i>
+                                        <span>Tải xuống</span>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Timeline -->
+                        <div class="timeline-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-history"></i>Lịch sử xử lý
+                            </h3>
+                            <div class="timeline">
+                                <div class="timeline-item active">
+                                    <div class="timeline-content">
+                                        <div class="timeline-title">Khiếu nại được tạo</div>
+                                        <div class="timeline-time">@Model.FormattedCreateDate</div>
+                                    </div>
+                                </div>
+
+                                @if (!string.IsNullOrEmpty(Model.SupporterName))
+                                {
+                                    <div class="timeline-item active">
+                                        <div class="timeline-content">
+                                            <div class="timeline-title">Được gán cho nhân viên xử lý</div>
+                                            <div class="timeline-time">Nhân viên: @Model.SupporterName</div>
+                                        </div>
+                                    </div>
+                                }
+
+                                @if (Model.StatusId >= 2)
+                                {
+                                    <div class="timeline-item active">
+                                        <div class="timeline-content">
+                                            <div class="timeline-title">Bắt đầu xử lý</div>
+                                            <div class="timeline-time">Trạng thái: @Model.StatusName</div>
+                                        </div>
+                                    </div>
+                                }
+
+                                @if (Model.StatusId == 3)
+                                {
+                                    <div class="timeline-item active">
+                                        <div class="timeline-content">
+                                            <div class="timeline-title">Hoàn thành xử lý</div>
+                                            <div class="timeline-time">Khiếu nại đã được giải quyết</div>
+                                        </div>
+                                    </div>
+                                }
+                                else if (Model.StatusId == 4)
+                                {
+                                    <div class="timeline-item">
+                                        <div class="timeline-content">
+                                            <div class="timeline-title">Khiếu nại bị từ chối</div>
+                                            <div class="timeline-time">Vui lòng liên hệ để biết thêm chi tiết</div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="timeline-item">
+                                        <div class="timeline-content">
+                                            <div class="timeline-title">Đang chờ xử lý</div>
+                                            <div class="timeline-time">Chúng tôi sẽ xử lý sớm nhất có thể</div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Support Info -->
+                        <div class="support-info">
+                            <h4><i class="fas fa-headset me-2"></i>Cần hỗ trợ thêm?</h4>
+                            <p class="mb-3">Nếu bạn có thắc mắc về khiếu nại này, vui lòng liên hệ với chúng tôi</p>
+                            <div class="support-contact">
+                                <div class="contact-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span>Hotline: 1900 6886</span>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>Email: support@cloudline.vn</span>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>24/7 Support</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="~/Views/Common/_Footer.cshtml" />
+
+@section Scripts {
+    <script src="~/js/complaint.js" asp-append-version="true"></script>
+}

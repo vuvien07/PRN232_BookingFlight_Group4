@@ -10,5 +10,11 @@ namespace BookingFlightClient.Controllers
         {
             return View("~/Views/AISupport.cshtml");
         }
+
+        [HttpGet("help")]
+        public IActionResult Help()
+        {
+            return RedirectToAction("Help", "Complaint");
+        }
     }
 }
