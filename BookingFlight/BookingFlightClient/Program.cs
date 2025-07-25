@@ -13,6 +13,7 @@ namespace BookingFlightClient
 		{
 			var builder = WebApplication.CreateBuilder(args);
 			builder.Services.AddHttpClient();
+			builder.Services.AddHttpContextAccessor(); // Add this
 			builder.Services.AddSession(options =>
 			{
 				options.Cookie.HttpOnly = true;
@@ -21,6 +22,7 @@ namespace BookingFlightClient
 			
 			// Register services
 			builder.Services.AddScoped<INewsService, NewsService>();
+			builder.Services.AddScoped<IDashboardService, DashboardService>();
 			
 			builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
 			 options =>

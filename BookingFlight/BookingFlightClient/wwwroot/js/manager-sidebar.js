@@ -272,6 +272,31 @@ window.highlightActiveSection = highlightActiveSection;
 window.addNotificationBadge = addNotificationBadge;
 window.customizeMenuForRole = customizeMenuForRole;
 
+// Submenu Toggle Function
+function toggleSubmenu(element) {
+    const navItem = element.parentElement;
+    const isOpen = navItem.classList.contains('open');
+    
+    // Close all other submenus
+    document.querySelectorAll('.nav-item.has-submenu.open').forEach(item => {
+        if (item !== navItem) {
+            item.classList.remove('open');
+        }
+    });
+    
+    // Toggle current submenu
+    if (isOpen) {
+        navItem.classList.remove('open');
+    } else {
+        navItem.classList.add('open');
+    }
+    
+    // Prevent default link behavior
+    return false;
+}
+
+window.toggleSubmenu = toggleSubmenu;
+
 // Auto-hide mobile sidebar on navigation
 window.addEventListener('beforeunload', function() {
     const sidebar = document.getElementById('managerSidebar');

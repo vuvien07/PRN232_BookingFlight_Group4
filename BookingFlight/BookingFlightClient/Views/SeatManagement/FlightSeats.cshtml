@@ -1,0 +1,44 @@
+@{
+    ViewBag.Title = "Flight Seat Management";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/seat-management.css" />
+}
+
+<div class="flight-management-container">
+    <div class="row">
+        <div class="col-12">
+            <h2>Flight Seat Management</h2>
+            <p class="text-muted">Manage seats for flights</p>
+        </div>
+    </div>
+    
+    <div class="flight-selection">
+        <h4>Select Flight</h4>
+        <select id="flightSelect" class="flight-select">
+            <option value="">Auto-loading flights...</option>
+        </select>
+    </div>
+    
+    <div class="seats-section">
+        <h4>Aircraft Seat Layout (150 Seats)</h4>
+        <div class="seat-info">
+            <small class="text-muted">
+                <strong>Seat Distribution:</strong> 
+                Business Class (Rows 1-3): 18 seats | 
+                Premium Class (Rows 4-7): 24 seats | 
+                Economy Class (Rows 8-25): 108 seats
+            </small>
+        </div>
+        <p class="text-muted">Click on available seats to manage their status.</p>
+        <div id="seatsContainer">
+            <div class="alert alert-secondary">Please select a flight to view the 150-seat aircraft layout.</div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/seat-management-fixed.js"></script>
+}

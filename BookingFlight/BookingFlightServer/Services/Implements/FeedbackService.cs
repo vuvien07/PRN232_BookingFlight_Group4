@@ -31,7 +31,7 @@ namespace BookingFlightServer.Services.Implements
                 // Check if user already has feedback for this ticket
                 if (createFeedbackDTO.TicketId.HasValue)
                 {
-                    var existingFeedback = _mappingService.HasFeedbackForTicketAndAccount(createFeedbackDTO.TicketId.Value, accountId);
+                    var existingFeedback = await _mappingService.HasFeedbackForTicketAndAccount(createFeedbackDTO.TicketId.Value, accountId);
                     if (existingFeedback)
                     {
                         throw new InvalidOperationException("Bạn đã gửi feedback cho chuyến bay này rồi!");

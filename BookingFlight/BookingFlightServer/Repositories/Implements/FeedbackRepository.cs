@@ -130,7 +130,7 @@ namespace BookingFlightServer.Repositories
 
         public async Task<List<Feedback>> GetFeedbacksByTicketIdAsync(int ticketId)
         {
-            var feedbackIds = _mappingService.GetFeedbackIdsByTicketId(ticketId);
+            var feedbackIds = await _mappingService.GetFeedbackIdsByTicketId(ticketId);
             
             if (!feedbackIds.Any())
                 return new List<Feedback>();
@@ -147,7 +147,7 @@ namespace BookingFlightServer.Repositories
 
         public async Task<List<FeedbackDetailDTO>> GetFeedbacksDetailByTicketIdAsync(int ticketId)
         {
-            var feedbackIds = _mappingService.GetFeedbackIdsByTicketId(ticketId);
+            var feedbackIds = await _mappingService.GetFeedbackIdsByTicketId(ticketId);
             
             if (!feedbackIds.Any())
                 return new List<FeedbackDetailDTO>();
@@ -196,7 +196,7 @@ namespace BookingFlightServer.Repositories
 
             foreach (var feedback in feedbacks)
             {
-                var ticketId = _mappingService.GetTicketIdByFeedbackId(feedback.FeedbackId);
+                var ticketId = await _mappingService.GetTicketIdByFeedbackId(feedback.FeedbackId);
                 if (ticketId.HasValue)
                 {
                     var detail = await GetFeedbackDetailByIdAndTicketId(feedback.FeedbackId, ticketId.Value);
@@ -251,7 +251,7 @@ namespace BookingFlightServer.Repositories
 
             foreach (var feedback in allFeedbacks)
             {
-                var ticketId = _mappingService.GetTicketIdByFeedbackId(feedback.FeedbackId);
+                var ticketId = await _mappingService.GetTicketIdByFeedbackId(feedback.FeedbackId);
                 if (ticketId.HasValue)
                 {
                     var detail = await GetFeedbackDetailByIdAndTicketId(feedback.FeedbackId, ticketId.Value);
@@ -270,16 +270,10 @@ namespace BookingFlightServer.Repositories
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                // Tìm kiếm theo: Tiêu đề feedback, Tên khách hàng, ID chuyến bay
+                // Tìm kiếm theo: Tiêu đề feedback, Tên khách hàng
                 query = query.Where(f => 
                     f.Title.Contains(searchTerm) || 
-                    (f.Account != null && f.Account.AccountName.Contains(searchTerm)) ||
-                    _context.Tickets
-                        .Where(t => t.TicketId == _context.FeedbackTickets
-                            .Where(ft => ft.FeedbackId == f.FeedbackId)
-                            .Select(ft => ft.TicketId)
-                            .FirstOrDefault())
-                        .Any(t => t.Flight.FlightNumber.Contains(searchTerm))
+                    (f.Account != null && f.Account.Username.Contains(searchTerm))
                 );
             }
 
@@ -305,7 +299,7 @@ namespace BookingFlightServer.Repositories
 
             foreach (var feedback in feedbacks)
             {
-                var ticketId = _mappingService.GetTicketIdByFeedbackId(feedback.FeedbackId);
+                var ticketId = await _mappingService.GetTicketIdByFeedbackId(feedback.FeedbackId);
                 if (ticketId.HasValue)
                 {
                     var detail = await GetFeedbackDetailByIdAndTicketId(feedback.FeedbackId, ticketId.Value);
@@ -320,7 +314,7 @@ namespace BookingFlightServer.Repositories
         public async Task<List<FeedbackDetailDTO>> GetFeedbackDetailsByTicketIdAndAccountIdAsync(int ticketId, int accountId)
         {
             // Get feedbacks for this ticket using mapping service
-            var feedbackIds = _mappingService.GetFeedbackIdsByTicketId(ticketId);
+            var feedbackIds = await _mappingService.GetFeedbackIdsByTicketId(ticketId);
             
             var result = new List<FeedbackDetailDTO>();
             

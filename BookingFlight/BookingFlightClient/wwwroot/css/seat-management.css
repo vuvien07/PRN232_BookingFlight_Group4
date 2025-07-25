@@ -1,0 +1,505 @@
+/* Seat Management Styles */
+
+.flight-management-container {
+    padding: 20px;
+}
+
+.flight-selection {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.flight-selection h4 {
+    margin-bottom: 15px;
+    color: #495057;
+}
+
+.flight-select {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.flight-info {
+    margin-top: 15px;
+    padding: 12px;
+    background: #e7f3ff;
+    border-left: 4px solid #007bff;
+    border-radius: 4px;
+}
+
+.flight-info p {
+    margin: 0;
+    font-size: 14px;
+    color: #495057;
+}
+
+.flight-info .fas {
+    margin-right: 8px;
+    color: #007bff;
+}
+
+.seats-section {
+    margin-top: 30px;
+}
+
+.seat-info {
+    margin: 10px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    border-left: 4px solid #007bff;
+}
+
+/* Aircraft Seat Layout - 150 seats (25 rows x 6 seats) */
+.seats-grid {
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    border: 2px solid #ddd;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.aircraft-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    color: white;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.seat-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5px;
+    gap: 5px;
+}
+
+.seat-row.header-row {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #666;
+}
+
+.seat-label {
+    width: 30px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: #666;
+}
+
+.seat {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.seat:hover {
+    transform: scale(1.1);
+    z-index: 10;
+}
+
+/* Seat Status Colors */
+.seat.available {
+    background-color: #28a745;
+    color: white;
+    border-color: #1e7e34;
+}
+
+.seat.available:hover {
+    background-color: #218838;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.seat.occupied {
+    background-color: #dc3545;
+    color: white;
+    border-color: #c82333;
+    cursor: not-allowed;
+}
+
+.seat.occupied:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
+}
+
+.seat.unavailable {
+    background-color: #6c757d;
+    color: white;
+    border-color: #545b62;
+    cursor: not-allowed;
+}
+
+.seat.unavailable:hover {
+    background-color: #5a6268;
+    transform: scale(1.05);
+}
+
+/* Remove selected state - no yellow selection */
+
+/* Status indicators with symbols */
+.seat.available::after {
+    content: "✓";
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #00ff00; /* Bright green for available */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+.seat.occupied::after {
+    content: "✗";
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #ffff00; /* Bright yellow for occupied */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+.seat.unavailable::after {
+    content: "⊘";
+    position: absolute;
+    top: 2px;
+    right: 3px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #ff6600; /* Orange for unavailable */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+.seat {
+    position: relative; /* Required for absolute positioning of symbols */
+}
+
+/* Class Types - Updated Colors */
+.seat.business {
+    border-width: 3px;
+    background-color: #17a2b8 !important; /* Blue for Business */
+    color: white;
+    border-color: #138496;
+}
+
+.seat.business.available {
+    background-color: #17a2b8 !important;
+}
+
+.seat.business:hover {
+    background-color: #138496 !important;
+}
+
+.seat.premium {
+    border-width: 2px;
+    background-color: #fd7e14 !important; /* Orange for Premium */
+    color: white;
+    border-color: #e8681a;
+}
+
+.seat.premium.available {
+    background-color: #fd7e14 !important;
+}
+
+.seat.premium:hover {
+    background-color: #e8681a !important;
+}
+
+.seat.economy {
+    border-width: 1px;
+    background-color: #6f42c1 !important; /* Purple for Economy */
+    color: white;
+    border-color: #5a32a3;
+}
+
+.seat.economy.available {
+    background-color: #6f42c1 !important;
+}
+
+.seat.economy:hover {
+    background-color: #5a32a3 !important;
+}
+
+/* Aisle spacing */
+.seat-row .seat:nth-child(4) {
+    margin-left: 15px; /* Khoảng cách lối đi giữa C và D */
+}
+
+/* Empty seats for layout */
+.seat.empty {
+    background: transparent;
+    border: none;
+    cursor: default;
+}
+
+.seat.empty:hover {
+    transform: none;
+}
+
+.seats-legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.seat-demo {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    display: inline-block;
+}
+
+.seat-demo.available {
+    background-color: #28a745; /* Green for Available */
+}
+
+.seat-demo.occupied {
+    background-color: #dc3545; /* Red for Occupied */
+}
+
+.seat-demo.unavailable {
+    background-color: #6c757d; /* Gray for Unavailable */
+}
+
+.seat-demo.selected {
+    background-color: #ffc107; /* Yellow for Selected */
+}
+
+.seat-demo.business {
+    background-color: #17a2b8; /* Blue for Business Class */
+    border-color: #138496;
+}
+
+.seat-demo.premium {
+    background-color: #fd7e14; /* Orange for Premium Class */
+    border-color: #e8681a;
+}
+
+.seat-demo.economy {
+    background-color: #6f42c1; /* Purple for Economy Class */
+    border-color: #5a32a3;
+}
+
+.seats-grid {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    min-height: 300px;
+}
+
+.seat-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.row-label {
+    width: 30px;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center;
+    color: #495057;
+}
+
+.seats {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.seat {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: white;
+}
+
+.seat:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.seat.available {
+    background-color: #28a745;
+    border-color: #1e7e34;
+}
+
+.seat.available:hover {
+    background-color: #218838;
+}
+
+.seat.booked {
+    background-color: #dc3545;
+    border-color: #c82333;
+    cursor: not-allowed;
+}
+
+.seat.booked:hover {
+    background-color: #c82333;
+    transform: none;
+}
+
+.seat.business {
+    position: relative;
+}
+
+.seat.business::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background-color: #ffc107;
+    border-radius: 50%;
+    border: 1px solid #fff;
+}
+
+.seats-stats {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.seats-stats p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+.error-message {
+    padding: 15px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.success-message {
+    padding: 15px;
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.debug-panel {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.debug-panel h5 {
+    margin-bottom: 15px;
+    color: #495057;
+}
+
+.debug-panel pre {
+    background: #fff;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .seats-legend {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .seat {
+        width: 30px;
+        height: 30px;
+        font-size: 10px;
+    }
+    
+    .row-label {
+        width: 25px;
+    }
+    
+    .test-buttons .btn {
+        margin-right: 5px;
+        font-size: 12px;
+        padding: 5px 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .flight-management-container {
+        padding: 10px;
+    }
+    
+    .seats-grid {
+        padding: 10px;
+    }
+    
+    .seat {
+        width: 25px;
+        height: 25px;
+        font-size: 9px;
+    }
+}

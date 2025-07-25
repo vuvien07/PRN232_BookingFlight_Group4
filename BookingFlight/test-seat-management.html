@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Seat Management</title>
+    <link rel="stylesheet" href="css/seat-management.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .error { color: red; }
+        .success { color: green; }
+        button { margin: 5px; padding: 8px 15px; }
+    </style>
+</head>
+<body>
+    <h1>Test Flight Seat Management</h1>
+    
+    <div class="test-section">
+        <h3>API Tests</h3>
+        <button onclick="testFlightAPI()">Test Flight API</button>
+        <button onclick="testSeatAPI()">Test Seat API</button>
+        <div id="apiResults"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Flight Selection</h3>
+        <select id="flightSelect">
+            <option value="">Loading flights...</option>
+        </select>
+        
+        <div style="margin-top: 10px;">
+            <button id="testFlights">Mock Flights</button>
+            <button id="testSeats">Mock 150 Seats</button>
+            <button id="testAPI">Test API</button>
+            <button id="testBackendDirect">Test Backend Direct</button>
+            <button id="debugInfo">Debug Info</button>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>Aircraft Seat Layout (150 Seats)</h3>
+        <div id="seatsContainer">
+            <div class="alert alert-secondary">Please select a flight to view the 150-seat aircraft layout.</div>
+        </div>
+    </div>
+
+    <script>
+        // Test functions
+        async function testFlightAPI() {
+            const results = document.getElementById('apiResults');
+            results.innerHTML = '<div>Testing flight API...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:5077/api/FlightSeat/flights');
+                if (response.ok) {
+                    const data = await response.json();
+                    results.innerHTML = `<div class="success">✓ Flight API works! Found ${data.data?.length || 0} flights</div>`;
+                    console.log('Flight data:', data);
+                } else {
+                    results.innerHTML = `<div class="error">✗ Flight API failed: ${response.status}</div>`;
+                }
+            } catch (error) {
+                results.innerHTML = `<div class="error">✗ Flight API error: ${error.message}</div>`;
+            }
+        }
+
+        async function testSeatAPI() {
+            const results = document.getElementById('apiResults');
+            results.innerHTML = '<div>Testing seat API...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:5077/api/FlightSeat/1/seats');
+                if (response.ok) {
+                    const data = await response.json();
+                    results.innerHTML = `<div class="success">✓ Seat API works! Found ${data.data?.length || 0} seats</div>`;
+                    console.log('Seat data:', data);
+                } else {
+                    results.innerHTML = `<div class="error">✗ Seat API failed: ${response.status}</div>`;
+                }
+            } catch (error) {
+                results.innerHTML = `<div class="error">✗ Seat API error: ${error.message}</div>`;
+            }
+        }
+    </script>
+    
+    <script src="js/seat-management-fixed.js"></script>
+</body>
+</html>

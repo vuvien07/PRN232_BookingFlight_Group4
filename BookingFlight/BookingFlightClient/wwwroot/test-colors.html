@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Seat Colors</title>
+    <link rel="stylesheet" href="/css/seat-management.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .seat-examples {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        h3 {
+            color: #495057;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Seat Management Color Test</h1>
+    
+    <div class="test-section">
+        <h3>Seat Status Colors</h3>
+        <div class="seat-examples">
+            <div class="seat available economy">Available</div>
+            <div class="seat occupied economy">Occupied</div>
+            <div class="seat unavailable economy">Unavailable</div>
+            <div class="seat selected economy">Selected</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>Class Types - Business Class</h3>
+        <div class="seat-examples">
+            <div class="seat available business">Available</div>
+            <div class="seat occupied business">Occupied</div>
+            <div class="seat selected business">Selected</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>Class Types - Premium Class</h3>
+        <div class="seat-examples">
+            <div class="seat available premium">Available</div>
+            <div class="seat occupied premium">Occupied</div>
+            <div class="seat selected premium">Selected</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>Class Types - Economy Class</h3>
+        <div class="seat-examples">
+            <div class="seat available economy">Available</div>
+            <div class="seat occupied economy">Occupied</div>
+            <div class="seat selected economy">Selected</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>Legend Demo</h3>
+        <div class="seats-legend">
+            <div class="legend-item">
+                <div class="seat-demo available"></div>
+                <span>Available</span>
+            </div>
+            <div class="legend-item">
+                <div class="seat-demo occupied"></div>
+                <span>Occupied</span>
+            </div>
+            <div class="legend-item">
+                <div class="seat-demo unavailable"></div>
+                <span>Unavailable</span>
+            </div>
+            <div class="legend-item">
+                <div class="seat-demo selected"></div>
+                <span>Selected</span>
+            </div>
+            <div class="legend-item">
+                <div class="seat-demo business"></div>
+                <span>Business Class</span>
+            </div>
+            <div class="legend-item">
+                <div class="seat-demo premium"></div>
+                <span>Premium Class</span>
+            </div>
+            <div class="legend-item">
+                <div class="seat-demo economy"></div>
+                <span>Economy Class</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

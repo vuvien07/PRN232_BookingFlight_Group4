@@ -1,433 +1,231 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
-using BookingFlightClient.Models.DTO;
 
 namespace BookingFlightClient.Controllers
 {
+    [Authorize]
     public class SeatManagementController : Controller
     {
-        private readonly HttpClient _httpClient;
-        private readonly string _baseApiUrl;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _configuration;
 
         public SeatManagementController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
-            _httpClient = httpClientFactory.CreateClient();
-            _baseApiUrl = configuration.GetValue<string>("ServerSettings:BaseUrl") ?? "http://localhost:5077";
+            _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
         }
 
-        // GET: /SeatManagement/Index
-        public async Task<IActionResult> Index()
+        private void SetUserRole()
         {
             try
             {
-                // Lấy danh sách ghế từ API
-                var response = await _httpClient.GetAsync($"{_baseApiUrl}/api/Seat");
-                
-                if (response.IsSuccessStatusCode)
+                var roleClaim = User.FindFirst("role")?.Value ?? User.FindFirst("Role")?.Value;
+                if (string.IsNullOrEmpty(roleClaim))
                 {
-                    var jsonString = await response.Content.ReadAsStringAsync();
-                    
-                    // Server trả về SeatListDTO với cấu trúc: { "seats": [...], "totalCount": 10 }
-                    var serverResponse = JsonSerializer.Deserialize<ServerSeatListDTO>(jsonString, new JsonSerializerOptions
+                    roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+                }
+
+                Console.WriteLine($"SeatManagementController: User role from claims: {roleClaim}");
+
+                if (!string.IsNullOrEmpty(roleClaim))
+                {
+                    if (int.TryParse(roleClaim, out int roleId))
                     {
-                        PropertyNameCaseInsensitive = true
-                    });
-                    
-                    return View(serverResponse?.Seats ?? new List<SeatListItemDTO>());
-                }
-                
-                ViewBag.ErrorMessage = "Không thể tải danh sách ghế.";
-                return View(new List<SeatListItemDTO>());
-            }
-            catch (Exception ex)
-            {
-                ViewBag.ErrorMessage = $"Lỗi kết nối: {ex.Message}";
-                return View(new List<SeatListItemDTO>());
-            }
-        }
-
-        // GET: /SeatManagement/Details/5
-        public async Task<IActionResult> Details(int id)
-        {
-            try
-            {
-                var response = await _httpClient.GetAsync($"{_baseApiUrl}/api/Seat/{id}");
-                
-                if (response.IsSuccessStatusCode)
-                {
-                    var jsonString = await response.Content.ReadAsStringAsync();
-                    var seat = JsonSerializer.Deserialize<SeatDetailsDTO>(jsonString, new JsonSerializerOptions
+                        ViewBag.UserRole = GetRoleNameFromId(roleId);
+                    }
+                    else
                     {
-                        PropertyNameCaseInsensitive = true
-                    });
-                    
-                    return View(seat);
+                        ViewBag.UserRole = roleClaim;
+                    }
                 }
-                
-                return NotFound();
-            }
-            catch (Exception)
-            {
-                return NotFound();
-            }
-        }
-
-        // GET: /SeatManagement/Create
-        public async Task<IActionResult> Create()
-        {
-            try
-            {
-                // Lấy dữ liệu cho form
-                var formDataResponse = await _httpClient.GetAsync($"{_baseApiUrl}/api/Seat/form-data");
-                
-                if (formDataResponse.IsSuccessStatusCode)
+                else
                 {
-                    var jsonString = await formDataResponse.Content.ReadAsStringAsync();
-                    var formData = JsonSerializer.Deserialize<SeatFormDataResponseDTO>(jsonString, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-                    
-                    ViewBag.FormData = formData;
+                    ViewBag.UserRole = "Unknown";
                 }
-                
-                return View(new CreateSeatRequestDTO());
+
+                Console.WriteLine($"SeatManagementController: ViewBag.UserRole set to: {ViewBag.UserRole}");
             }
             catch (Exception ex)
             {
-                ViewBag.ErrorMessage = $"Lỗi tải form: {ex.Message}";
-                return View(new CreateSeatRequestDTO());
+                Console.WriteLine($"SeatManagementController: Error setting user role: {ex.Message}");
+                ViewBag.UserRole = "Error";
             }
         }
 
-        // POST: /SeatManagement/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateSeatRequestDTO createSeatDto)
+        private string GetRoleNameFromId(int roleId)
         {
-            if (!ModelState.IsValid)
+            return roleId switch
             {
-                await LoadFormDataAsync();
-                return View(createSeatDto);
-            }
+                1 => "Admin",
+                2 => "Manager",
+                3 => "Customer",
+                _ => "Unknown"
+            };
+        }
 
+        private string GetAuthToken()
+        {
+            Console.WriteLine("=== DEBUG TOKEN SEARCH IN SEAT CONTROLLER ===");
+            
+            // Log all headers
+            Console.WriteLine("All request headers:");
+            foreach (var header in Request.Headers)
+            {
+                Console.WriteLine($"  {header.Key}: {header.Value}");
+            }
+            
+            // Log all cookies
+            Console.WriteLine("All request cookies:");
+            foreach (var cookie in Request.Cookies)
+            {
+                Console.WriteLine($"  {cookie.Key}: {cookie.Value}");
+            }
+            
+            // First try Authorization header (sent by JavaScript)
+            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(authHeader))
+            {
+                var authToken = authHeader.Replace("Bearer ", "");
+                Console.WriteLine($"GetAuthToken: Found token in Authorization header: {authToken.Substring(0, Math.Min(20, authToken.Length))}...");
+                return authToken;
+            }
+            
+            // Then try cookie
+            var cookieToken = Request.Cookies["X-Access-Token"];
+            if (!string.IsNullOrEmpty(cookieToken))
+            {
+                Console.WriteLine($"GetAuthToken: Found token in X-Access-Token cookie: {cookieToken.Substring(0, Math.Min(20, cookieToken.Length))}...");
+                return cookieToken;
+            }
+            
+            // Finally try session
+            var sessionToken = HttpContext.Session.GetString("AuthToken");
+            if (!string.IsNullOrEmpty(sessionToken))
+            {
+                Console.WriteLine($"GetAuthToken: Found token in session: {sessionToken.Substring(0, Math.Min(20, sessionToken.Length))}...");
+                return sessionToken;
+            }
+            
+            Console.WriteLine("GetAuthToken: No token found in headers, cookies, or session");
+            return "";
+        }
+
+        public IActionResult Index()
+        {
+            SetUserRole();
+            return View();
+        }
+
+        public IActionResult FlightSeats()
+        {
+            SetUserRole();
+            return View();
+        }
+
+        [HttpGet("api/flights/list")]
+        public async Task<IActionResult> GetFlightsList()
+        {
             try
             {
-                var json = JsonSerializer.Serialize(createSeatDto);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var httpClient = _httpClientFactory.CreateClient();
+                var serverBaseUrl = _configuration["ServerSettings:BaseUrl"] ?? "http://localhost:5077";
                 
-                var response = await _httpClient.PostAsync($"{_baseApiUrl}/api/Seat", content);
+                var authToken = GetAuthToken();
+                Console.WriteLine($"SeatManagementController: Token found: {!string.IsNullOrEmpty(authToken)}");
+                Console.WriteLine($"SeatManagementController: Token length: {authToken.Length}");
+                Console.WriteLine($"SeatManagementController: Server URL: {serverBaseUrl}");
                 
-                if (response.IsSuccessStatusCode)
+                // Forward all cookies from client request to server request
+                foreach (var cookie in Request.Cookies)
                 {
-                    TempData["SuccessMessage"] = "Tạo ghế thành công!";
-                    return RedirectToAction(nameof(Index));
+                    httpClient.DefaultRequestHeaders.Add("Cookie", $"{cookie.Key}={cookie.Value}");
                 }
                 
-                var errorContent = await response.Content.ReadAsStringAsync();
-                ViewBag.ErrorMessage = $"Lỗi tạo ghế: {errorContent}";
-            }
-            catch (Exception ex)
-            {
-                ViewBag.ErrorMessage = $"Lỗi kết nối: {ex.Message}";
-            }
-
-            await LoadFormDataAsync();
-            return View(createSeatDto);
-        }
-
-        // GET: /SeatManagement/BulkCreate
-        public async Task<IActionResult> BulkCreate()
-        {
-            try
-            {
-                await LoadFormDataAsync();
-                return View(new BulkCreateSeatRequestDTO());
-            }
-            catch (Exception ex)
-            {
-                ViewBag.ErrorMessage = $"Lỗi tải form: {ex.Message}";
-                return View(new BulkCreateSeatRequestDTO());
-            }
-        }
-
-        // POST: /SeatManagement/BulkCreate
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BulkCreate(BulkCreateSeatRequestDTO bulkCreateDto)
-        {
-            if (!ModelState.IsValid)
-            {
-                await LoadFormDataAsync();
-                return View(bulkCreateDto);
-            }
-
-            try
-            {
-                var json = JsonSerializer.Serialize(bulkCreateDto);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                
-                var response = await _httpClient.PostAsync($"{_baseApiUrl}/api/Seat/bulk-create", content);
-                
-                if (response.IsSuccessStatusCode)
+                if (!string.IsNullOrEmpty(authToken))
                 {
-                    TempData["SuccessMessage"] = $"Tạo thành công {bulkCreateDto.TotalSeats} ghế cho máy bay!";
-                    return RedirectToAction(nameof(Index));
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
                 }
-                
-                var errorContent = await response.Content.ReadAsStringAsync();
-                ViewBag.ErrorMessage = $"Lỗi tạo ghế: {errorContent}";
-            }
-            catch (Exception ex)
-            {
-                ViewBag.ErrorMessage = $"Lỗi kết nối: {ex.Message}";
-            }
 
-            await LoadFormDataAsync();
-            return View(bulkCreateDto);
-        }
-
-        // GET: /SeatManagement/Edit/5
-        public async Task<IActionResult> Edit(int id)
-        {
-            try
-            {
-                // Lấy thông tin ghế hiện tại
-                var seatResponse = await _httpClient.GetAsync($"{_baseApiUrl}/api/Seat/{id}");
-                
-                if (!seatResponse.IsSuccessStatusCode)
+                // Create request for flights - using same structure as FlightManage
+                var request = new
                 {
-                    return NotFound();
-                }
-                
-                var seatJson = await seatResponse.Content.ReadAsStringAsync();
-                var seatDetail = JsonSerializer.Deserialize<SeatDetailsDTO>(seatJson, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-
-                // Chuyển đổi sang UpdateSeatRequestDTO
-                var updateDto = new UpdateSeatRequestDTO
-                {
-                    SeatId = seatDetail.SeatId,
-                    SeatNumber = seatDetail.SeatNumber,
-                    PlaneId = seatDetail.PlaneId,
-                    ClassSeatId = seatDetail.ClassSeatId,
-                    StatusId = seatDetail.StatusId
+                    page = 1,
+                    pageSize = 100
                 };
 
-                await LoadFormDataAsync();
-                return View(updateDto);
-            }
-            catch (Exception)
-            {
-                return NotFound();
-            }
-        }
+                var jsonContent = JsonSerializer.Serialize(request);
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-        // POST: /SeatManagement/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, UpdateSeatRequestDTO updateSeatDto)
-        {
-            if (id != updateSeatDto.SeatId)
-            {
-                return BadRequest();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                await LoadFormDataAsync();
-                return View(updateSeatDto);
-            }
-
-            try
-            {
-                var json = JsonSerializer.Serialize(updateSeatDto);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await httpClient.PostAsync($"{serverBaseUrl}/api/FlightManage/list", content);
                 
-                var response = await _httpClient.PutAsync($"{_baseApiUrl}/api/Seat/{id}", content);
+                Console.WriteLine($"SeatManagementController: Response status: {response.StatusCode}");
                 
                 if (response.IsSuccessStatusCode)
                 {
-                    TempData["SuccessMessage"] = "Cập nhật ghế thành công!";
-                    return RedirectToAction(nameof(Index));
-                }
-                
-                var errorContent = await response.Content.ReadAsStringAsync();
-                ViewBag.ErrorMessage = $"Lỗi cập nhật ghế: {errorContent}";
-            }
-            catch (Exception ex)
-            {
-                ViewBag.ErrorMessage = $"Lỗi kết nối: {ex.Message}";
-            }
-
-            await LoadFormDataAsync();
-            return View(updateSeatDto);
-        }
-
-        // GET: /SeatManagement/Delete/5
-        public async Task<IActionResult> Delete(int id)
-        {
-            try
-            {
-                var response = await _httpClient.GetAsync($"{_baseApiUrl}/api/Seat/{id}");
-                
-                if (response.IsSuccessStatusCode)
-                {
-                    var jsonString = await response.Content.ReadAsStringAsync();
-                    var seat = JsonSerializer.Deserialize<SeatDetailsDTO>(jsonString, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-                    
-                    return View(seat);
-                }
-                
-                return NotFound();
-            }
-            catch (Exception)
-            {
-                return NotFound();
-            }
-        }
-
-        // POST: /SeatManagement/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            try
-            {
-                var response = await _httpClient.DeleteAsync($"{_baseApiUrl}/api/Seat/{id}");
-                
-                if (response.IsSuccessStatusCode)
-                {
-                    TempData["SuccessMessage"] = "Xóa ghế thành công!";
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"SeatManagementController: Response content: {responseContent}");
+                    return Content(responseContent, "application/json");
                 }
                 else
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    TempData["ErrorMessage"] = $"Lỗi xóa ghế: {errorContent}";
+                    Console.WriteLine($"SeatManagementController: Error response: {errorContent}");
+                    return StatusCode((int)response.StatusCode, new { success = false, message = $"Server error: {errorContent}" });
                 }
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Lỗi kết nối: {ex.Message}";
+                Console.WriteLine($"SeatManagementController: Exception: {ex.Message}");
+                return Json(new { success = false, message = ex.Message });
             }
-
-            return RedirectToAction(nameof(Index));
         }
 
-        // Helper method để tải dữ liệu form
-        private async Task LoadFormDataAsync()
+        [HttpGet("api/flights/{flightId}/seats")]
+        public async Task<IActionResult> GetFlightSeats(int flightId)
         {
             try
             {
-                var formDataResponse = await _httpClient.GetAsync($"{_baseApiUrl}/api/Seat/form-data");
+                var httpClient = _httpClientFactory.CreateClient();
+                var serverBaseUrl = _configuration["ServerSettings:BaseUrl"] ?? "http://localhost:5077";
                 
-                if (formDataResponse.IsSuccessStatusCode)
+                var authToken = GetAuthToken();
+                if (!string.IsNullOrEmpty(authToken))
                 {
-                    var jsonString = await formDataResponse.Content.ReadAsStringAsync();
-                    var formData = JsonSerializer.Deserialize<SeatFormDataResponseDTO>(jsonString, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-                    
-                    ViewBag.FormData = formData;
+                    httpClient.DefaultRequestHeaders.Authorization = 
+                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
+                }
+
+                // Forward all cookies from client request to server request
+                foreach (var cookie in Request.Cookies)
+                {
+                    httpClient.DefaultRequestHeaders.Add("Cookie", $"{cookie.Key}={cookie.Value}");
+                }
+
+                var response = await httpClient.GetAsync($"{serverBaseUrl}/api/Seat/flight/{flightId}/seats");
+                
+                Console.WriteLine($"SeatManagementController: Seats response status: {response.StatusCode}");
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"SeatManagementController: Seats response content: {responseContent}");
+                    return Content(responseContent, "application/json");
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"SeatManagementController: Seats error response: {errorContent}");
+                    return StatusCode((int)response.StatusCode, new { success = false, message = $"Server error: {errorContent}" });
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                ViewBag.FormData = new SeatFormDataResponseDTO();
+                Console.WriteLine($"SeatManagementController: Seats exception: {ex.Message}");
+                return Json(new { success = false, message = ex.Message });
             }
         }
-    }
-
-    // Client DTOs cho Seat Management
-    public class ServerSeatListDTO
-    {
-        public List<SeatListItemDTO> Seats { get; set; } = new();
-        public int TotalCount { get; set; }
-    }
-
-    public class SeatListItemDTO
-    {
-        public int SeatId { get; set; }
-        public string SeatNumber { get; set; } = string.Empty;
-        public int ClassId { get; set; }
-        public string ClassName { get; set; } = string.Empty;
-        public decimal ClassPrice { get; set; }
-        public int StatusId { get; set; }
-        public string StatusName { get; set; } = string.Empty;
-        public int? PlaneId { get; set; }
-        public string PlaneName { get; set; } = string.Empty;
-        public string StatusColor { get; set; } = string.Empty;
-    }
-
-    public class SeatDetailsDTO
-    {
-        public int SeatId { get; set; }
-        public string SeatNumber { get; set; } = string.Empty;
-        public int PlaneId { get; set; }
-        public string PlaneName { get; set; } = string.Empty;
-        public int ClassSeatId { get; set; }
-        public string ClassName { get; set; } = string.Empty;
-        public int StatusId { get; set; }
-        public string StatusName { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-    }
-
-    public class CreateSeatRequestDTO
-    {
-        public string SeatNumber { get; set; } = string.Empty;
-        public int PlaneId { get; set; }
-        public int ClassSeatId { get; set; }
-        public int StatusId { get; set; }
-    }
-
-    public class UpdateSeatRequestDTO
-    {
-        public int SeatId { get; set; }
-        public string SeatNumber { get; set; } = string.Empty;
-        public int PlaneId { get; set; }
-        public int ClassSeatId { get; set; }
-        public int StatusId { get; set; }
-    }
-
-    public class BulkCreateSeatRequestDTO
-    {
-        public int PlaneId { get; set; }
-        public int EconomySeats { get; set; }
-        public int BusinessSeats { get; set; }
-        public int FirstClassSeats { get; set; }
-        public int TotalSeats => EconomySeats + BusinessSeats + FirstClassSeats;
-    }
-
-    public class SeatFormDataResponseDTO
-    {
-        public List<PlaneOptionResponseDTO> Planes { get; set; } = new();
-        public List<ClassOptionResponseDTO> Classes { get; set; } = new();
-        public List<StatusOptionResponseDTO> Statuses { get; set; } = new();
-    }
-
-    public class PlaneOptionResponseDTO
-    {
-        public int PlaneId { get; set; }
-        public string PlaneName { get; set; } = string.Empty;
-    }
-
-    public class ClassOptionResponseDTO
-    {
-        public int ClassSeatId { get; set; }
-        public string ClassName { get; set; } = string.Empty;
-    }
-
-    public class StatusOptionResponseDTO
-    {
-        public int StatusId { get; set; }
-        public string StatusName { get; set; } = string.Empty;
     }
 }
