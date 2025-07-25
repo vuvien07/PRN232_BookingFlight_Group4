@@ -1,0 +1,314 @@
+@{
+    ViewData["Title"] = "Quản lý hỗ trợ khách hàng";
+    Layout = "_ManagerLayout";
+}
+
+<style>
+    .chat-dashboard {
+        display: flex;
+        height: calc(100vh - 80px);
+        background: #f8f9fa;
+    }
+
+    .conversation-list {
+        width: 350px;
+        background: white;
+        border-right: 1px solid #ddd;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .conversation-header {
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .conversations {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .conversation-item {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .conversation-item:hover {
+        background: #f8f9fa;
+    }
+
+    .conversation-item.active {
+        background: #e3f2fd;
+        border-left: 3px solid #2196f3;
+    }
+
+    .chat-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-messages {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        background: #f8f9fa;
+    }
+
+    .message {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .message.customer {
+        justify-content: flex-start;
+    }
+
+    .message.supporter {
+        justify-content: flex-end;
+    }
+
+    .message-bubble {
+        max-width: 70%;
+        padding: 12px 16px;
+        border-radius: 18px;
+        word-wrap: break-word;
+    }
+
+    .message.customer .message-bubble {
+        background: white;
+        color: #333;
+        border: 1px solid #ddd;
+    }
+
+    .message.supporter .message-bubble {
+        background: #2196f3;
+        color: white;
+    }
+
+    .chat-input {
+        padding: 20px;
+        background: white;
+        border-top: 1px solid #ddd;
+    }
+
+    .input-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    .message-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 1px solid #ddd;
+        border-radius: 25px;
+        outline: none;
+        font-size: 14px;
+    }
+
+    .send-btn {
+        padding: 12px 20px;
+        background: #2196f3;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+    }
+</style>
+
+<div class="chat-dashboard">
+    <div class="conversation-list">
+        <div class="conversation-header">
+            <h5 class="mb-0">💬 Cuộc trò chuyện</h5>
+        </div>
+        
+        <div class="conversations" id="conversationsList">
+            <div class="text-center p-4">
+                <i class="fas fa-spinner fa-spin"></i>
+                <div>Đang tải...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-area">
+        <div class="chat-messages" id="chatMessages">
+            <div class="text-center p-4">
+                <h5>Chọn một cuộc trò chuyện để bắt đầu</h5>
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <div class="input-group">
+                <input type="text" class="message-input" id="messageInput" placeholder="Nhập tin nhắn...">
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i> Gửi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const supporterId = @ViewBag.SupporterId;
+    let currentCustomerId = null;
+    let chatRefreshInterval = null;
+    let lastMessageCount = 0;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadConversations();
+        setInterval(loadConversations, 2000);
+        
+        // Enter key to send message
+        document.addEventListener('keypress', function(e) {
+            const messageInput = document.getElementById('messageInput');
+            if (e.target === messageInput && e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    });
+
+    async function loadConversations() {
+        try {
+            const response = await fetch(`/SupporterChat/GetConversations?supporterId=${supporterId}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                displayConversations(result.data);
+            }
+        } catch (error) {
+            console.error('Error loading conversations:', error);
+        }
+    }
+
+    function displayConversations(conversations) {
+        const conversationsList = document.getElementById('conversationsList');
+        
+        if (!conversations || conversations.length === 0) {
+            conversationsList.innerHTML = '<div class="text-center p-4">Chưa có cuộc trò chuyện nào</div>';
+            return;
+        }
+        
+        conversationsList.innerHTML = conversations.map(conv => `
+            <div class="conversation-item" onclick="selectConversation(${conv.customerId})">
+                <strong>${conv.customerName}</strong><br>
+                <small>${conv.lastMessage || 'Chưa có tin nhắn'}</small>
+            </div>
+        `).join('');
+    }
+
+    async function selectConversation(customerId) {
+        currentCustomerId = customerId;
+        
+        // Clear previous chat refresh interval
+        if (chatRefreshInterval) {
+            clearInterval(chatRefreshInterval);
+        }
+        
+        await loadChatHistory();
+        
+        // Start real-time polling for chat messages every 2 seconds
+        chatRefreshInterval = setInterval(loadChatHistory, 2000);
+    }
+
+    async function loadChatHistory() {
+        if (!currentCustomerId) return;
+        
+        try {
+            const response = await fetch(`/SupporterChat/GetChatHistory?customerId=${currentCustomerId}&supporterId=${supporterId}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                displayMessages(result.data);
+            }
+        } catch (error) {
+            console.error('Error loading chat history:', error);
+        }
+    }
+
+    function displayMessages(messages) {
+        const chatMessages = document.getElementById('chatMessages');
+        const currentScrollTop = chatMessages.scrollTop;
+        const isScrolledToBottom = chatMessages.scrollHeight - chatMessages.clientHeight <= chatMessages.scrollTop + 1;
+        
+        // Store current messages count
+        const currentMessagesCount = chatMessages.children.length;
+        const newMessagesCount = messages.length;
+        
+        // Check for new messages
+        const hasNewMessages = newMessagesCount > lastMessageCount;
+        lastMessageCount = newMessagesCount;
+        
+        chatMessages.innerHTML = messages.map(message => `
+            <div class="message ${message.senderType}">
+                <div class="message-bubble">${message.messageContent}</div>
+                <small class="text-muted">${formatDateTime(message.sentAt)}</small>
+            </div>
+        `).join('');
+        
+        // Auto scroll to bottom if user was already at bottom OR if new messages arrived
+        if (isScrolledToBottom || newMessagesCount > currentMessagesCount || hasNewMessages) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Visual feedback for new messages
+        if (hasNewMessages && currentMessagesCount > 0) {
+            // Flash the chat area briefly
+            chatMessages.style.background = '#f0f9ff';
+            setTimeout(() => {
+                chatMessages.style.background = '';
+            }, 500);
+        }
+    }
+
+    function formatDateTime(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString('vi-VN', {
+            hour: '2-digit',
+            minute: '2-digit',
+            day: '2-digit',
+            month: '2-digit'
+        });
+    }
+
+    async function sendMessage() {
+        if (!currentCustomerId) return;
+        
+        const messageInput = document.getElementById('messageInput');
+        const messageContent = messageInput.value.trim();
+        
+        if (!messageContent) return;
+        
+        try {
+            const requestData = {
+                customerId: currentCustomerId,
+                supporterId: supporterId,
+                senderType: 'supporter',
+                messageContent: messageContent
+            };
+            
+            const response = await fetch('/SupporterChat/SendMessage', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                messageInput.value = '';
+                await loadChatHistory();
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+        }
+    }
+</script>

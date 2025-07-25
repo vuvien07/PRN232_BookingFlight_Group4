@@ -76,6 +76,15 @@ namespace BookingFlightServer
 			builder.Services.AddScoped<IMyFlightRepository, MyFlightRepository>();
 			builder.Services.AddScoped<IMyFlightService, MyFlightService>();
 			
+			// Manual registration for Complaint services
+			builder.Services.AddScoped<IComplaintRepository, ComplaintRepository>();
+			builder.Services.AddScoped<IComplaintService, ComplaintService>();
+
+			// Chat service
+			builder.Services.AddScoped<IChatService, ChatService>();
+
+			builder.Services.AddScoped<IChatService, ChatService>();
+			
 			var app = builder.Build();
             if (app.Environment.IsDevelopment())
             {

@@ -22,6 +22,8 @@ public partial class BookingFlightContext : DbContext
 
     public virtual DbSet<ClassSeat> ClassSeats { get; set; }
 
+    public virtual DbSet<ChatMessage> ChatMessages { get; set; }
+
     public virtual DbSet<Complaint> Complaints { get; set; }
 
     public virtual DbSet<Customer> Customers { get; set; }
@@ -234,6 +236,42 @@ public partial class BookingFlightContext : DbContext
                 .HasForeignKey(d => d.SupporterId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Complaint__suppo__0F624AF8");
+        });
+
+        modelBuilder.Entity<ChatMessage>(entity =>
+        {
+            entity.HasKey(e => e.MessageId).HasName("PK__ChatMessage__0BBF6EE6");
+
+            entity.ToTable("ChatMessage");
+
+            entity.Property(e => e.MessageId).HasColumnName("message_id");
+            entity.Property(e => e.CustomerId).HasColumnName("customer_id");
+            entity.Property(e => e.SupporterId).HasColumnName("supporter_id");
+            entity.Property(e => e.SenderType)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("sender_type");
+            entity.Property(e => e.MessageContent)
+                .HasColumnType("nvarchar(max)")
+                .HasColumnName("message_content");
+            entity.Property(e => e.SentAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime")
+                .HasColumnName("sent_at");
+            entity.Property(e => e.IsRead)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("is_read");
+            entity.Property(e => e.IsDeleted)
+                .HasDefaultValueSql("((0))")
+                .HasColumnName("is_deleted");
+
+            entity.HasOne(d => d.Customer).WithMany()
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(d => d.Supporter).WithMany()
+                .HasForeignKey(d => d.SupporterId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<Customer>(entity =>

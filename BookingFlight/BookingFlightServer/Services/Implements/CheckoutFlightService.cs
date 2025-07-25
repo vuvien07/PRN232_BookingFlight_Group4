@@ -72,7 +72,7 @@ namespace BookingFlightServer.Services.Implements
 					if (preorderFlightDTO.Quantity == 0) continue;
 					Ticket ticket = GenerateTicket(preorderFlightDTO, passengerInformationFormDTO, flightCheckoutRequestDTO);
 					ticketCodes.Add(ticket.TicketNumber);
-					ticket.CustomerId = customerId;
+					if(customerId != 0) ticket.CustomerId = customerId;
 					await _ticketRepository.CreateTicketAsync(ticket);
 					flightSeats[0]!.IsSat = true;
 					flightSeats[0]!.TicketId = ticket.TicketId;
