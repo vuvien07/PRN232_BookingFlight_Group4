@@ -405,11 +405,11 @@ namespace BookingFlightServer.Services
         {
             try
             {
-                var smtpServer = _configuration["EmailSettings:SmtpServer"];
-                var smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"]);
-                var smtpUsername = _configuration["EmailSettings:SmtpUsername"];
-                var smtpPassword = _configuration["EmailSettings:SmtpPassword"];
-                var fromEmail = new MailAddress(_configuration["EmailSettings:FromEmail"], _configuration["EmailSettings:FromName"]);
+                var smtpServer = _configuration["SmtpSettings:Host"];
+                var smtpPort = int.Parse(_configuration["SmtpSettings:Port"]);
+                var smtpUsername = _configuration["SmtpSettings:FromEmail"];
+                var smtpPassword = _configuration["SmtpSettings:FromPassword"];
+                var fromEmail = new MailAddress(_configuration["SmtpSettings:FromEmail"], _configuration["SmtpSettings:DisplayName"]);
 
                 var mailMessage = new MailMessage
                 {

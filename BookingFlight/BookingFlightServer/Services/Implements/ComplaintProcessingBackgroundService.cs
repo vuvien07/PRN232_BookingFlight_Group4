@@ -39,12 +39,12 @@ namespace BookingFlightServer.Services.Implements
                     {
                         _logger.LogInformation("Complaint processing is disabled, skipping this cycle");
                     }
-                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken); // Check every minute
+                    await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken); // Check every 10 seconds
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error occurred in ComplaintProcessingBackgroundService");
-                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken); // Wait a minute before retrying
+                    await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken); // Wait 30 seconds before retrying on error
                 }
             }
         }
@@ -58,19 +58,21 @@ namespace BookingFlightServer.Services.Implements
 
             try
             {
-                // Get all pending complaints that are at least 1 minute old
-                var oneMinuteAgo = DateTime.Now.AddMinutes(-1);
+                // Get all pending complaints that are at least 30 seconds old
+                var thirtySecondsAgo = DateTime.Now.AddSeconds(-30);
                 var pendingComplaints = await complaintRepository.GetComplaintsByStatusAsync(3); // StatusId = 3 is Pending
                 
                 var complaintsToProcess = pendingComplaints
-                    .Where(c => c.CreateAt.HasValue && c.CreateAt.Value <= oneMinuteAgo)
+                    .Where(c => c.CreateAt.HasValue && c.CreateAt.Value <= thirtySecondsAgo)
                     .ToList();
+
+                _logger.LogInformation($"Found {complaintsToProcess.Count} complaints to process (created more than 30 seconds ago)");
 
                 foreach (var complaint in complaintsToProcess)
                 {
                     try
                     {
-                        _logger.LogInformation($"Processing complaint {complaint.ComplaintId} for AI review");
+                        _logger.LogInformation($"Processing complaint {complaint.ComplaintId} for AI review (created at: {complaint.CreateAt})");
 
                         // Check if complaint is relevant using Gemini AI
                         bool isRelevant = await geminiAiService.IsComplaintRelevantAsync(complaint.Description);

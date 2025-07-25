@@ -60,7 +60,89 @@ namespace BookingFlightServer.Services.Implements
                 return false;
             }
             
-            return await _supporterComplaintRepository.UpdateComplaintStatusAsync(complaintId, statusId);
+            try
+            {
+                // Get complaint details before updating status
+                var complaint = await _supporterComplaintRepository.GetComplaintByIdAsync(complaintId);
+                if (complaint == null)
+                {
+                    _logger.LogWarning("Complaint {ComplaintId} not found", complaintId);
+                    return false;
+                }
+
+                // Update the complaint status
+                var success = await _supporterComplaintRepository.UpdateComplaintStatusAsync(complaintId, statusId);
+                
+                if (success)
+                {
+                    // Send resolution email to customer
+                    await SendComplaintResolutionEmail(complaint);
+                    _logger.LogInformation("Complaint {ComplaintId} resolved and email sent to customer", complaintId);
+                }
+                
+                return success;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating complaint status for {ComplaintId}", complaintId);
+                return false;
+            }
+        }
+
+        private async Task SendComplaintResolutionEmail(BookingFlightServer.Entities.Complaint complaint)
+        {
+            try
+            {
+                _logger.LogInformation("Starting to send resolution email for complaint {ComplaintId}", complaint.ComplaintId);
+                
+                var customerEmail = complaint.Customer?.Email;
+                var customerName = complaint.Customer?.Fullname ?? "Valued Customer";
+
+                _logger.LogInformation("Customer info - Email: {Email}, Name: {Name}", customerEmail, customerName);
+
+                if (string.IsNullOrEmpty(customerEmail))
+                {
+                    _logger.LogWarning("No email found for complaint {ComplaintId}, cannot send resolution notification", complaint.ComplaintId);
+                    return;
+                }
+
+                var subject = $"Your Complaint #{complaint.ComplaintId} Has Been Resolved";
+                var content = $@"Dear {customerName},
+
+We are pleased to inform you that your complaint (ID: #{complaint.ComplaintId}) has been successfully resolved.
+
+Complaint Details:
+- Complaint ID: #{complaint.ComplaintId}
+- Submitted on: {complaint.CreateAt:dd/MM/yyyy HH:mm}
+- Description: {complaint.Description}
+
+Our support team has thoroughly reviewed your concern and taken appropriate action to address the issue. We sincerely apologize for any inconvenience caused and appreciate your patience during the resolution process.
+
+If you have any additional questions or concerns, please don't hesitate to contact our customer support team.
+
+Thank you for your feedback, as it helps us improve our services.
+
+Best regards,
+Customer Support Team
+Luxury Flight Booking";
+
+                _logger.LogInformation("Attempting to send email to {Email} with subject: {Subject}", customerEmail, subject);
+                
+                var emailSent = await _emailService.SendEmailAsync(customerEmail, customerName, subject, content);
+                
+                if (emailSent)
+                {
+                    _logger.LogInformation("Resolution email sent successfully to {CustomerEmail} for complaint {ComplaintId}", customerEmail, complaint.ComplaintId);
+                }
+                else
+                {
+                    _logger.LogError("Failed to send resolution email to {CustomerEmail} for complaint {ComplaintId}", customerEmail, complaint.ComplaintId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending resolution email for complaint {ComplaintId}", complaint.ComplaintId);
+            }
         }
 
         public async Task<bool> AssignComplaintToSupporterAsync(int complaintId, int supporterId)

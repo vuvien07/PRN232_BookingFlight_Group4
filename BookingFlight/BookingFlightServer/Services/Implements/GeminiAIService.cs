@@ -82,50 +82,72 @@ namespace BookingFlightServer.Services.Implements
                 // If complaint is empty or too short, consider it relevant to avoid auto-rejection
                 if (string.IsNullOrWhiteSpace(complaintDescription) || complaintDescription.Length < 5)
                 {
+                    _logger.LogInformation($"Short complaint considered RELEVANT: '{complaintDescription}'");
                     return true; // Let supporter handle it manually
                 }
 
-                var prompt = $@"Analyze this customer complaint and determine if it's related to airline services.
+                // Check for obvious random/gibberish patterns first
+                if (IsObviousGibberish(complaintDescription))
+                {
+                    _logger.LogInformation($"Obvious gibberish detected, marking as IRRELEVANT: '{complaintDescription}'");
+                    return false;
+                }
+
+                // Check for obvious spam patterns
+                var lowerDescription = complaintDescription.ToLower();
+                var obviousSpamPatterns = new[] {
+                    "buy now", "click here", "free money", "win money", "lottery", "casino",
+                    "viagra", "pharmacy", "pills", "weight loss", "make money",
+                    "http://", "https://", "www.", ".com", ".net", ".org"
+                };
+
+                var hasSpamPattern = obviousSpamPatterns.Any(pattern => lowerDescription.Contains(pattern));
+                
+                // If it contains obvious spam, check with AI
+                if (hasSpamPattern)
+                {
+                    _logger.LogInformation($"Potential spam detected, checking with AI: '{complaintDescription}'");
+                }
+
+                var prompt = $@"Analyze this customer complaint for an airline and determine if it should be processed.
 
 Complaint: ""{complaintDescription}""
 
-Respond 'RELEVANT' if the complaint mentions:
-- Flight booking, cancellation, changes
-- Flight delays, cancellations, schedule changes  
-- Baggage, check-in, airport services
-- Seating, upgrades, in-flight amenities
-- Refunds, payments related to flights
-- Customer service about aviation
-- Flight safety, procedures
-- Booking website, flight booking app
-- ANY issue that could be aviation-related
-- Customer experience with airline services
-- Food, beverages, entertainment on flights
-- Staff behavior on flights or at airport
+ALWAYS respond 'RELEVANT' unless the complaint is:
+1. OBVIOUS advertising spam (selling products, services, contains URLs)
+2. COMPLETELY unrelated to travel/aviation (e.g., cooking recipes, car repairs)
+3. PURELY random characters with no meaning (e.g., 'asdfghjkl', '123456789', random letters)
+4. CLEARLY offensive or abusive language
+5. Gibberish or nonsensical text that has no meaning
 
-Respond 'IRRELEVANT' ONLY if:
-- Clearly spam advertising
-- Completely unrelated to aviation (e.g., restaurants, cars not related to travel)
-- Seriously offensive content
-- Meaningless content (just random characters)
-- Obvious test messages like 'test', 'hello', '123'
+Consider RELEVANT (accept for human review):
+- ANY mention of flights, booking, airlines, travel
+- Customer service complaints 
+- Any dissatisfaction with service
+- Pricing concerns
+- Website/app issues
+- Food, seating, baggage complaints
+- ANY aviation-related concern
+- Even vague complaints that might relate to travel
+- Personal experiences during travel
+- Suggestions or feedback
+- Questions about flights or services
 
-WHEN IN DOUBT, CHOOSE 'RELEVANT' for manual review by staff.
+WHEN IN ANY DOUBT, CHOOSE 'RELEVANT' - it's better to let humans review than auto-reject.
 
-Response:";
+Response (RELEVANT or IRRELEVANT):";
 
                 var response = await GenerateContentAsync(prompt);
                 var cleanResponse = response.Trim().ToUpper();
                 
-                // More liberal matching - default to relevant unless clearly irrelevant
-                bool isRelevant = cleanResponse.Contains("RELEVANT") || 
-                       cleanResponse.Contains("CÓ LIÊN QUAN") ||
-                       cleanResponse.Contains("YES") || 
-                       cleanResponse.Contains("RELATED") ||
-                       !cleanResponse.Contains("IRRELEVANT") &&
-                       !cleanResponse.Contains("KHÔNG LIÊN QUAN");
+                // VERY liberal matching - default to RELEVANT unless explicitly IRRELEVANT
+                bool isRelevant = !cleanResponse.Contains("IRRELEVANT") || 
+                                 cleanResponse.Contains("RELEVANT") ||
+                                 cleanResponse.Contains("CÓ LIÊN QUAN") ||
+                                 cleanResponse.Contains("YES") || 
+                                 cleanResponse.Contains("RELATED");
                 
-                _logger.LogInformation($"AI relevance check for complaint: '{complaintDescription}' -> {(isRelevant ? "RELEVANT" : "IRRELEVANT")}");
+                _logger.LogInformation($"AI relevance check for complaint: '{complaintDescription}' -> {(isRelevant ? "RELEVANT" : "IRRELEVANT")} (AI response: '{cleanResponse}')");
                 
                 return isRelevant;
             }
@@ -254,6 +276,69 @@ Please provide a brief, professional explanation (1-2 sentences) suitable for pa
                     _ => "Flight details have been updated due to operational requirements."
                 };
             }
+        }
+
+        private bool IsObviousGibberish(string text)
+        {
+            // Remove spaces and common punctuation for analysis
+            var cleanText = text.Replace(" ", "").Replace(".", "").Replace(",", "").Replace("!", "").Replace("?", "");
+            
+            // Check if text is too short to be meaningful
+            if (cleanText.Length < 5)
+                return false; // Too short to determine, let AI decide
+            
+            // Count consonant clusters (more than 4 consonants in a row is suspicious)
+            var consonantClusterPattern = @"[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]{5,}";
+            if (System.Text.RegularExpressions.Regex.IsMatch(cleanText, consonantClusterPattern))
+            {
+                _logger.LogInformation($"Detected long consonant cluster in: '{text}'");
+                return true;
+            }
+            
+            // Check for patterns of alternating random characters
+            var randomPatterns = new[]
+            {
+                @"[A-Z]{3,}\s[A-Z]{3,}\s[A-Z]{3,}", // Multiple uppercase words like "ABC DEF GHI"
+                @"[bcdfghjklmnpqrstvwxyz]{6,}", // Long strings of consonants
+                @"^[A-Z\s]*$", // Only uppercase letters and spaces (like the example)
+            };
+            
+            foreach (var pattern in randomPatterns)
+            {
+                if (System.Text.RegularExpressions.Regex.IsMatch(text, pattern) && 
+                    !ContainsCommonWords(text))
+                {
+                    _logger.LogInformation($"Detected gibberish pattern '{pattern}' in: '{text}'");
+                    return true;
+                }
+            }
+            
+            // Check ratio of vowels to consonants (normal text should have reasonable vowel ratio)
+            var vowels = cleanText.Count(c => "aeiouAEIOU".Contains(c));
+            var letters = cleanText.Count(char.IsLetter);
+            
+            if (letters > 10 && vowels == 0)
+            {
+                _logger.LogInformation($"No vowels detected in text with {letters} letters: '{text}'");
+                return true;
+            }
+            
+            return false;
+        }
+        
+        private bool ContainsCommonWords(string text)
+        {
+            var commonWords = new[] { 
+                "flight", "plane", "ticket", "booking", "airport", "travel", "customer", "service",
+                "complaint", "problem", "issue", "help", "support", "bad", "good", "cancel",
+                "delay", "late", "early", "seat", "food", "baggage", "staff", "price", "cost",
+                "chuyến bay", "máy bay", "vé", "đặt vé", "sân bay", "du lịch", "khách hàng",
+                "dịch vụ", "khiếu nại", "vấn đề", "giúp đỡ", "hỗ trợ", "tệ", "tốt", "hủy",
+                "trễ", "sớm", "ghế ngồi", "đồ ăn", "hành lý", "nhân viên", "giá", "chi phí"
+            };
+            
+            var lowerText = text.ToLower();
+            return commonWords.Any(word => lowerText.Contains(word));
         }
     }
 }
