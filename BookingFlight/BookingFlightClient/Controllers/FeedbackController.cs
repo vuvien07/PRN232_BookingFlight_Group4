@@ -66,10 +66,17 @@ namespace BookingFlightClient.Controllers
 				if (response.IsSuccessStatusCode)
 				{
 					var content = await response.Content.ReadAsStringAsync();
+					
+					// Debug: Log the API response
+					Console.WriteLine($"[FeedbackController] API Response Content: {content}");
+					
 					var allFeedbacks = JsonSerializer.Deserialize<List<FeedbackDetailViewModel>>(content, new JsonSerializerOptions
 					{
 						PropertyNameCaseInsensitive = true
 					});
+
+					// Debug: Log deserialization result
+					Console.WriteLine($"[FeedbackController] Deserialized {allFeedbacks?.Count ?? 0} feedbacks");
 
 					// Sort feedbacks by creation date (newest first)
 					allFeedbacks = allFeedbacks?.OrderByDescending(f => f.CreateAt).ToList() ?? new List<FeedbackDetailViewModel>();
@@ -300,10 +307,17 @@ namespace BookingFlightClient.Controllers
 				if (response.IsSuccessStatusCode)
 				{
 					var content = await response.Content.ReadAsStringAsync();
+					
+					// Debug: Log the API response
+					Console.WriteLine($"[FeedbackController] MyFeedbacks API Response Content: {content}");
+					
 					var myFeedbacks = JsonSerializer.Deserialize<List<FeedbackDetailViewModel>>(content, new JsonSerializerOptions
 					{
 						PropertyNameCaseInsensitive = true
 					});
+
+					// Debug: Log deserialization result
+					Console.WriteLine($"[FeedbackController] MyFeedbacks Deserialized {myFeedbacks?.Count ?? 0} feedbacks");
 
 					// Apply pagination
 					var totalItems = myFeedbacks?.Count ?? 0;

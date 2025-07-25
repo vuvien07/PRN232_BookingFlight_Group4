@@ -391,7 +391,7 @@
                 </h2>
             </div>
 
-            @if (bookingHistory.Tickets.Any())
+            @if (bookingHistory?.Tickets?.Any() == true)
             {
                 @foreach (var ticket in bookingHistory.Tickets)
                 {

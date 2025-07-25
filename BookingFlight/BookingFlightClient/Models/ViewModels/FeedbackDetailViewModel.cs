@@ -16,7 +16,7 @@ namespace BookingFlightClient.Models.ViewModels
         public string Content { get; set; } = null!;
         
         [Display(Name = "Ngày tạo")]
-        public DateOnly? CreateAt { get; set; }
+        public DateTime? CreateAt { get; set; }
         
         // Thông tin Account
         public int AccountId { get; set; }
