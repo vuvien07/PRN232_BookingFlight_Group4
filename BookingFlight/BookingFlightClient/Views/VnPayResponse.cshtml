@@ -44,7 +44,7 @@
     <div class="main main-layout-sm">
         <div class="confirm-body confirm-section h-50">
             <div class="align-middle">
-                <div class="text-center">
+                <div class="text-center" id="confirm">
                     @if (Model != null && Model.VnPayResponseCode.Equals("00"))
                     {
                         <img src="~/images/images.png" style="width: 100px" />
@@ -90,6 +90,8 @@
         </div>
     </div>
     <script>
+        const globalLoader = new VanillaSpinLoader();
+        globalLoader.init();
                 let token = localStorage.getItem('flightCheckoutToken');
         let decodedToken = token ? parseJwtToken(token) : null;
         let flightCheckoutRequestForm = JSON.parse(decodedToken.data);
@@ -97,11 +99,15 @@
             let isSuccess = '@(Model != null && Model.VnPayResponseCode == "00")';
 
             if (isSuccess === "True") {
+                 await new Promise(r => setTimeout(r, 0)); // giúp UI kịp vẽ loader
+        globalLoader.show();
+                try{
                 const res = await fetch("http://localhost:5077/api/CheckoutFlight/saveInfo", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
+                    credentials: 'include',
                     body: JSON.stringify(flightCheckoutRequestForm)
                 });
 
@@ -114,7 +120,19 @@
                     });
                 } else {
                     await showSnackbar('Có lỗi xảy ra trong khi gửi vé cho quý khách. Vui lòng liên hệ với chúng tôi!', 'error');
+                    document.getElementById('confirm').innerHTML = 
+                    `
+                            <img src="http://localhost:5001/images/6659895.png" style="width: 100px" />
+                    <h5 style="font-size: 30px;color: red">Thông báo</h5>
+                    <h5 style="font-size: 30px">
+            <text>Giao dịch thất bại do có lý do nguồn giao dịch.</text>
+                    `;
                 }
+               } catch (err) {
+            console.error("Fetch error:", err);
+        } finally {
+            globalLoader.hide();
+        }
             }
         };
     </script>

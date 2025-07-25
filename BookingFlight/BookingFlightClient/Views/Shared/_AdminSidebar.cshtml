@@ -116,6 +116,12 @@
             <h6 class="nav-section-title">System</h6>
             <ul class="nav-menu">
                 <li class="nav-item">
+                    <a href="/SupporterChat" class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "SupporterChat" ? "active" : "")">
+                        <span class="nav-icon"><i class="fas fa-comments"></i></span>
+                        <span class="nav-text">Chat Support</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/Admin/Settings" class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Settings" ? "active" : "")">
                         <span class="nav-icon"><i class="fas fa-cog"></i></span>
                         <span class="nav-text">Settings</span>

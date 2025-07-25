@@ -18,6 +18,7 @@ namespace BookingFlightServer.Services
 		Task<bool> DeleteTicket(int ticketId);
 		Task<List<TicketDTO>> GetTicketsByCustomerId(int customerId);
 		Task<PaginatedTicketResult> GetTicketsByCustomerIdPaginated(int customerId, int page, int pageSize);
+		Task<bool> IsCancelTicketByTicketId(int ticketId);
 	}
 
 	public class PaginatedTicketResult

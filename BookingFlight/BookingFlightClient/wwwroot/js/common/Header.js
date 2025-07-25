@@ -263,6 +263,7 @@ function signup() {
 
 async function logout() {
     try {
+        localStorage.clear();
         const res = await fetch(`http://${host}:5077/api/Token/removeToken`, { method: 'GET', credentials: 'include' });
         if (res.ok) {
             showSnackbar(await res.text(), 'error');

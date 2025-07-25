@@ -150,20 +150,23 @@ namespace BookingFlightServer.Controllers
                     .Include(fs => fs.Seat)
                         .ThenInclude(s => s.Status)
                     .Include(fs => fs.Ticket)
-                        .ThenInclude(t => t.Customer)
                     .Select(fs => new
                     {
                         fs.SeatId,
                         fs.Seat.SeatNumber,
                         fs.IsSat,
                         fs.TicketId,
-                        TicketNumber = fs.Ticket != null ? fs.Ticket.TicketNumber : null,
-                        CustomerName = fs.Ticket != null && fs.Ticket.Customer != null ? fs.Ticket.Customer.Fullname : null,
+                        TicketNumber = fs.Ticket != null ? fs.Ticket.TicketNumber : "-",
+                        CustomerName = fs.Ticket != null ? (!string.IsNullOrEmpty(fs.Ticket.ContactFullName) ? fs.Ticket.ContactFullName : fs.Ticket.FullName) : "-",
+                        CustomerEmail = fs.Ticket != null ? fs.Ticket.ContactEmail ?? "-" : "-",
+                        CustomerPhone = fs.Ticket != null ? fs.Ticket.ContactPhone ?? "-" : "-",
                         fs.Seat.ClassId,
                         ClassName = fs.Seat.Class.ClassName,
                         ClassPrice = fs.Seat.Class.Price,
                         SeatStatusId = fs.Seat.StatusId,
-                        SeatStatusName = fs.Seat.Status.StatusName
+                        SeatStatusName = fs.Seat.Status.StatusName,
+                        // Additional status for better display
+                        SeatStatus = fs.IsSat ? "Occupied" : "Available"
                     })
                     .OrderBy(fs => fs.SeatNumber)
                     .ToListAsync();
@@ -327,6 +330,41 @@ namespace BookingFlightServer.Controllers
                 if (existingFlight.DepartureTime <= DateTime.Now)
                 {
                     return BadRequest(new { success = false, message = "Cannot update flights that have already departed or are departing now" });
+                }
+
+                // Check if update is within 2 days of departure
+                var twoDaysBeforeDeparture = existingFlight.DepartureTime.AddDays(-2);
+                if (DateTime.Now >= twoDaysBeforeDeparture)
+                {
+                    return BadRequest(new { success = false, message = "Cannot update flights within 2 days of departure time" });
+                }
+
+                // Check if trying to change airports (not allowed)
+                if (request.DepartureAirportId != existingFlight.DepartureAirportId)
+                {
+                    return BadRequest(new { success = false, message = "Cannot change departure airport after flight creation" });
+                }
+                
+                if (request.ArrivalAirportId != existingFlight.ArrivalAirportId)
+                {
+                    return BadRequest(new { success = false, message = "Cannot change arrival airport after flight creation" });
+                }
+
+                // Check if new departure time is valid:
+                // - Cannot schedule to past dates (previous days)
+                // - Can update time within current day or future days
+                var currentDate = DateTime.Now.Date;
+                var requestDate = request.DepartureTime.Date;
+                
+                if (requestDate < currentDate)
+                {
+                    return BadRequest(new { success = false, message = "Cannot schedule flight to a previous date" });
+                }
+                
+                // If scheduling for today, cannot set time to past hours
+                if (requestDate == currentDate && request.DepartureTime < DateTime.Now)
+                {
+                    return BadRequest(new { success = false, message = "Cannot schedule flight to a past time today" });
                 }
 
                 var managerId = await GetManagerIdAsync();
@@ -501,12 +539,16 @@ namespace BookingFlightServer.Controllers
                         fs.Seat.SeatNumber,
                         fs.IsSat,
                         fs.TicketId,
-                        TicketCode = fs.Ticket != null ? fs.Ticket.TicketNumber : null,
+                        TicketCode = fs.Ticket != null ? fs.Ticket.TicketNumber : "-",
+                        CustomerName = fs.Ticket != null ? (!string.IsNullOrEmpty(fs.Ticket.ContactFullName) ? fs.Ticket.ContactFullName : fs.Ticket.FullName) : "-",
+                        CustomerEmail = fs.Ticket != null ? fs.Ticket.ContactEmail ?? "-" : "-",
+                        CustomerPhone = fs.Ticket != null ? fs.Ticket.ContactPhone ?? "-" : "-",
                         fs.Seat.ClassId,
                         ClassName = fs.Seat.Class.ClassName,
                         ClassPrice = fs.Seat.Class.Price,
                         SeatStatusId = fs.Seat.StatusId,
-                        SeatStatusName = fs.Seat.Status.StatusName
+                        SeatStatusName = fs.Seat.Status.StatusName,
+                        SeatStatus = fs.IsSat ? "Occupied" : "Available"
                     })
                     .OrderBy(fs => fs.SeatNumber)
                     .ToListAsync();
@@ -1008,5 +1050,46 @@ namespace BookingFlightServer.Controllers
                 return StatusCode(500, new { success = false, message = "Internal server error", error = ex.Message });
             }
         }
+
+        /// <summary>
+        /// Send flight change notification with AI-generated reason
+        /// </summary>
+        [HttpPost("notify-change/{flightCode}")]
+        public async Task<IActionResult> SendFlightChangeNotification(
+            string flightCode, 
+            [FromBody] FlightChangeNotificationRequest request)
+        {
+            try
+            {
+                await _flightManageService.SendFlightChangeNotificationAsync(
+                    flightCode, 
+                    request.ChangeType, 
+                    request.OldValue, 
+                    request.NewValue, 
+                    request.AdditionalContext);
+
+                return Ok(new { 
+                    success = true, 
+                    message = $"Flight change notification sent successfully for {flightCode}" 
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending flight change notification for flight {FlightCode}", flightCode);
+                return StatusCode(500, new { 
+                    success = false, 
+                    message = "Failed to send notification", 
+                    error = ex.Message 
+                });
+            }
+        }
+    }
+
+    public class FlightChangeNotificationRequest
+    {
+        public string ChangeType { get; set; } = null!;
+        public object OldValue { get; set; } = null!;
+        public object NewValue { get; set; } = null!;
+        public Dictionary<string, object>? AdditionalContext { get; set; }
     }
 }

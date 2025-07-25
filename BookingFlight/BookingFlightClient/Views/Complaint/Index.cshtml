@@ -1,0 +1,622 @@
+@model List<BookingFlightClient.Models.ViewModels.ComplaintViewModel>
+@{
+    ViewData["Title"] = "Khiếu nại của tôi";
+}
+
+<partial name="~/Views/Common/_Header.cshtml" />
+
+@section Styles {
+    <link href="~/css/complaint.css" rel="stylesheet" asp-append-version="true" />
+    <link href="~/css/common/Header.css" rel="stylesheet" />
+    <link href="~/css/common/Footer.css" rel="stylesheet" />
+}
+
+<style>
+    /* World-Class Airline Design - Complaint List */
+    :root {
+        --airline-navy: #003366;
+        --airline-gold: #D4AF37;
+        --airline-silver: #C0C0C0;
+        --airline-blue: #0066CC;
+        --success-green: #00AA44;
+        --premium-gray: #F7F9FC;
+        --light-gold: #FFF8E1;
+        --text-primary: #1A1A1A;
+        --text-secondary: #666666;
+        --border-light: #E5E7EB;
+    }
+    
+    body {
+        background: var(--premium-gray);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    .complaints-container {
+        background: var(--premium-gray);
+        min-height: 100vh;
+        padding: 0;
+    }
+    
+    .airline-header {
+        background: linear-gradient(135deg, var(--airline-navy) 0%, var(--airline-blue) 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .airline-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .airline-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        justify-content: center;
+    }
+    
+    .airline-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .complaints-content {
+        padding: 0;
+        background: transparent;
+    }
+    
+    .stats-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stats-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 20px rgba(0,51,102,0.08);
+        border: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        position: relative;
+        border-top: 3px solid transparent;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 40px rgba(0,51,102,0.15);
+    }
+    
+    .stats-card.total { border-top-color: var(--airline-blue); }
+    .stats-card.pending { border-top-color: #f59e0b; }
+    .stats-card.resolved { border-top-color: var(--success-green); }
+    
+    .stats-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin: 0 auto 1rem;
+        position: relative;
+    }
+    
+    .total .stats-icon { 
+        background: linear-gradient(135deg, var(--airline-blue), #0080FF); 
+        color: white; 
+    }
+    .pending .stats-icon { 
+        background: linear-gradient(135deg, #f59e0b, #fbbf24); 
+        color: white; 
+    }
+    .resolved .stats-icon { 
+        background: linear-gradient(135deg, var(--success-green), #00CC55); 
+        color: white; 
+    }
+    
+    .stats-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stats-label {
+        color: var(--text-secondary);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    
+    .action-section {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 20px rgba(0,51,102,0.08);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .btn-new-complaint {
+        background: linear-gradient(135deg, var(--success-green) 0%, #00CC55 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-new-complaint:hover {
+        background: linear-gradient(135deg, #00CC55 0%, var(--success-green) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 170, 68, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .filter-controls {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .filter-item select {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        background: white;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+    }
+    
+    .complaint-item {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 20px rgba(0,51,102,0.08);
+        border: 1px solid var(--border-light);
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+    
+    .complaint-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 40px rgba(0,51,102,0.15);
+    }
+    
+    .complaint-header-item {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-light);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .complaint-meta {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+    
+    .complaint-id {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .complaint-date {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+    }
+    
+    .status-badge.pending {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: #92400e;
+    }
+    
+    .status-badge.active {
+        background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+        color: #1e40af;
+    }
+    
+    .status-badge.resolved {
+        background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+        color: #065f46;
+    }
+    
+    .status-badge.rejected {
+        background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+        color: #991b1b;
+    }
+    
+    .complaint-body {
+        padding: 1.5rem;
+    }
+    
+    .complaint-description {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+    }
+    
+    .complaint-description.truncated {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        cursor: pointer;
+    }
+    
+    .complaint-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-light);
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .complaint-file {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .complaint-file i {
+        color: var(--airline-blue);
+    }
+    
+    .btn-view-details {
+        background: var(--airline-blue);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-view-details:hover {
+        background: var(--airline-navy);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 20px rgba(0,51,102,0.08);
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: #cbd5e1;
+        margin-bottom: 1.5rem;
+        display: block;
+    }
+    
+    .empty-state h3 {
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .empty-state p {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        font-size: 1rem;
+    }
+    
+    .alert {
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        padding: 1rem 1.5rem;
+        border: none;
+    }
+    
+    .alert-success {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #065f46;
+    }
+    
+    .alert-danger {
+        background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+        color: #991b1b;
+    }
+    
+    @@media (max-width: 768px) {
+        .airline-header h1 {
+            font-size: 2rem;
+        }
+        
+        .stats-cards {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-controls {
+            justify-content: space-between;
+        }
+        
+        .complaint-meta {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        
+        .complaint-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+
+<div class="complaints-container">
+    <div class="airline-header text-center">
+        <div class="container">
+            <h1><i class="fas fa-clipboard-list"></i>Khiếu nại của tôi</h1>
+            <p>Theo dõi trạng thái và lịch sử các khiếu nại đã gửi</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="complaints-content">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+                </div>
+            }
+
+            @if (Model.Any())
+            {
+                <div class="stats-cards">
+                    <div class="stats-card total">
+                        <div class="stats-icon">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <div class="stats-number">@Model.Count</div>
+                        <div class="stats-label">Tổng khiếu nại</div>
+                    </div>
+                    <div class="stats-card pending">
+                        <div class="stats-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stats-number">@Model.Count(c => c.StatusId == 3)</div>
+                        <div class="stats-label">Đang chờ xử lý</div>
+                    </div>
+                    <div class="stats-card resolved">
+                        <div class="stats-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="stats-number">@Model.Count(c => c.StatusId == 4)</div>
+                        <div class="stats-label">Đã giải quyết</div>
+                    </div>
+                </div>
+            }
+
+            <div class="action-section">
+                <a href="@Url.Action("Create", "Complaint")" class="btn-new-complaint">
+                    <i class="fas fa-plus"></i>Gửi khiếu nại mới
+                </a>
+                
+                @if (Model.Any())
+                {
+                    <div class="filter-controls">
+                        <div class="filter-item">
+                            <select id="statusFilter" onchange="filterComplaints()">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="1">Đang chờ xử lý</option>
+                                <option value="2">Đang xử lý</option>
+                                <option value="3">Đã giải quyết</option>
+                                <option value="4">Bị từ chối</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <select id="sortFilter" onchange="sortComplaints()">
+                                <option value="newest">Mới nhất</option>
+                                <option value="oldest">Cũ nhất</option>
+                                <option value="status">Theo trạng thái</option>
+                            </select>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (Model.Any())
+            {
+                <div id="complaintsContainer">
+                    @foreach (var complaint in Model)
+                    {
+                        <div class="complaint-item" data-status="@complaint.StatusId">
+                            <div class="complaint-header-item">
+                                <div class="complaint-meta">
+                                    <div class="complaint-id">
+                                        <i class="fas fa-hashtag"></i>Khiếu nại #@complaint.ComplaintId
+                                    </div>
+                                    <div class="complaint-date">
+                                        <i class="fas fa-calendar"></i>@complaint.FormattedCreateDate
+                                    </div>
+                                </div>
+                                <div class="status-badge @complaint.StatusCssClass">
+                                    @complaint.StatusName
+                                </div>
+                            </div>
+
+                            <div class="complaint-body">
+                                <div class="complaint-description truncated" id="desc-@complaint.ComplaintId">
+                                    @complaint.Description
+                                </div>
+
+                                <div class="complaint-actions">
+                                    <div>
+                                        @if (!string.IsNullOrEmpty(complaint.FileUrl))
+                                        {
+                                            <div class="complaint-file">
+                                                <i class="fas fa-paperclip"></i>Có file đính kèm
+                                            </div>
+                                        }
+                                        @if (!string.IsNullOrEmpty(complaint.SupporterName))
+                                        {
+                                            <div class="complaint-file">
+                                                <i class="fas fa-user-tie"></i>Được xử lý bởi: @complaint.SupporterName
+                                            </div>
+                                        }
+                                    </div>
+                                    <a href="@Url.Action("Details", "Complaint", new { id = complaint.ComplaintId })" 
+                                       class="btn-view-details">
+                                        <i class="fas fa-eye"></i>Xem chi tiết
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>Chưa có khiếu nại nào</h3>
+                    <p>Bạn chưa gửi khiếu nại nào. Nếu gặp vấn đề, hãy gửi khiếu nại để chúng tôi hỗ trợ bạn.</p>
+                    <a href="@Url.Action("Create", "Complaint")" class="btn-new-complaint">
+                        <i class="fas fa-plus"></i>Gửi khiếu nại đầu tiên
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterComplaints() {
+        const statusFilter = document.getElementById('statusFilter').value;
+        const complaints = document.querySelectorAll('.complaint-item');
+        
+        complaints.forEach(complaint => {
+            const status = complaint.getAttribute('data-status');
+            if (statusFilter === '' || status === statusFilter) {
+                complaint.style.display = 'block';
+            } else {
+                complaint.style.display = 'none';
+            }
+        });
+    }
+
+    function sortComplaints() {
+        const sortFilter = document.getElementById('sortFilter').value;
+        const container = document.getElementById('complaintsContainer');
+        const complaints = Array.from(container.children);
+        
+        complaints.sort((a, b) => {
+            if (sortFilter === 'newest') {
+                const dateA = new Date(a.querySelector('.complaint-date').textContent.replace('📅 ', '').trim());
+                const dateB = new Date(b.querySelector('.complaint-date').textContent.replace('📅 ', '').trim());
+                return dateB - dateA;
+            } else if (sortFilter === 'oldest') {
+                const dateA = new Date(a.querySelector('.complaint-date').textContent.replace('📅 ', '').trim());
+                const dateB = new Date(b.querySelector('.complaint-date').textContent.replace('📅 ', '').trim());
+                return dateA - dateB;
+            } else if (sortFilter === 'status') {
+                const statusA = a.getAttribute('data-status');
+                const statusB = b.getAttribute('data-status');
+                return statusA - statusB;
+            }
+        });
+        
+        complaints.forEach(complaint => container.appendChild(complaint));
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click to expand/collapse description
+        document.querySelectorAll('.complaint-description').forEach(desc => {
+            if (desc.scrollHeight > desc.clientHeight) {
+                desc.style.cursor = 'pointer';
+                desc.title = 'Click để xem đầy đủ';
+                
+                desc.addEventListener('click', function() {
+                    this.classList.toggle('truncated');
+                });
+            }
+        });
+    });
+</script>
+
+<partial name="~/Views/Common/_Footer.cshtml" />
+
+@section Scripts {
+    <script src="~/js/complaint.js" asp-append-version="true"></script>
+}

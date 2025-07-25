@@ -478,7 +478,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 window.onload = async function () {
-    await CheckAccess();
     let token = localStorage.getItem('flightInfoToken');
     if (!token) return;
 

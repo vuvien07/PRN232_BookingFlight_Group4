@@ -70,7 +70,7 @@ namespace BookingFlightServer.Services.Implements
             await _planeRepository.AddAsync(plane);
 
             // Reload with includes for response
-            var createdPlane = await _planeRepository.GetPlaneByIdAsync(plane.PlaneId);
+            var createdPlane = await _planeRepository.GetPlaneByIdAsync(plane.PlaneId ?? 0);
             return MapToPlaneResponseDTO(createdPlane!);
         }
 
@@ -197,7 +197,7 @@ namespace BookingFlightServer.Services.Implements
         {
             return new PlaneResponseDTO
             {
-                PlaneId = plane.PlaneId,
+                PlaneId = plane.PlaneId ?? 0,
                 PlaneCode = plane.PlaneCode,
                 Model = plane.Model,
                 Manufacture = plane.Manufacture,

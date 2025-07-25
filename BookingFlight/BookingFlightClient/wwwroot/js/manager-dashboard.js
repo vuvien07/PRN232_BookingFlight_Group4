@@ -34,15 +34,23 @@ function toggleUserMenu() {
 }
 
 // Logout function
-function logout() {
+async function logout() {
     if (confirm('Are you sure you want to logout?')) {
         // Clear any stored authentication data
         localStorage.removeItem('authToken');
         localStorage.removeItem('userInfo');
         sessionStorage.clear();
-        
-        // Redirect to login page
-        window.location.href = '/Authentication/Login';
+        await fetch('http://localhost:5077/api/Token/removeToken', {
+            method: 'GET',
+            credentials: 'include'
+        }).then(res => {
+            if (res.ok) {
+                window.location.href = '/Login';
+            } else {
+                console.error('Logout failed');
+            }
+        });
+
     }
 }
 

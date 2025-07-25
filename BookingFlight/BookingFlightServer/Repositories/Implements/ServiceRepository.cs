@@ -16,9 +16,11 @@ namespace BookingFlightServer.Repositories.Implements
 
 		public async Task<List<Service>> GetServicesByFlightId(int flightId)
 		{
-			var queryList = _flightContext.Services.Include(s => s.Flights).Include(s => s.Items).AsAsyncEnumerable();
-			List<Service> services = await queryList.Where(s => s.Flights.Any(f => f.FlightId == flightId)).ToListAsync();
-
+			var services = await _flightContext.Services
+	   .Include(s => s.Flights)
+	   .Include(s => s.Items)
+	   .Where(s => s.Flights.Any(f => f.FlightId == flightId))
+	   .ToListAsync();
 			return services;
 		}
 

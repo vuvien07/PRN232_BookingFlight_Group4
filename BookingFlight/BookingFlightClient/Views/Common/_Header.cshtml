@@ -17,7 +17,7 @@
                 </div>
             </div>
             <div class="header-actions">
-                <a href="/help" class="header-link">
+                <a href="/Complaint/Help" class="header-link">
                     <i class="fas fa-question-circle"></i>
                     <span data-vn="Trợ giúp" data-en="Help" data-zh="帮助">Trợ giúp</span>
                 </a>
@@ -64,7 +64,7 @@
                     </div>
                 </a>
                 
-                <ul class="nav-menu" id="navMenu" style="margin-bottom: 0">
+                <ul class="nav-menu" id="navMenu">
                     <li class="nav-item">
                         <a href="/Home" class="nav-link">
                             <i class="fas fa-home"></i> 
@@ -102,26 +102,37 @@
                                 <span data-vn="Trợ giúp" data-en="Help" data-zh="帮助">Trợ giúp</span>
                             </button>
                             <div class="dropdown-content">
-                                <a href="/Support/ai/ask">AI Chatbot</a></a>
+                                <a href="/Support/ai/ask">AI Chatbot</a>
+                                <a href="/Complaint/Help">Báo cáo vấn đề</a>
+                                <a href="/Complaint">Khiếu nại của tôi</a>
                             </div>
                         </div>
                     </li>
-                    <li class="nav-item">
-                        <button type="button" data-bs-toggle="modal" data-bs-target="#searchTicketModal" class="nav-link">
-                            <i class="fas fa-search"></i>
-                            <span>Tra cứu chuyến bay</span>
-                        </button>
-                    </li>
                 </ul>
-                  <!-- User Section -->
-                <div class="user-section">
-                    <!-- Dynamic header dropdown menu will be populated by JavaScript -->
-                    <div id="headerDropdownMenu">
-                        <!-- Default login button - will be replaced by JS -->
-                        <a href="/Login" class="login-btn">
-                            <i class="fas fa-sign-in-alt"></i>
-                            <span data-vn="Đăng nhập" data-en="Login" data-zh="登录">Đăng nhập</span>
-                        </a>
+
+                <!-- Right section with Search and Login -->
+                <div class="right-section">
+                    <!-- Chat Support Button -->
+                    <a href="/Chat" class="nav-link chat-support-btn" title="Hỗ trợ trực tuyến">
+                        <i class="fas fa-comments"></i>
+                        <span>💬 Chat hỗ trợ</span>
+                    </a>
+                    
+                    <button type="button" data-bs-toggle="modal" data-bs-target="#searchTicketModal" class="nav-link search-btn">
+                        <i class="fas fa-search"></i>
+                        <span>Tra cứu chuyến bay</span>
+                    </button>
+                    
+                    <!-- User Section -->
+                    <div class="user-section">
+                        <!-- Dynamic header dropdown menu will be populated by JavaScript -->
+                        <div id="headerDropdownMenu">
+                            <!-- Default login button - will be replaced by JS -->
+                            <a href="/Login" class="login-btn">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span data-vn="Đăng nhập" data-en="Login" data-zh="登录">Đăng nhập</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

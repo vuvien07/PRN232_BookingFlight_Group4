@@ -34,8 +34,8 @@ namespace BookingFlightServer.DTO.Shared
 
 		public CustomerDTO CustomerDTO { get; set; } = null!;
 
-		public DetailedFlightDTO FlightDTO { get; set; } = null!;
-
+		public FlightDTO FlightDTO { get; set; } = null!;
+		public SeatDTO Seat { get; set; } = null!;
 		public List<TicketItemDTO> TicketItems { get; set; } = new List<TicketItemDTO>();
 	}
 }

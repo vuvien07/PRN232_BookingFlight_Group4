@@ -15,10 +15,13 @@ namespace BookingFlightServer.Services.Implements
 		private readonly IFlightSeatRepository _flightSeatRepository;
 		private readonly ILogger<CheckoutFlightService> _logger;
 		private readonly ITransactionDbManager _transactionDbManager;
+		private readonly IEmailService _emailService;
+		private readonly ICustomerRepository _customerRepository;
+		private readonly IJwtService _jwtService;
 
-		public CheckoutFlightService(ITicketRepository ticketRepository, IClassSeatRepository classSeatRepository,
-			ITicketItemRepository ticketItemRepository, IFlightSeatRepository flightSeatRepository,
-			ILogger<CheckoutFlightService> logger, ITransactionDbManager transactionDbManager)
+		public CheckoutFlightService(ITicketRepository ticketRepository, IClassSeatRepository classSeatRepository, ITicketItemRepository ticketItemRepository,
+			IFlightSeatRepository flightSeatRepository, ILogger<CheckoutFlightService> logger, ITransactionDbManager transactionDbManager,
+			IEmailService emailService, ICustomerRepository customerRepository, IJwtService jwtService)
 		{
 			_ticketRepository = ticketRepository;
 			_classSeatRepository = classSeatRepository;
@@ -26,6 +29,9 @@ namespace BookingFlightServer.Services.Implements
 			_flightSeatRepository = flightSeatRepository;
 			_logger = logger;
 			_transactionDbManager = transactionDbManager;
+			_emailService = emailService;
+			_customerRepository = customerRepository;
+			_jwtService = jwtService;
 		}
 
 		public decimal caculateServicePrice(List<ServiceDTO> serviceDTOs)
@@ -46,13 +52,17 @@ namespace BookingFlightServer.Services.Implements
 			return preorderFlightDTOs.Sum(p => p.Quantity);
 		}
 
-		public async Task<bool> IsSavedPassengerInformation(FlightCheckoutRequestDTO flightCheckoutRequestDTO)
+		public async Task<bool> IsSavedPassengerInformation(FlightCheckoutRequestDTO flightCheckoutRequestDTO, int customerId)
 		{
 			await _transactionDbManager.BeginTransactionAsync();
 			try
 			{
+				await _emailService.TestSendMailAsync(flightCheckoutRequestDTO.EmailContact);
+				bool isMailExist = await _emailService.IsEmailExistsAsync(flightCheckoutRequestDTO.EmailContact);
+				if (!isMailExist) throw new Exception($@"Email {flightCheckoutRequestDTO.EmailContact} does not exist");
 				List<ItemDTO> itemDTOS = flightCheckoutRequestDTO.Services.Where(s => s.Items != null).SelectMany(s => s.Items)
 					.Where(i => i.Quantity > 0).ToList();
+				List<string> ticketCodes = new();
 				for (int i = 0; i < flightCheckoutRequestDTO.PassengerInformationForms.Count; i++)
 				{
 					List<FlightSeat> flightSeats = await _flightSeatRepository.GetFlightSeatsByFlightId(flightCheckoutRequestDTO.Flight.FlightId);
@@ -61,9 +71,12 @@ namespace BookingFlightServer.Services.Implements
 					var preorderFlightDTO = flightCheckoutRequestDTO.PreorderFlights[i];
 					if (preorderFlightDTO.Quantity == 0) continue;
 					Ticket ticket = GenerateTicket(preorderFlightDTO, passengerInformationFormDTO, flightCheckoutRequestDTO);
+					ticketCodes.Add(ticket.TicketNumber);
+					if(customerId != 0) ticket.CustomerId = customerId;
 					await _ticketRepository.CreateTicketAsync(ticket);
 					flightSeats[0].IsSat = true;
 					await _flightSeatRepository.UpdateFlightSeatAsync(flightSeats[0]);
+
 					foreach (var item in itemDTOS)
 					{
 						TicketItem ticketItem = new TicketItem();
@@ -73,6 +86,7 @@ namespace BookingFlightServer.Services.Implements
 						await _ticketItemRepository.CreateTicketItemAsync(ticketItem);
 					}
 				}
+				await _emailService.SendTicketCodeByEmailAsync(ticketCodes, flightCheckoutRequestDTO);
 				await _transactionDbManager.CommitTransactionAsync();
 				return true;
 			}
@@ -120,6 +134,22 @@ namespace BookingFlightServer.Services.Implements
 				totalPrice = ((decimal)preorderFlightDTO.Tax * flightDTO.BasePrice * 0.25m);
 			}
 			return totalPrice;
+		}
+
+		public async Task<int> GetCustomerIdByCredentials(HttpContext httpContext)
+		{
+			string? accessToken = httpContext.Request.Headers["X-Access-Token"];
+			if (accessToken == null) return 0;
+			var decodedToken = _jwtService.DecodeJwtToken(accessToken);
+			string? role = decodedToken["RoleId"].ToString() ?? string.Empty;
+			string? username = decodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"].ToString() ?? string.Empty;
+			if (role.Equals("3"))
+			{
+				Customer? customer = await _customerRepository.GetByUsername(username);
+				if (customer == null) return 0;
+				return customer.CustomerId;
+			}
+			return 0;
 		}
 	}
 }

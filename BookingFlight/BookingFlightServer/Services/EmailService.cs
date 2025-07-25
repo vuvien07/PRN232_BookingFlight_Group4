@@ -1,6 +1,11 @@
-using System.Net.Mail;
+﻿using System.Net.Mail;
 using System.Net;
 using BookingFlightServer.Utils;
+using MimeKit;
+using MailKit.Net.Imap;
+using MailKit;
+using MailKit.Search;
+using BookingFlightServer.DTO.Shared;
 
 namespace BookingFlightServer.Services
 {
@@ -8,7 +13,11 @@ namespace BookingFlightServer.Services
     {
         Task<bool> SendForgotPasswordEmailAsync(string toEmail, string resetToken);
         Task<bool> SendEmailVerificationAsync(string toEmail, string verificationToken);
-    }
+		Task<bool> IsEmailExistsAsync(string email);
+		Task TestSendMailAsync(string email);
+        Task<bool> SendTicketCodeByEmailAsync(List<string> ticketCodes,FlightCheckoutRequestDTO flightCheckoutRequest);
+        Task<bool> SendFlightUpdateNotificationAsync(string toEmail, string subject, string body);
+	}
 
     public class EmailService : IEmailService
     {
@@ -120,5 +129,179 @@ namespace BookingFlightServer.Services
                 return false;
             }
         }
-    }
+        private string GetEmailBody(MimeMessage mimeMessage)
+        {
+            if (!string.IsNullOrEmpty(mimeMessage.TextBody))
+            {
+				return mimeMessage.TextBody;
+            }
+            else if (!string.IsNullOrEmpty(mimeMessage.HtmlBody))
+            {
+                return mimeMessage.HtmlBody;
+            }
+            return string.Empty;
+        }
+
+		public async Task<bool> IsEmailExistsAsync(string email)
+		{
+            try
+            {
+                var smtpSettings = _configuration.GetSection("SmtpSettings");
+                var fromEmail = smtpSettings["FromEmail"];
+                var fromPassword = smtpSettings["FromPassword"];
+                using var client = new ImapClient();
+                await client.ConnectAsync("imap.gmail.com", 993, true);
+				await client.AuthenticateAsync(fromEmail, fromPassword);
+                var inbox = client.Inbox;
+                inbox.Open(FolderAccess.ReadWrite);
+                var today = DateTime.Now.Date;
+                var tommorrow = today.AddDays(1);
+				var messages = await inbox.SearchAsync(SearchQuery.DeliveredAfter(today).And(SearchQuery.DeliveredBefore(tommorrow)));
+                foreach (var message in messages)
+                {
+                    var mimeMessage = await inbox.GetMessageAsync(message);
+                    string body = GetEmailBody(mimeMessage);
+					if ((body.Contains("your message wasn't delivered to", StringComparison.OrdinalIgnoreCase) &&
+				body.Contains(email, StringComparison.OrdinalIgnoreCase)) || (body.Contains("tin nhắn của bạn không được gửi đến", StringComparison.OrdinalIgnoreCase) &&
+				body.Contains(email, StringComparison.OrdinalIgnoreCase)) || (body.Contains("thư của bạn không được gửi đến", StringComparison.OrdinalIgnoreCase) &&
+				body.Contains(email, StringComparison.OrdinalIgnoreCase)))
+					{
+						return false; // Email không tồn tại, bị trả về
+					}
+				}
+            }
+			catch (Exception ex)
+            {
+				Console.WriteLine($"Failed to send verification email: {ex.Message}");
+                return false;
+            }
+            return true;
+		}
+
+		public async Task TestSendMailAsync(string email)
+		{
+			try
+			{
+				var smtpSettings = _configuration.GetSection("SmtpSettings");
+				var fromEmail = smtpSettings["FromEmail"];
+				var fromPassword = smtpSettings["FromPassword"];
+				var smtpHost = smtpSettings["Host"];
+				var smtpPort = int.Parse(smtpSettings["Port"]);
+				var mailMessage = new MailMessage
+				{
+					From = new MailAddress(fromEmail, "BookingFlight Support"),
+					Subject = "Test send mail - BookingFlight",
+					Body = "Test send mail",
+				};
+
+				mailMessage.To.Add(email);
+
+				using var smtpClient = new SmtpClient(smtpHost, smtpPort)
+				{
+					Credentials = new NetworkCredential(fromEmail, fromPassword),
+					EnableSsl = true
+				};
+
+				await smtpClient.SendMailAsync(mailMessage);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Failed to send verification email: {ex.Message}");
+			}
+		}
+
+		public async Task<bool> SendTicketCodeByEmailAsync(List<string> ticketCodes, FlightCheckoutRequestDTO flightCheckoutRequest)
+		{
+			try
+			{
+				var smtpSettings = _configuration.GetSection("SmtpSettings");
+				var fromEmail = smtpSettings["FromEmail"];
+				var fromPassword = smtpSettings["FromPassword"];
+				var smtpHost = smtpSettings["Host"];
+				var smtpPort = int.Parse(smtpSettings["Port"]);
+                var body = $@"
+                        <div style=""font-family: Arial, sans-serif; max-width: 600px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9; margin: 0 auto;"">
+                    <h1 style=""color: #333; text-align: center;""> Thông Tin Đặt Vé</h1>
+                    <hr style=""border: none; height: 1px; background-color: #ccc;"">
+                    <p style=""font-size: 16px; color: #555;"">Kính gửi quý khách {flightCheckoutRequest.FullNameContact}  </p>
+                        <p style=""font-size: 16px; color: #555;"">
+                            Dưới đây là thông tin các mã vé quý khách đã đặt:
+                        </p>
+<div style=""background-color: #fff; padding: 15px; border-radius: 5px; box-shadow: 0px 2px 5px rgba(0,0,0,0.1);"">
+                        <ul style=""list-style: none; padding: 0;"">
+                    ";
+
+                for(int i = 0; i < ticketCodes.Count; i++)
+                {
+                    body += $@"<li style=\""font-size: 16px; color: #333; padding: 5px 0;\"">Mã đặt chỗ {i}: {ticketCodes[i]}</li>";
+                }
+                body += $@" </ul>
+                    </div>
+                    <p style=""font-size: 14px; color: #777; margin-top: 20px; text-align: center;"">
+                        Cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi.
+                    </p>
+                </div>";
+
+				var mailMessage = new MailMessage
+				{
+					From = new MailAddress(fromEmail, "BookingFlight Support"),
+					Subject = "Your ticket - BookingFlight",
+					Body = body,
+					IsBodyHtml = true
+				};
+
+				mailMessage.To.Add(flightCheckoutRequest.EmailContact);
+
+				using var smtpClient = new SmtpClient(smtpHost, smtpPort)
+				{
+					Credentials = new NetworkCredential(fromEmail, fromPassword),
+					EnableSsl = true
+				};
+
+				await smtpClient.SendMailAsync(mailMessage);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Failed to send verification email: {ex.Message}");
+				return false;
+			}
+		}
+		public async Task<bool> SendFlightUpdateNotificationAsync(string toEmail, string subject, string body)
+		{
+			try
+			{
+				var smtpSettings = _configuration.GetSection("SmtpSettings");
+				var fromEmail = smtpSettings["FromEmail"];
+				var fromPassword = smtpSettings["FromPassword"];
+				var smtpHost = smtpSettings["Host"];
+				var smtpPort = int.Parse(smtpSettings["Port"]);
+
+				var mailMessage = new MailMessage
+				{
+					From = new MailAddress(fromEmail, "BookingFlight Support"),
+					Subject = subject,
+					Body = body,
+					IsBodyHtml = true
+				};
+
+				mailMessage.To.Add(toEmail);
+
+				using var smtpClient = new SmtpClient(smtpHost, smtpPort)
+				{
+					Credentials = new NetworkCredential(fromEmail, fromPassword),
+					EnableSsl = true
+				};
+
+				await smtpClient.SendMailAsync(mailMessage);
+				Console.WriteLine($"Flight update notification email sent successfully to {toEmail}");
+				return true;
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Failed to send flight update notification email: {ex.Message}");
+				return false;
+			}
+		}
+	}
 }

@@ -7,6 +7,7 @@ namespace BookingFlightServer.Repositories
         // Basic operations
         Task<List<FlightSeat>> GetFlightSeatsByFlightId(int flightId);
         Task UpdateFlightSeatAsync(FlightSeat flightSeat);
+  Task<FlightSeat?> GetFlightSeatByTicketId(int ticketId);
         
         // New enhanced methods for manager functionality
         Task<FlightSeat?> GetFlightSeatByIdAsync(int flightId, int seatId);
@@ -19,4 +20,5 @@ namespace BookingFlightServer.Repositories
         Task<int> GetOccupiedSeatCountAsync(int flightId);
         Task<bool> CreateFlightSeatsForFlightAsync(int flightId);
     }
+
 }
