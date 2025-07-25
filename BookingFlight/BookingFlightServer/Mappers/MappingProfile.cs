@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using BookingFlightServer.DTO.Shared;
 using BookingFlightServer.Entities;
 

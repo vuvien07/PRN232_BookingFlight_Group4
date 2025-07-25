@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Booking History API</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Test Booking History API</h1>
+    
+    <div>
+        <h2>Step 1: Test Customer API</h2>
+        <button onclick="testCustomerAPI()">Test Get Customer by Account ID</button>
+        <div id="customerResult"></div>
+    </div>
+    
+    <div>
+        <h2>Step 2: Test Ticket API</h2>
+        <input type="number" id="customerId" placeholder="Customer ID" value="1">
+        <button onclick="testTicketAPI()">Test Get Tickets by Customer ID</button>
+        <div id="ticketResult"></div>
+    </div>
+    
+    <div>
+        <h2>Step 3: Test Paginated Ticket API</h2>
+        <input type="number" id="customerIdPaginated" placeholder="Customer ID" value="1">
+        <input type="number" id="page" placeholder="Page" value="1">
+        <input type="number" id="pageSize" placeholder="Page Size" value="10">
+        <button onclick="testPaginatedTicketAPI()">Test Get Paginated Tickets</button>
+        <div id="paginatedResult"></div>
+    </div>
+
+    <script>
+        function testCustomerAPI() {
+            const accountId = 1; // Test with account ID 1
+            
+            $.ajax({
+                url: `http://localhost:5077/api/FlightCustomers/by-account/${accountId}`,
+                type: 'GET',
+                success: function(data) {
+                    $('#customerResult').html('<pre>' + JSON.stringify(data, null, 2) + '</pre>');
+                    console.log('Customer API success:', data);
+                },
+                error: function(xhr, status, error) {
+                    $('#customerResult').html('<p style="color: red;">Error: ' + error + '<br>Status: ' + xhr.status + '<br>Response: ' + xhr.responseText + '</p>');
+                    console.log('Customer API error:', xhr.responseText);
+                }
+            });
+        }
+        
+        function testTicketAPI() {
+            const customerId = $('#customerId').val();
+            
+            $.ajax({
+                url: `http://localhost:5077/api/Ticket/getByCustomerId/${customerId}`,
+                type: 'GET',
+                success: function(data) {
+                    $('#ticketResult').html('<pre>' + JSON.stringify(data, null, 2) + '</pre>');
+                    console.log('Ticket API success:', data);
+                },
+                error: function(xhr, status, error) {
+                    $('#ticketResult').html('<p style="color: red;">Error: ' + error + '<br>Status: ' + xhr.status + '<br>Response: ' + xhr.responseText + '</p>');
+                    console.log('Ticket API error:', xhr.responseText);
+                }
+            });
+        }
+        
+        function testPaginatedTicketAPI() {
+            const customerId = $('#customerIdPaginated').val();
+            const page = $('#page').val();
+            const pageSize = $('#pageSize').val();
+            
+            $.ajax({
+                url: `http://localhost:5077/api/Ticket/getByCustomerIdPaginated/${customerId}?page=${page}&pageSize=${pageSize}`,
+                type: 'GET',
+                success: function(data) {
+                    $('#paginatedResult').html('<pre>' + JSON.stringify(data, null, 2) + '</pre>');
+                    console.log('Paginated Ticket API success:', data);
+                },
+                error: function(xhr, status, error) {
+                    $('#paginatedResult').html('<p style="color: red;">Error: ' + error + '<br>Status: ' + xhr.status + '<br>Response: ' + xhr.responseText + '</p>');
+                    console.log('Paginated Ticket API error:', xhr.responseText);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

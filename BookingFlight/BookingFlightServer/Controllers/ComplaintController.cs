@@ -27,7 +27,11 @@ namespace BookingFlightServer.Controllers
                 }
 
                 var result = await _complaintService.CreateComplaintAsync(request);
-                return Ok(new { success = true, data = result, message = "Khiếu nại đã được tạo thành công" });
+                return Ok(new { 
+                    success = true, 
+                    data = result, 
+                    message = "Khiếu nại đã được tạo thành công. Hệ thống AI sẽ tự động kiểm tra nội dung trong vòng 1 phút. Nếu nội dung liên quan đến dịch vụ hàng không, khiếu nại sẽ được chuyển cho nhân viên hỗ trợ xử lý." 
+                });
             }
             catch (Exception ex)
             {
