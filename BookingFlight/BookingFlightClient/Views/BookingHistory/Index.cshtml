@@ -405,7 +405,7 @@
                 <p>Tickets.Any(): @(bookingHistory?.Tickets?.Any() ?? false)</p>
             </div>
 
-            @if (bookingHistory.Tickets.Any())
+            @if (bookingHistory?.Tickets?.Any() == true)
             {
                 @foreach (var ticket in bookingHistory.Tickets)
                 {
