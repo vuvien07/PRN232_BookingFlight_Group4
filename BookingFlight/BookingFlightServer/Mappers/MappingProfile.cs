@@ -8,6 +8,10 @@ namespace BookingFlightServer.Mappers
 	{
 		public MappingProfile()
 		{
+			// Add custom mapping for DateOnly to DateTime
+			CreateMap<DateOnly, DateTime>().ConvertUsing(src => src.ToDateTime(TimeOnly.MinValue));
+			CreateMap<DateTime, DateOnly>().ConvertUsing(src => DateOnly.FromDateTime(src));
+
 			CreateMap<Seat, SeatDTO>().ReverseMap();
 			CreateMap<Flight, FlightDTO>()
 				.ForMember(c => c.FromCode, opt => opt.MapFrom(c => c.DepartureAirport.AirportCode))

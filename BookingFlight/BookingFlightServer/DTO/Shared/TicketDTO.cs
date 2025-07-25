@@ -8,7 +8,7 @@ namespace BookingFlightServer.DTO.Shared
 
 		public string TicketNumber { get; set; } = null!;
 
-		public DateOnly BookingDate { get; set; }
+		public DateTime BookingDate { get; set; }
 
 		public decimal TotalPrice { get; set; }
 
@@ -16,7 +16,7 @@ namespace BookingFlightServer.DTO.Shared
 
 		public string Name { get; set; } = null!;
 
-		public DateOnly DateOfBirth { get; set; }
+		public DateTime DateOfBirth { get; set; }
 
 		public string FullName { get; set; } = null!;
 
@@ -34,7 +34,7 @@ namespace BookingFlightServer.DTO.Shared
 
 		public CustomerDTO CustomerDTO { get; set; } = null!;
 
-		public FlightDTO FlightDTO { get; set; } = null!;
+		public DetailedFlightDTO FlightDTO { get; set; } = null!;
 		public SeatDTO Seat { get; set; } = null!;
 		public List<TicketItemDTO> TicketItems { get; set; } = new List<TicketItemDTO>();
 	}
