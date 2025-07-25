@@ -88,6 +88,12 @@
             {
                 <!-- Supporter specific menu items -->
                 <li class="nav-item">
+                    <a href="/SupporterComplaint/Index" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "SupporterComplaint" ? "active" : "")">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Manage Complaints</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="/SupporterChat" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "SupporterChat" ? "active" : "")">
                         <i class="fas fa-comments"></i>
                         <span>Chat Support</span>
