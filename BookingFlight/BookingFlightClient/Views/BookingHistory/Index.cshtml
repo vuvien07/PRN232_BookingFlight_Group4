@@ -2,10 +2,6 @@
     ViewData["Title"] = "Booking History";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var bookingHistory = ViewBag.BookingHistory as BookingFlightClient.Controllers.PaginatedTicketResult ?? new BookingFlightClient.Controllers.PaginatedTicketResult();
-    
-    // Debug info
-    var hasTickets = bookingHistory?.Tickets?.Any() ?? false;
-    var ticketCount = bookingHistory?.Tickets?.Count ?? 0;
 }
 
 <!DOCTYPE html>
@@ -393,16 +389,6 @@
                     <i class="fas fa-ticket-alt"></i>
                     <span data-vn="Danh sách vé đã đặt" data-en="Booked Tickets" data-zh="已预订机票">Danh sách vé đã đặt</span>
                 </h2>
-            </div>
-
-            <!-- Debug info -->
-            <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; border: 1px solid #ccc;">
-                <p><strong>Debug Info:</strong></p>
-                <p>BookingHistory is null: @(bookingHistory == null)</p>
-                <p>Tickets is null: @(bookingHistory?.Tickets == null)</p>
-                <p>Ticket Count: @ticketCount</p>
-                <p>Has Tickets: @hasTickets</p>
-                <p>Tickets.Any(): @(bookingHistory?.Tickets?.Any() ?? false)</p>
             </div>
 
             @if (bookingHistory?.Tickets?.Any() == true)
