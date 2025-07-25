@@ -64,11 +64,16 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a href="/SeatManagement" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "SeatManagement" ? "active" : "")">
+                <li class="nav-item has-submenu">
+                    <a href="#" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "SeatManagement" ? "active" : "")" onclick="toggleSubmenu(this)">
                         <i class="fas fa-chair"></i>
                         <span>Manage Seats</span>
+                        <i class="fas fa-chevron-down submenu-arrow"></i>
                     </a>
+                    <ul class="submenu">
+                        <li><a href="/SeatManagement">Seat Templates</a></li>
+                        <li><a href="/SeatManagement/FlightSeats">Flight Seats</a></li>
+                    </ul>
                 </li>
                 <li class="nav-item">
                     <a href="/DiscountManage/Discounts" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "DiscountManage" ? "active" : "")">

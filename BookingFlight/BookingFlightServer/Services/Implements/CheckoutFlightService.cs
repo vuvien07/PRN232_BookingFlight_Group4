@@ -65,7 +65,7 @@ namespace BookingFlightServer.Services.Implements
 				List<string> ticketCodes = new();
 				for (int i = 0; i < flightCheckoutRequestDTO.PassengerInformationForms.Count; i++)
 				{
-					List<FlightSeat?> flightSeats = await _flightSeatRepository.GetFlightSeatsByFlightId(flightCheckoutRequestDTO.Flight.FlightId);
+					List<FlightSeat> flightSeats = await _flightSeatRepository.GetFlightSeatsByFlightId(flightCheckoutRequestDTO.Flight.FlightId);
 					if (flightSeats == null || flightSeats.Count == 0) return false;
 					var passengerInformationFormDTO = flightCheckoutRequestDTO.PassengerInformationForms[i];
 					var preorderFlightDTO = flightCheckoutRequestDTO.PreorderFlights[i];
@@ -74,9 +74,9 @@ namespace BookingFlightServer.Services.Implements
 					ticketCodes.Add(ticket.TicketNumber);
 					if(customerId != 0) ticket.CustomerId = customerId;
 					await _ticketRepository.CreateTicketAsync(ticket);
-					flightSeats[0]!.IsSat = true;
-					flightSeats[0]!.TicketId = ticket.TicketId;
-					await _flightSeatRepository.UpdateFlightSeatAsync(flightSeats[0]!);
+					flightSeats[0].IsSat = true;
+					await _flightSeatRepository.UpdateFlightSeatAsync(flightSeats[0]);
+
 					foreach (var item in itemDTOS)
 					{
 						TicketItem ticketItem = new TicketItem();

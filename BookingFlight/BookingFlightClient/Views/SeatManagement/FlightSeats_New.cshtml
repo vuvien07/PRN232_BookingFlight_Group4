@@ -1,0 +1,42 @@
+@{
+    ViewBag.Title = "Flight Seat Management";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/seat-management.css" />
+}
+
+<div class="flight-management-container">
+    <div class="row">
+        <div class="col-12">
+            <h2>Flight Seat Management</h2>
+            <p class="text-muted">Manage seats for flights</p>
+        </div>
+    </div>
+    
+    <div class="flight-selection">
+        <h4>Select Flight</h4>
+        <select id="flightSelect" class="flight-select">
+            <option value="">Loading flights...</option>
+        </select>
+        
+        <div class="test-buttons">
+            <button type="button" class="btn btn-sm btn-outline-primary" id="testFlights">Test Flights</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="testSeats">Test Seats</button>
+            <button type="button" class="btn btn-sm btn-outline-info" id="testAPI">Test API</button>
+            <button type="button" class="btn btn-sm btn-outline-warning" id="debugInfo">Debug Info</button>
+        </div>
+    </div>
+    
+    <div class="seats-section">
+        <h4>Seat Layout</h4>
+        <div id="seatsContainer">
+            <div class="alert alert-secondary">Please select a flight to view seats.</div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/seat-management.js"></script>
+}

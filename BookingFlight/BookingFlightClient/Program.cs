@@ -65,6 +65,8 @@ namespace BookingFlightClient
 
                 });
             builder.Services.AddHttpClient();
+          builder.Services.AddHttpContextAccessor(); // Add this
+          builder.Services.AddScoped<IDashboardService, DashboardService>();
             builder.Services.AddControllersWithViews();
             builder.Services.AddSingleton<IS3Service, S3Service>();
             var app = builder.Build();

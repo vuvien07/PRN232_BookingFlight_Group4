@@ -1,0 +1,169 @@
+@model List<BookingFlightClient.Models.ViewModels.FeedbackDetailViewModel>
+@{
+    ViewBag.Title = "Feedback của tôi - Chi tiết";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h4><i class="fas fa-comments"></i> Feedback của tôi - Chi tiết</h4>
+        </div>
+        <div class="card-body">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (Model.Any())
+            {
+                <div class="row">
+                    @foreach (var feedback in Model.OrderByDescending(f => f.CreateAt))
+                    {
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 feedback-card">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0 text-primary">
+                                        <i class="fas fa-comment"></i> @feedback.Title
+                                    </h6>
+                                    <div class="rating">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            if (i <= feedback.Rate)
+                                            {
+                                                <i class="fas fa-star text-warning"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="far fa-star text-warning"></i>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Feedback Content -->
+                                    <div class="mb-3">
+                                        <small class="text-muted">Nội dung feedback:</small>
+                                        <p class="mt-1">@feedback.Content</p>
+                                    </div>
+
+                                    <!-- Flight Info -->
+                                    <div class="flight-summary p-2 bg-light rounded mb-3">
+                                        <h6 class="text-success mb-2">
+                                            <i class="fas fa-plane"></i> @feedback.FlightNumber
+                                        </h6>
+                                        <p class="mb-1">
+                                            <strong>@feedback.DepartureAirport</strong> 
+                                            <i class="fas fa-arrow-right mx-2"></i> 
+                                            <strong>@feedback.ArrivalAirport</strong>
+                                        </p>
+                                        <small class="text-muted">
+                                            @feedback.DepartureTime.ToString("dd/MM/yyyy HH:mm") - 
+                                            @feedback.ArrivalTime.ToString("dd/MM/yyyy HH:mm")
+                                        </small>
+                                    </div>
+
+                                    <!-- Ticket Info -->
+                                    <div class="ticket-summary p-2 bg-light rounded mb-3">
+                                        <h6 class="text-info mb-2">
+                                            <i class="fas fa-ticket-alt"></i> @feedback.TicketNumber
+                                        </h6>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <small class="text-muted">Hành khách:</small>
+                                                <p class="mb-1">@feedback.PassengerName</p>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted">Giá vé:</small>
+                                                <p class="mb-1 fw-bold text-success">@feedback.TotalPrice.ToString("N0") VND</p>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">Ngày đặt: @feedback.BookingDate.ToString("dd/MM/yyyy")</small>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-alt"></i> 
+                                        @feedback.CreateAt?.ToString("dd/MM/yyyy")
+                                    </small>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="@Url.Action("GetFeedbackDetailByTicket", "Feedback", new { ticketId = feedback.TicketId })" 
+                                           class="btn btn-outline-info btn-sm">
+                                            <i class="fas fa-eye"></i> Chi tiết
+                                        </a>
+                                        <a href="@Url.Action("Create", "Feedback", new { ticketId = feedback.TicketId, ticketNumber = feedback.TicketNumber })" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-edit"></i> Sửa
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-comment-slash fa-4x text-muted mb-3"></i>
+                    <h5 class="text-muted">Bạn chưa có feedback nào</h5>
+                    <p class="text-muted">Hãy đặt vé và tạo feedback sau chuyến bay để chia sẻ trải nghiệm của bạn.</p>
+                    <a href="@Url.Action("Index", "BookingHistory")" class="btn btn-primary">
+                        <i class="fas fa-history"></i> Xem lịch sử đặt vé
+                    </a>
+                </div>
+            }
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+            <a href="@Url.Action("MyFeedbacks", "Feedback")" class="btn btn-secondary">
+                <i class="fas fa-list"></i> Xem danh sách đơn giản
+            </a>
+            <a href="@Url.Action("Index", "BookingHistory")" class="btn btn-primary">
+                <i class="fas fa-history"></i> Lịch sử đặt vé
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.feedback-card {
+    transition: all 0.3s ease;
+    border: 1px solid #dee2e6;
+}
+
+.feedback-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    border-color: #007bff;
+}
+
+.rating .fas.fa-star, .rating .far.fa-star {
+    font-size: 0.9em;
+}
+
+.flight-summary {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-left: 4px solid #28a745;
+}
+
+.ticket-summary {
+    background: linear-gradient(135deg, #cce7ff 0%, #b3d9ff 100%);
+    border-left: 4px solid #007bff;
+}
+
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+</style>

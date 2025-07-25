@@ -74,12 +74,41 @@ namespace BookingFlightClient.Controllers
             }
         }
 
+        private string? GetAuthToken()
+        {
+            // Log all available cookies for debugging
+            _logger.LogInformation("Available cookies:");
+            foreach (var cookie in Request.Cookies)
+            {
+                _logger.LogInformation("Cookie: {Key} = {Value}", cookie.Key, cookie.Value?.Substring(0, Math.Min(50, cookie.Value.Length)) + "...");
+            }
+            
+            // First try to get from X-Access-Token cookie (primary method)
+            var cookieToken = Request.Cookies["X-Access-Token"];
+            if (!string.IsNullOrEmpty(cookieToken))
+            {
+                _logger.LogInformation("Found X-Access-Token cookie");
+                return cookieToken;
+            }
+
+            // Fallback to session JwtToken (legacy method)
+            var sessionToken = HttpContext.Session.GetString("JwtToken");
+            if (!string.IsNullOrEmpty(sessionToken))
+            {
+                _logger.LogInformation("Found JwtToken in session");
+                return sessionToken;
+            }
+            
+            _logger.LogWarning("No JWT token found in cookies or session");
+            return null;
+        }
+
         private async Task<int?> GetCurrentCustomerIdAsync()
         {
             try
             {
-                // Get JWT token from cookie
-                var token = Request.Cookies["jwtToken"];
+                // Get JWT token using the same method as FeedbackController
+                var token = GetAuthToken();
                 if (string.IsNullOrEmpty(token))
                 {
                     _logger.LogWarning("JWT token not found in cookies");
@@ -130,22 +159,24 @@ namespace BookingFlightClient.Controllers
             }
         }
 
-        public async Task<IActionResult> Details(int? ticketId, int? TicketId)
+        public async Task<IActionResult> Details(int? id, int? ticketId, int? TicketId)
         {
             try
             {
-                // Handle both route parameter (ticketId) and query parameter (TicketId)
-                int id = ticketId ?? TicketId ?? 0;
+                _logger.LogInformation("Details called with id: {id}, ticketId: {ticketId}, TicketId: {TicketId}", id, ticketId, TicketId);
                 
-                if (id <= 0)
+                // Handle route parameter (id), query parameter (ticketId), or query parameter (TicketId)
+                int ticketIdValue = id ?? ticketId ?? TicketId ?? 0;
+                
+                if (ticketIdValue <= 0)
                 {
                     _logger.LogWarning("Invalid ticket ID provided");
                     return BadRequest("Invalid ticket ID");
                 }
 
-                _logger.LogInformation("Fetching ticket details for ID: {TicketId}", id);
+                _logger.LogInformation("Fetching ticket details for ID: {TicketId}", ticketIdValue);
                 
-                var response = await _httpClient.GetAsync($"http://localhost:5077/api/Ticket/getTicketById/{id}");
+                var response = await _httpClient.GetAsync($"http://localhost:5077/api/Ticket/getTicketById/{ticketIdValue}");
                 
                 if (response.IsSuccessStatusCode)
                 {
@@ -163,6 +194,9 @@ namespace BookingFlightClient.Controllers
                         return NotFound("Ticket not found");
                     }
 
+                    // Check if ticket has feedback
+                    await CheckTicketFeedbackStatus(ticket);
+
                     return View(ticket);
                 }
                 else
@@ -176,9 +210,69 @@ namespace BookingFlightClient.Controllers
                 return NotFound();
             }
         }
+
+        private async Task CheckTicketFeedbackStatus(TicketViewModel ticket)
+        {
+            try
+            {
+                // Get JWT token using the same method as FeedbackController
+                var token = GetAuthToken();
+                if (string.IsNullOrEmpty(token))
+                {
+                    _logger.LogWarning("No JWT token found for feedback check");
+                    ticket.HasFeedback = false;
+                    return;
+                }
+
+                var accountId = JwtDecoder.GetAccountIdFromToken(token);
+                if (accountId == null)
+                {
+                    _logger.LogWarning("No account ID found in JWT token for feedback check");
+                    ticket.HasFeedback = false;
+                    return;
+                }
+
+                _logger.LogInformation("Checking feedback for ticket {TicketId} and account {AccountId}", ticket.TicketId, accountId);
+
+                // Set authorization header before making the request
+                _httpClient.DefaultRequestHeaders.Authorization = 
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                // Check if feedback exists for this ticket and account
+                var feedbackResponse = await _httpClient.GetAsync($"http://localhost:5077/api/Feedback/check/ticket/{ticket.TicketId}?accountId={accountId}");
+                
+                _logger.LogInformation("Feedback check response status: {StatusCode}", feedbackResponse.StatusCode);
+                
+                if (feedbackResponse.IsSuccessStatusCode)
+                {
+                    var responseContent = await feedbackResponse.Content.ReadAsStringAsync();
+                    var checkResult = JsonSerializer.Deserialize<FeedbackCheckResponse>(responseContent, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                    ticket.HasFeedback = checkResult?.HasFeedback ?? false;
+                }
+                else
+                {
+                    ticket.HasFeedback = false;
+                }
+                
+                _logger.LogInformation("Ticket {TicketId} HasFeedback set to: {HasFeedback}", ticket.TicketId, ticket.HasFeedback);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking feedback status for ticket {TicketId}", ticket.TicketId);
+                ticket.HasFeedback = false;
+            }
+        }
     }
 
     // Helper classes for deserialization
+    public class FeedbackCheckResponse
+    {
+        public bool HasFeedback { get; set; }
+    }
+
     public class CustomerInfo
     {
         public int CustomerId { get; set; }
@@ -214,6 +308,7 @@ namespace BookingFlightClient.Controllers
         public string? ContactPhone { get; set; }
         public string? ContactEmail { get; set; }
         public string? ContactAddress { get; set; }
+        public bool HasFeedback { get; set; } = false;
         public ClassSeatViewModel ClassSeatDTO { get; set; } = new();
         public CustomerViewModel CustomerDTO { get; set; } = new();
         public FlightViewModel FlightDTO { get; set; } = new();

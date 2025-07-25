@@ -1,3 +1,4 @@
+@model BookingFlightClient.Models.DTO.DashboardDataDTO
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Dashboard";
@@ -11,11 +12,11 @@
                 <i class="fas fa-users"></i>
             </div>
         </div>
-        <div class="stats-value" data-target="1234">0</div>
-        <div class="stats-label">Total Users</div>
+        <div class="stats-value" data-target="@Model.Stats.TotalCustomers">0</div>
+        <div class="stats-label">Total Customers</div>
         <div class="stats-change positive">
             <i class="fas fa-arrow-up"></i>
-            <span>+12.5% from last month</span>
+            <span>+5.2% from last month</span>
         </div>
     </div>
 
@@ -25,11 +26,11 @@
                 <i class="fas fa-plane-departure"></i>
             </div>
         </div>
-        <div class="stats-value" data-target="856">0</div>
-        <div class="stats-label">Active Flights</div>
+        <div class="stats-value" data-target="@Model.Stats.TotalFlights">0</div>
+        <div class="stats-label">Total Flights</div>
         <div class="stats-change positive">
             <i class="fas fa-arrow-up"></i>
-            <span>+8.2% from last week</span>
+            <span>+3.1% from last week</span>
         </div>
     </div>
 
@@ -39,11 +40,11 @@
                 <i class="fas fa-ticket-alt"></i>
             </div>
         </div>
-        <div class="stats-value" data-target="2459">0</div>
-        <div class="stats-label">Bookings Today</div>
+        <div class="stats-value" data-target="@Model.Stats.TotalBookings">0</div>
+        <div class="stats-label">Total Bookings</div>
         <div class="stats-change negative">
             <i class="fas fa-arrow-down"></i>
-            <span>-3.1% from yesterday</span>
+            <span>-1.5% from yesterday</span>
         </div>
     </div>
 
@@ -53,11 +54,11 @@
                 <i class="fas fa-dollar-sign"></i>
             </div>
         </div>
-        <div class="stats-value" data-target="89750">0</div>
-        <div class="stats-label">Revenue Today</div>
+        <div class="stats-value" data-target="@((int)Model.Stats.TotalRevenue)">0</div>
+        <div class="stats-label">Total Revenue</div>
         <div class="stats-change positive">
             <i class="fas fa-arrow-up"></i>
-            <span>+15.3% from yesterday</span>
+            <span>+8.7% from yesterday</span>
         </div>
     </div>
 </div>
@@ -86,51 +87,37 @@
         </div>
         <div class="activity-container">
             <ul class="activity-list">
-                <li class="activity-item">
-                    <div class="activity-icon">
-                        <i class="fas fa-user-plus"></i>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-text">New user registered: John Smith</div>
-                        <div class="activity-time">2 minutes ago</div>
-                    </div>
-                </li>
-                <li class="activity-item">
-                    <div class="activity-icon">
-                        <i class="fas fa-plane"></i>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-text">Flight VN123 scheduled for departure</div>
-                        <div class="activity-time">5 minutes ago</div>
-                    </div>
-                </li>
-                <li class="activity-item">
-                    <div class="activity-icon">
-                        <i class="fas fa-credit-card"></i>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-text">Payment received: $450.00</div>
-                        <div class="activity-time">8 minutes ago</div>
-                    </div>
-                </li>
-                <li class="activity-item">
-                    <div class="activity-icon">
-                        <i class="fas fa-ticket-alt"></i>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-text">Booking confirmed: BF001234</div>
-                        <div class="activity-time">12 minutes ago</div>
-                    </div>
-                </li>
-                <li class="activity-item">
-                    <div class="activity-icon">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-text">Flight AB456 delayed by 30 minutes</div>
-                        <div class="activity-time">15 minutes ago</div>
-                    </div>
-                </li>
+                @foreach (var activity in Model.RecentActivities)
+                {
+                    <li class="activity-item">
+                        <div class="activity-icon activity-@activity.Type.ToLower()">
+                            @if(activity.Type == "Booking")
+                            {
+                                <i class="fas fa-ticket-alt"></i>
+                            }
+                            else if(activity.Type == "Registration")
+                            {
+                                <i class="fas fa-user-plus"></i>
+                            }
+                            else if(activity.Type == "Payment")
+                            {
+                                <i class="fas fa-credit-card"></i>
+                            }
+                            else if(activity.Type == "Cancellation")
+                            {
+                                <i class="fas fa-times-circle"></i>
+                            }
+                            else
+                            {
+                                <i class="fas fa-bell"></i>
+                            }
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">@activity.Description</div>
+                            <div class="activity-time">@activity.Time</div>
+                        </div>
+                    </li>
+                }
             </ul>
         </div>
     </div>
@@ -144,104 +131,25 @@
             <h3 class="chart-title">Popular Routes</h3>
         </div>
         <div class="routes-list">
-            <div class="route-item">
-                <div class="route-info">
-                    <div class="route-cities">
-                        <span class="departure">HAN</span>
-                        <i class="fas fa-arrow-right"></i>
-                        <span class="arrival">SGN</span>
+            @foreach (var route in Model.PopularRoutes)
+            {
+                <div class="route-item">
+                    <div class="route-info">
+                        <div class="route-cities">
+                            <span class="departure">@route.DepartureCode</span>
+                            <i class="fas fa-arrow-right"></i>
+                            <span class="arrival">@route.ArrivalCode</span>
+                        </div>
+                        <div class="route-name">@route.DepartureName → @route.ArrivalName</div>
                     </div>
-                    <div class="route-name">Hanoi → Ho Chi Minh City</div>
-                </div>
-                <div class="route-stats">
-                    <div class="booking-count">245 bookings</div>
-                    <div class="route-progress">
-                        <div class="progress-bar" style="width: 85%"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="route-item">
-                <div class="route-info">
-                    <div class="route-cities">
-                        <span class="departure">SGN</span>
-                        <i class="fas fa-arrow-right"></i>
-                        <span class="arrival">HAN</span>
-                    </div>
-                    <div class="route-name">Ho Chi Minh City → Hanoi</div>
-                </div>
-                <div class="route-stats">
-                    <div class="booking-count">198 bookings</div>
-                    <div class="route-progress">
-                        <div class="progress-bar" style="width: 68%"></div>
+                    <div class="route-stats">
+                        <div class="booking-count">@route.BookingCount bookings</div>
+                        <div class="route-progress">
+                            <div class="progress-bar" style="width: @route.ProgressPercent%"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="route-item">
-                <div class="route-info">
-                    <div class="route-cities">
-                        <span class="departure">DAD</span>
-                        <i class="fas fa-arrow-right"></i>
-                        <span class="arrival">SGN</span>
-                    </div>
-                    <div class="route-name">Da Nang → Ho Chi Minh City</div>
-                </div>
-                <div class="route-stats">
-                    <div class="booking-count">156 bookings</div>
-                    <div class="route-progress">
-                        <div class="progress-bar" style="width: 54%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Flight Status -->
-    <div class="chart-card">
-        <div class="chart-header">
-            <h3 class="chart-title">Flight Status Overview</h3>
-        </div>
-        <div class="status-grid">
-            <div class="status-item on-time">
-                <div class="status-icon">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="status-info">
-                    <div class="status-count">142</div>
-                    <div class="status-label">On Time</div>
-                </div>
-            </div>
-            
-            <div class="status-item delayed">
-                <div class="status-icon">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="status-info">
-                    <div class="status-count">23</div>
-                    <div class="status-label">Delayed</div>
-                </div>
-            </div>
-            
-            <div class="status-item cancelled">
-                <div class="status-icon">
-                    <i class="fas fa-times-circle"></i>
-                </div>
-                <div class="status-info">
-                    <div class="status-count">5</div>
-                    <div class="status-label">Cancelled</div>
-                </div>
-            </div>
-            
-            <div class="status-item boarding">
-                <div class="status-icon">
-                    <i class="fas fa-plane-departure"></i>
-                </div>
-                <div class="status-info">
-                    <div class="status-count">18</div>
-                    <div class="status-label">Boarding</div>
-                </div>
-            </div>
+            }
         </div>
     </div>
 </div>

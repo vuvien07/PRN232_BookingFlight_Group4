@@ -1,15 +1,24 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using BookingFlightClient.Services;
 
 namespace BookingFlightClient.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        public IActionResult Dashboard()
+        private readonly IDashboardService _dashboardService;
+
+        public AdminController(IDashboardService dashboardService)
+        {
+            _dashboardService = dashboardService;
+        }
+
+        public async Task<IActionResult> Dashboard()
         {
             ViewData["Title"] = "Admin Dashboard";
-            return View();
+            var dashboardData = await _dashboardService.GetDashboardDataAsync();
+            return View(dashboardData);
         }
 
         public IActionResult Users()

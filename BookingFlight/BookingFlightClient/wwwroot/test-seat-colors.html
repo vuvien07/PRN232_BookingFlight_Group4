@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Seat Colors</title>
+    <link rel="stylesheet" href="css/seat-management.css" />
+    <style>
+        body { padding: 20px; font-family: Arial, sans-serif; }
+        .test-section { margin: 20px 0; }
+        h3 { color: #333; }
+    </style>
+</head>
+<body>
+    <h2>Seat Color Testing</h2>
+    
+    <div class="test-section">
+        <h3>Legend Preview</h3>
+        <div class="seats-legend">
+            <div class="legend-item">
+                <div class="seat-demo available" style="position: relative;">
+                    <span style="position: absolute; top: 1px; right: 2px; font-size: 10px; color: #00ff00; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">✓</span>
+                </div>
+                <span>Available ✓ (Green)</span>
+            </div>
+            <div class="legend-item">
+                <div class="seat-demo occupied" style="position: relative;">
+                    <span style="position: absolute; top: 1px; right: 2px; font-size: 10px; color: #ffff00; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">✗</span>
+                </div>
+                <span>Occupied ✗ (Yellow)</span>
+            </div>
+            <div class="legend-item">
+                <div class="seat-demo unavailable" style="position: relative;">
+                    <span style="position: absolute; top: 1px; right: 2px; font-size: 10px; color: #ff6600; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">⊘</span>
+                </div>
+                <span>Unavailable ⊘ (Orange)</span>
+            </div>
+            <div class="legend-item">
+                <div class="seat-demo business"></div>
+                <span>Business Class</span>
+            </div>
+            <div class="legend-item">
+                <div class="seat-demo premium"></div>
+                <span>Premium Class</span>
+            </div>
+            <div class="legend-item">
+                <div class="seat-demo economy"></div>
+                <span>Economy Class</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>Sample Seats with Status Indicators</h3>
+        <div style="display: flex; gap: 10px; margin: 10px 0;">
+            <div class="seat available business" data-seat-number="1A" style="position: relative;">1A</div>
+            <div class="seat occupied business" data-seat-number="1B" style="position: relative;">1B</div>
+            <div class="seat unavailable business" data-seat-number="1C" style="position: relative;">1C</div>
+        </div>
+        <div style="display: flex; gap: 10px; margin: 10px 0;">
+            <div class="seat available premium" data-seat-number="4A" style="position: relative;">4A</div>
+            <div class="seat occupied premium" data-seat-number="4B" style="position: relative;">4B</div>
+            <div class="seat unavailable premium" data-seat-number="4C" style="position: relative;">4C</div>
+        </div>
+        <div style="display: flex; gap: 10px; margin: 10px 0;">
+            <div class="seat available economy" data-seat-number="10A" style="position: relative;">10A</div>
+            <div class="seat occupied economy" data-seat-number="10B" style="position: relative;">10B</div>
+            <div class="seat unavailable economy" data-seat-number="10C" style="position: relative;">10C</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>Seat Distribution Info</h3>
+        <div class="seat-info">
+            <small>
+                <strong>Seat Distribution:</strong> 
+                Business Class (Rows 1-3): 18 seats | 
+                Premium Class (Rows 4-7): 24 seats | 
+                Economy Class (Rows 8-25): 108 seats
+            </small>
+        </div>
+    </div>
+</body>
+</html>

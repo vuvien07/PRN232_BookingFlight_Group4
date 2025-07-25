@@ -31,6 +31,20 @@ namespace BookingFlightServer.Controllers
 				totalPage = Math.Ceiling((double)await _flightService.GetTotalFlight(filterFlightDTO) / filterFlightDTO.PageSize)
 			});
 		}
+
+		[HttpGet("GetAllFlights")]
+		public async Task<IActionResult> GetAllFlights()
+		{
+			try
+			{
+				var flights = await _flightService.GetAllFlights();
+				return Ok(new { success = true, data = flights });
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new { success = false, message = ex.Message });
+			}
+		}
 		[HttpPost]
 		[Route("detail")]
 		public async Task<IActionResult> GetFlightDetail([FromBody] FlightDTO flightDTO)
